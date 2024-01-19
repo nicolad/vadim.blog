@@ -9,7 +9,7 @@ export async function GET(request: Request) {
 
   const urls = allposts.map((post) => {
     return {
-      loc: `https://www.vadim.blog/blog/${post.replace(".mdx", "")}`,
+      loc: `https://www.vadim.blog/${post.replace(".mdx", "")}`,
       lastmod: new Date().toISOString(),
     } as ISitemapField;
   });
