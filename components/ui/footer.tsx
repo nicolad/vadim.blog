@@ -10,7 +10,8 @@ export default function Footer() {
           <ul className="flex mb-4 md:order-1 md:ml-4 md:mb-0">
             <li>
               <a
-                href=""
+                href="https://www.linkedin.com/in/vadimnicolai/"
+                target="_blank"
                 className="flex justify-center p-2 items-center text-gray-600 hover:text-gray-900 bg-white hover:bg-white-100 rounded-full shadow transition duration-150 ease-in-out"
                 aria-label="Linkedin"
               >
@@ -47,9 +48,9 @@ export default function Footer() {
             </li>
             <li>
               <a
-                href="mailto:info@vadim.blog"
+                href="mailto:nicolai.vadim@gmail.com"
                 className="flex justify-center p-1 ml-4 items-center text-gray-600 hover:text-gray-900 bg-white hover:bg-white-100 rounded-full shadow transition duration-150 ease-in-out"
-                aria-label="Linkedin"
+                aria-label="Email"
               >
                 <svg
                   viewBox="0 0 24 24"

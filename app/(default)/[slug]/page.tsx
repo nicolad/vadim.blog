@@ -63,10 +63,10 @@ export async function generateMetadata({ params }: any) {
       images: [blog.frontMatter.image],
       title: blog.frontMatter.title,
       description: blog.frontMatter.description,
-      url: `https://www.vadim.blog/blog/${params.slug}`,
+      url: `https://www.vadim.blog/${params.slug}`,
     },
     alternates: {
-      canonical: `https://www.vadim.blog/blog/${params.slug}`,
+      canonical: `https://www.vadim.blog/${params.slug}`,
     },
   };
 }
