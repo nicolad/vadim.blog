@@ -5,16 +5,9 @@ import Footer from "@/components/ui/footer";
 import { Suspense } from "react";
 
 export const metadata = {
-  metadataBase: new URL("https://poshet.co"),
+  metadataBase: new URL("https://vadim.blog"),
   alternates: {
     canonical: "/",
-    // languages: {
-    //   'en-US': '/en-US',
-    //   'de-DE': '/de-DE',
-    // },
-  },
-  openGraph: {
-    images: "/images/poshet-black-transparent.png",
   },
 };
 

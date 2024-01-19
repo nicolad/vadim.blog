@@ -1,11 +1,11 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: "https://www.poshet.co",
+  siteUrl: "https://www.vadim.blog",
   generateRobotsTxt: true, // (optional)
   exclude: ["/server-sitemap-index.xml"], // <= exclude here
   robotsTxtOptions: {
     additionalSitemaps: [
-      "https://www.poshet.co/server-sitemap-index.xml", // <==== Add here
+      "https://www.vadim.blog/server-sitemap-index.xml", // <==== Add here
     ],
   },
 };

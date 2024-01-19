@@ -47,7 +47,7 @@ export default function Footer() {
             </li>
             <li>
               <a
-                href="mailto:info@poshet.co"
+                href="mailto:info@vadim.blog"
                 className="flex justify-center p-1 ml-4 items-center text-gray-600 hover:text-gray-900 bg-white hover:bg-white-100 rounded-full shadow transition duration-150 ease-in-out"
                 aria-label="Linkedin"
               >
@@ -97,7 +97,7 @@ export default function Footer() {
 
           {/* Copyrights note */}
           <div className="text-sm text-gray-600 mr-4">
-            &copy; Poshet.co. All rights reserved.
+            &copy; vadim.blog. All rights reserved.
           </div>
         </div>
       </div>

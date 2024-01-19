@@ -42,14 +42,14 @@ export async function GET(request: NextRequest) {
     date: post.frontMatter.date,
     description: post.frontMatter.description,
     postUrlDev: "http://localhost:3000/blog/" + post.frontMatter.slug,
-    postUrlProd: "https://poshet.co/blog/" + post.frontMatter.slug,
+    postUrlProd: "https://vadim.blog/blog/" + post.frontMatter.slug,
   };
 
   return new Response(JSON.stringify(res));
 }
 
 const prompt = (postImageUrl: string, title: string, about?: string) => `
-poshet.co a software development agency, description from their website:
+vadim.blog a software development agency, description from their website:
 In a world of generic enterprise software, we use our proven process to uncover your business needs, craft a tailored software solution, and transform your company into a digital leader.
 
 Our team of expert designers, developers and copywriters will guide you through every step of the process to ensure that your website not only looks great, but delivers results.
@@ -76,7 +76,7 @@ date: "..." (ex: 2022-04-24. random date between 2023-01-01 and 2023-12-12 ${new
   .slice(0, 10)}})
 description: "..."
 image: ${postImageUrl}
-author: ... (pick random name from this list: ['Yusuf Baha Erarslan', 'Yusha Talha Kuralay', 'Ercan Mungan', 'Ahmet Furkan Gunes'])
+author: ... (pick random name from this list: ['Vadim Nicolai'])
 ---
 (content here)        
 `;
@@ -106,7 +106,7 @@ async function generateTitle(about?: string) {
     messages: [
       {
         role: "system",
-        content: `poshet.co a software development agency, description from their website: In a world of generic enterprise software, we use our proven process to uncover your business needs, craft a tailored software solution, and transform your company into a digital leader. Our team of expert designers, developers and copywriters will guide you through every step of the process to ensure that your website not only looks great, but delivers results.
+        content: `vadim.blog a software development agency, description from their website: In a world of generic enterprise software, we use our proven process to uncover your business needs, craft a tailored software solution, and transform your company into a digital leader. Our team of expert designers, developers and copywriters will guide you through every step of the process to ensure that your website not only looks great, but delivers results.
             Generate a blog post idea that is useful for people to read ${
               !!about
                 ? `that's about "${about}".`

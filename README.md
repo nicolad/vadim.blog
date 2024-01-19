@@ -1,1 +1,1 @@
-# poshet.co landing page
+# vadim.blog landing page
