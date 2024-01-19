@@ -47,7 +47,6 @@ export default async function Post({ params }: Props) {
         <Icons.UserCircleIcon size={16} />{" "}
         <span className="ml-2">{`Written by: ${props.frontMatter.author}`}</span>
       </span>
-      {/* @ts-expect-error Server Component*/}
       <MDXRemote source={props.content} />
     </article>
   );
