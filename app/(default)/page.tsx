@@ -17,10 +17,7 @@ export default async function Page() {
       <ul className="list-disc">
         {posts.map(({ post, params }) => (
           <li key={params.slug}>
-            <Link
-              href={`/blog/${params.slug}`}
-              className="decoration-transparent"
-            >
+            <Link href={`/${params.slug}`} className="decoration-transparent">
               {post.title}
             </Link>
             <br />
