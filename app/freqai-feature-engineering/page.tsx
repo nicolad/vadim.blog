@@ -1,10 +1,9 @@
 import React from "react";
 import { Icons } from "@/components/icons";
 import Link from "next/link";
+import TreeAnimation from "./TreeAnimation";
 
-type Props = { params: { slug: string } };
-
-export default async function Post({ params }: Props) {
+export default async function Post() {
   return (
     <article className="prose prose-sm md:prose-base lg:prose-lg prose-slate mx-auto pt-16 pb-16">
       <Link
@@ -69,6 +68,11 @@ export default async function Post({ params }: Props) {
     return dataframe`}
         </code>
       </pre>
+
+      <div>
+        <h3>Defining Base Features Visualization</h3>
+        <TreeAnimation />
+      </div>
 
       <h2>Expanding Features</h2>
       <p>
@@ -157,6 +161,13 @@ export default async function Post({ params }: Props) {
         the config. This reduces the data set's dimensionality while retaining
         significant variance, making training faster and more efficient.
       </p>
+      <div>
+        For more information on feature engineering in FreqAI, check out the
+        full documentation on{" "}
+        <a href="https://www.freqtrade.io/en/stable/freqai-feature-engineering/">
+          Freqtrade.io
+        </a>
+      </div>
     </article>
   );
 }
