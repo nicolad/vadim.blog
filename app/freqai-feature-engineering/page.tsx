@@ -1,4 +1,6 @@
+"use client";
 import React from "react";
+import Image from "next/image";
 import { Icons } from "@/components/icons";
 import Link from "next/link";
 import TreeAnimation from "./TreeAnimation";
@@ -16,6 +18,21 @@ export default async function Post() {
       <h1>
         Trading with FreqAI: Advanced Feature Engineering for Market Forecasting
       </h1>
+      <div>
+        <Image
+          src={`/images/freqai.svg`}
+          alt="FreqAI"
+          width="400"
+          height="64"
+        />
+        <style jsx>{`
+          div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+          }
+        `}</style>
+      </div>
       <span className="my-0 py-0 flex items-center gap-2">
         <Icons.Calendar size={16} />{" "}
         {new Date("2024-07-22T00:00:00.000Z").toLocaleString("en-US", {
