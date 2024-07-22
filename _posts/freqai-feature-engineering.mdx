@@ -1,7 +1,7 @@
 ---
 title: "Trading with FreqAI: Advanced Feature Engineering for Market Forecasting"
 slug: vector-databases
-date: "2024-22-07"
+date: "2024-07-22"
 description: "Embark on a journey through the revolutionary realm of Vector Databases. Discover how these powerful data engines are reshaping the landscape of data management and AI applications in 2024."
 author: "Vadim Nicolai"
 ---
@@ -123,3 +123,30 @@ This performs PCA on the features, reducing their dimensionality while maintaini
 ### Conclusion
 
 Feature engineering is a crucial step in building effective predictive models with FreqAI. By defining, expanding, and customizing features, you can enhance the model's ability to forecast market movements accurately. FreqAI provides a robust framework for feature engineering, making it easier for users to create and manage large-scale feature sets.
+
+```mermaid
+graph TD
+    A[Start] --> B[Define Base Features]
+    B --> C[Expand Features]
+    C --> D[Customize Pipeline]
+    D --> E[Detect Outliers]
+    E --> F[Reduce Dimensionality]
+    F --> G[Train Model]
+    G --> H[Make Predictions]
+    H --> I[End]
+
+    C --> J{feature_engineering_expand_* functions}
+    J --> K[feature_engineering_expand_all]
+    J --> L[feature_engineering_expand_basic]
+    J --> M[feature_engineering_standard]
+    J --> N[set_freqai_targets]
+
+    D --> O{Pipeline Customization}
+    O --> P[use_SVM_to_remove_outliers]
+    O --> Q[principal_component_analysis]
+
+    E --> R[Dissimilarity Index (DI)]
+    E --> S[Support Vector Machine (SVM)]
+    E --> T[DBSCAN]
+
+```
