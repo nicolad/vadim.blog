@@ -18,6 +18,17 @@ export default async function Post() {
       <h1>
         Trading with FreqAI: Advanced Feature Engineering for Market Forecasting
       </h1>
+      <span className="my-0 py-0 flex items-center gap-2">
+        <Icons.Calendar size={16} />{" "}
+        {new Date("2024-07-22T00:00:00.000Z").toLocaleString("en-US", {
+          dateStyle: "long",
+        })}
+      </span>
+      {/* Author */}
+      <span id="author" className="flex items-center">
+        <Icons.UserCircleIcon size={16} />{" "}
+        <span className="ml-2">{`Written by: Vadim Nicolai`}</span>
+      </span>
       <div>
         <Image
           src={`/images/freqai.svg`}
@@ -33,18 +44,6 @@ export default async function Post() {
           }
         `}</style>
       </div>
-      <span className="my-0 py-0 flex items-center gap-2">
-        <Icons.Calendar size={16} />{" "}
-        {new Date("2024-07-22T00:00:00.000Z").toLocaleString("en-US", {
-          dateStyle: "long",
-        })}
-      </span>
-      {/* Author */}
-      <span id="author" className="flex items-center">
-        <Icons.UserCircleIcon size={16} />{" "}
-        <span className="ml-2">{`Written by: Vadim Nicolai`}</span>
-      </span>
-
       <h2>Introduction</h2>
       <p>
         FreqAI is an advanced tool for automated trading, leveraging machine
