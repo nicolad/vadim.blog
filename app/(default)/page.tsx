@@ -20,7 +20,6 @@ export default async function Page() {
               {post.title}
             </Link>
             <br />
-            <small>{post.date}</small>
           </li>
         ))}
       </ul>
@@ -62,7 +61,5 @@ const getPosts = async () => {
     });
   }
 
-  return posts.sort((a, b) => {
-    return new Date(b.post.date).getTime() - new Date(a.post.date).getTime();
-  });
+  return posts;
 };

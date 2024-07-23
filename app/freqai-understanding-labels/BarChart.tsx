@@ -44,10 +44,10 @@ const data = [
   },
 ];
 
-const getLabel = (d) => d.label;
-const getValue = (d) => d.value;
+const getLabel = (d: any) => d.label;
+const getValue = (d: any) => d.value;
 
-const alphabeticalSort = (a, b) => a.label.localeCompare(b.label);
+const alphabeticalSort = (a: any, b: any) => a.label.localeCompare(b.label);
 
 const barColor = "#93F9B9";
 const margin = { top: 20, bottom: 20, left: 20, right: 20 };
@@ -92,8 +92,8 @@ export default ({ width = 740, height = 800 }) => {
         />
         <Group top={yMax / 2 + margin.top} left={xMax / 2 + margin.left}>
           {data.map((d) => {
-            const label = getLabel(d);
-            const startAngle = xScale(label);
+            const label = getLabel(d) ?? 0;
+            const startAngle = xScale(label) ?? 0;
             const midAngle = startAngle + xScale.bandwidth() / 2;
             const endAngle = startAngle + xScale.bandwidth();
 

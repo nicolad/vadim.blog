@@ -2,7 +2,6 @@ import React from "react";
 import fs from "fs/promises";
 import path from "path";
 import matter from "gray-matter";
-import { MDXRemote } from "next-mdx-remote/rsc";
 import { Icons } from "@/components/icons";
 
 import Link from "next/link";
@@ -47,7 +46,6 @@ export default async function Post({ params }: Props) {
         <Icons.UserCircleIcon size={16} />{" "}
         <span className="ml-2">{`Written by: ${props.frontMatter.author}`}</span>
       </span>
-      <MDXRemote source={props.content} />
     </article>
   );
 }
