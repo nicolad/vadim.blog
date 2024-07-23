@@ -1,5 +1,4 @@
 import fs from "fs/promises";
-import matter from "gray-matter";
 import Link from "next/link";
 import path from "path";
 
@@ -30,25 +29,36 @@ export default async function Page() {
 }
 
 const getPosts = async () => {
-  const files = await fs.readdir(path.join(process.cwd(), "_posts"));
-
-  const slugs = files.map((file) => file.replace(/\.mdx?$/, ""));
+  const files = await fs.readdir(path.join(process.cwd(), "app"));
+  const slugs = files?.filter(
+    (file) =>
+      !(
+        file.includes("default") ||
+        file.includes("api") ||
+        file.includes("layout") ||
+        file.includes("sitemap") ||
+        file.includes("css")
+      )
+  );
 
   let posts = [];
 
   for (const slug of slugs) {
     const file = await fs.readFile(
-      path.join(process.cwd(), "_posts", `${slug}.mdx`),
+      path.join(process.cwd(), "app", `${slug}/page.tsx`),
       "utf8"
     );
 
-    const { data } = matter(file);
+    const firstH1Match = file.match(/<h1>([\s\S]*?)<\/h1>/);
+    const firstH1 = firstH1Match ? firstH1Match[1].trim() : null;
 
     posts.push({
       params: {
         slug,
       },
-      post: data,
+      post: {
+        title: firstH1,
+      },
     });
   }
 
