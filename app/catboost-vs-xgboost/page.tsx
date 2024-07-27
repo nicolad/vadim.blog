@@ -46,7 +46,7 @@ export default async function Post() {
       <section>
         <h2>Comparing XGBoost and CatBoost</h2>
         <p>
-          In our previous article, we discussed the use of CatBoost in the
+          In our previous article, we discussed the use of CatBoost in the{" "}
           <strong>FreqaiHybridStrategy</strong>. In this section, we compare
           CatBoost and XGBoost based on various metrics important for financial
           market modeling.
@@ -103,12 +103,19 @@ export default async function Post() {
       <section>
         <h2>Experiment Details</h2>
         <p>
-          To compare XGBoost and CatBoost, we ran a 3-week long experiment using
-          FreqAI, focusing on the performance of both models in predicting
-          financial market data. The experiment used live data from
-          cryptocurrency markets and evaluated both training and inference
-          times, CPU and RAM usage, and the accuracy and profitability of
-          predictions.
+          To compare XGBoost and CatBoost,{" "}
+          <a
+            href="https://emergentmethods.ai/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Emergent Methods
+          </a>{" "}
+          ran a 3-week long experiment using FreqAI, focusing on the performance
+          of both models in predicting financial market data. The experiment
+          used live data from cryptocurrency markets and evaluated both training
+          and inference times, CPU and RAM usage, and the accuracy and
+          profitability of predictions.
         </p>
         <p>
           The experiment was conducted by{" "}
@@ -126,7 +133,11 @@ export default async function Post() {
           The key results showed that while XGBoost was significantly faster and
           more profitable, CatBoost provided high accuracy but at a higher
           computational cost. Detailed results and metrics from the experiment
-          can be found in the original article.
+          can be found in the{" "}
+          <a href="https://emergentmethods.medium.com/real-time-head-to-head-adaptive-modeling-of-financial-market-data-using-xgboost-and-catboost-995a115a7495">
+            original article
+          </a>
+          .
         </p>
       </section>
 
