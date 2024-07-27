@@ -38,7 +38,7 @@ export default async function Post() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            FreqaiExampleHybridStrategy
+            FreqaiHybridStrategy
           </a>
           , which utilized CatBoost to enhance trading strategies with AI. In
           this post, we'll compare CatBoost with XGBoost, two popular gradient
