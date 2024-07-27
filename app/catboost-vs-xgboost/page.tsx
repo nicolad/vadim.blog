@@ -34,10 +34,9 @@ export default async function Post() {
         <p>
           The integration of AI into trading strategies has revolutionized the
           way we approach market forecasts and trade executions. This article
-          explores the <strong>FreqaiExampleHybridStrategy</strong>,
-          demonstrating how FreqAI can enhance a typical Freqtrade strategy by
-          leveraging advanced machine learning techniques to make more informed
-          trading decisions.
+          explores the <strong>FreqaiHybridStrategy</strong>, demonstrating how
+          FreqAI can enhance a typical Freqtrade strategy by leveraging advanced
+          machine learning techniques to make more informed trading decisions.
         </p>
       </section>
 
@@ -107,6 +106,18 @@ export default async function Post() {
           cryptocurrency markets and evaluated both training and inference
           times, CPU and RAM usage, and the accuracy and profitability of
           predictions.
+        </p>
+        <p>
+          The experiment was conducted by{" "}
+          <a
+            href="https://emergentmethods.ai/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Emergent Methods
+          </a>
+          , who designed and executed the benchmark to evaluate the models'
+          performance in a live, chaotic environment.
         </p>
         <p>
           The key results showed that while XGBoost was significantly faster and
