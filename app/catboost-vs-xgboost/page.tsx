@@ -32,11 +32,14 @@ export default async function Post() {
       <section>
         <h2>Introduction</h2>
         <p>
-          The integration of AI into trading strategies has revolutionized the
-          way we approach market forecasts and trade executions. This article
-          explores the <strong>FreqaiHybridStrategy</strong>, demonstrating how
-          FreqAI can enhance a typical Freqtrade strategy by leveraging advanced
-          machine learning techniques to make more informed trading decisions.
+          The advent of AI in trading has dramatically transformed the landscape
+          of financial market analysis and execution. AI-driven strategies
+          enable traders to process vast amounts of data, identify patterns, and
+          execute trades with a level of precision and speed that was previously
+          unattainable. By leveraging machine learning algorithms, traders can
+          now develop adaptive models that adjust to market conditions in
+          real-time, providing a competitive edge in the fast-paced world of
+          trading.
         </p>
       </section>
 
@@ -44,9 +47,9 @@ export default async function Post() {
         <h2>Comparing XGBoost and CatBoost</h2>
         <p>
           In our previous article, we discussed the use of CatBoost in the
-          FreqaiExampleHybridStrategy. In this section, we compare CatBoost and
-          XGBoost based on various metrics important for financial market
-          modeling.
+          <strong>FreqaiHybridStrategy</strong>. In this section, we compare
+          CatBoost and XGBoost based on various metrics important for financial
+          market modeling.
         </p>
         <h3>Performance Metrics</h3>
         <table>
