@@ -19,7 +19,7 @@ export default async function Post() {
       </h1>
       <span className="my-0 py-0 flex items-center gap-2">
         <Icons.Calendar size={16} />{" "}
-        {new Date("2024-07-27T00:00:00.000Z").toLocaleString("en-US", {
+        {new Date("2024-08-02T00:00:00.000Z").toLocaleString("en-US", {
           dateStyle: "long",
         })}
       </span>
