@@ -201,14 +201,6 @@ logger.info(
           are trained efficiently and effectively. Understanding this process is
           key to leveraging AI for trading strategies.
         </p>
-        <p>
-          For more detailed information on AI trading strategies and model
-          training, refer to our{" "}
-          <a href="https://emergentmethods.medium.com/real-time-head-to-head-adaptive-modeling-of-financial-market-data-using-xgboost-and-catboost-995a115a7495">
-            full article on Medium
-          </a>
-          .
-        </p>
       </section>
     </article>
   );
