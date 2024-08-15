@@ -110,4 +110,4 @@ graph TD
 
 The `include_shifted_candles` parameter is a powerful tool in the FreqAI arsenal, enabling traders to enhance their models by incorporating historical market data into their predictions. By leveraging this feature, you can improve the temporal awareness of your model, leading to more accurate and reliable trading strategies.
 
-For more detailed information on how to configure and use `include_shifted_candles`, refer to the [FreqAI documentation](https://www.freqtrade.io/).
+For more detailed information on how to configure and use `include_shifted_candles`, refer to the [FreqAI documentation](https://www.freqtrade.io/en/stable/freqai/).
