@@ -10,6 +10,32 @@ tags: [FreqAI, trading, feature engineering, include_shifted_candles]
 
 In the world of trading algorithms, particularly those driven by machine learning models like FreqAI, feature engineering plays a critical role in determining the success of your strategy. One such powerful feature engineering technique available in FreqAI is `include_shifted_candles`. This feature allows for the inclusion of previous candles' data in the feature set of the current candle, providing the model with historical context that can significantly enhance predictive accuracy.
 
+```mermaid
+graph LR
+    subgraph Historical_Data
+        A1["Candle n-2"]
+        A2["Candle n-1"]
+    end
+
+    subgraph Current_Candle
+        B1["Candle n"]
+    end
+
+    subgraph Feature_Set
+        C1["Features from Candle n"]
+        C2["Features from Candle n-1"]
+        C3["Features from Candle n-2"]
+    end
+
+    A1 --> C3
+    A2 --> C2
+    B1 --> C1
+
+    C1 --> D["Model Input with Enhanced Context"]
+    C2 --> D
+    C3 --> D
+```
+
 <!-- truncate -->
 
 ## Understanding include_shifted_candles
