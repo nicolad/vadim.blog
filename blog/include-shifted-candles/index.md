@@ -42,6 +42,8 @@ graph LR
 
 The `include_shifted_candles` parameter in FreqAI is designed to add features from previous candles to subsequent candles, effectively allowing the model to "remember" past market conditions when making predictions for the current candle. By including a certain number of past candles, traders can provide the model with a richer dataset that captures the temporal dependencies in market data.
 
+<!-- truncate -->
+
 ### How It Works
 
 When `include_shifted_candles` is set, FreqAI will duplicate the features from the specified number of previous candles and shift them to the current candle's row in the dataset. This creates additional columns in the dataset, each representing a feature from a previous candle.
