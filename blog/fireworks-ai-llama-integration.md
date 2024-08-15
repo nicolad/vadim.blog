@@ -115,7 +115,3 @@ graph LR
 The integration of Fireworks AI with Llama 3.1 offers a powerful toolset for enterprises looking to deploy advanced AI solutions. By combining Fireworks AI's high-performance infrastructure with Llama 3.1's state-of-the-art capabilities, businesses can unlock new possibilities in AI-driven innovation, paving the way for the next generation of intelligent applications.
 
 For more information on how to get started, visit Fireworks AI and explore the full potential of Llama 3.1 models.
-
-```
-
-```
