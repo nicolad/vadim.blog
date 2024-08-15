@@ -17,7 +17,7 @@ Fireworks AI is a robust platform that enables the deployment and scaling of AI 
 ### Fireworks AI Infrastructure Overview
 
 ```mermaid
-graph LR
+graph TD
     A[User Application] -->|API Request| B[Fireworks AI Platform]
     B --> C[Model Selection]
     C --> D[Inference Engine]
@@ -69,7 +69,7 @@ The integration of Llama 3.1 with Fireworks AI enables developers to deploy thes
 ### Fireworks AI and Llama 3.1 Integration Workflow
 
 ```mermaid
-graph LR
+graph TD
     A[Fireworks AI Platform] --> B[Llama 3.1 Model API]
     B --> C[Inference Request]
     C --> D[Model Execution on GPU]
