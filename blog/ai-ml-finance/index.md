@@ -1,11 +1,9 @@
 ---
-
-**slug**: ai-ml-finance  
-**title**: Leveraging AI and Machine Learning in Finance - A Strategic Advantage  
-**date**: 2024-09-03T10:00  
-**authors**: [nicolad]  
-**tags**: [AI, ML, Finance]
-
+slug: ai-ml-finance
+title: Leveraging AI and Machine Learning in Finance - A Strategic Advantage
+date: 2024-09-03T10:00
+authors: [nicolad]
+tags: [AI, ML, Finance]
 ---
 
 ## Introduction
