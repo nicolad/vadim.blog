@@ -44,8 +44,6 @@ graph TD;
     A -->|Reduce Predictors| C["Lower Sensitivity to Noise"];
 ```
 
-````
-
 ## Underfitting vs. Overfitting
 
 ### Underfitting
@@ -98,5 +96,3 @@ Hyperparameters are critical to model performance, especially in more complex ma
 Understanding the **Bias-Variance Tradeoff**, **No Free Lunch Theorem**, and key concepts like **underfitting**, **overfitting**, and **hyperparameters** is essential for building robust machine learning models. The goal is to achieve a balance where the model captures the true patterns in the data without overfitting or underfitting. By doing so, we can create models that generalize well across various datasets and tasks.
 
 For more in-depth discussions on these topics and how they apply to specific financial applications, stay tuned for our upcoming articles.
-
-````
