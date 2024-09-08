@@ -1,7 +1,7 @@
 ---
 slug: gradient-descent-trading-algorithms
 title: Understanding Gradient Descent and Its Applications in Trading Algorithms
-date: 2024-09-07
+date: 2024-09-08
 authors: [nicolad]
 tags:
   [
