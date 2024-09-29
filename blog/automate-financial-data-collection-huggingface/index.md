@@ -1,21 +1,19 @@
 ---
-
 slug: automate-financial-data-collection-huggingface
 title: Automating Financial Data Collection and Uploading to Hugging Face for Algorithmic Trading
 date: 2024-09-29
 authors: [nicolad]
 tags:
-[
-Algorithmic Trading,
-Financial Data,
-Hugging Face,
-Stock Market,
-Python,
-Quantitative Trading,
-Data Pipelines,
-Finance,
-]
-
+  [
+    Algorithmic Trading,
+    Financial Data,
+    Hugging Face,
+    Stock Market,
+    Python,
+    Quantitative Trading,
+    Data Pipelines,
+    Finance,
+  ]
 ---
 
 ## Introduction
