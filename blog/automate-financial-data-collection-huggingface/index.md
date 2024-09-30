@@ -167,3 +167,7 @@ In algorithmic trading, the ability to access and utilize **real-time** and **hi
 Building a pipeline to automate the collection and upload of financial data is essential for any serious **algorithmic trading** strategy. This guide demonstrated how to fetch stock data using Python's **yfinance** library, and then upload it to Hugging Face using their API. By leveraging these tools, traders can streamline their data collection processes, allowing them to focus on refining and optimizing their trading strategies.
 
 With this automated pipeline in place, you can collect data on any financial instrument, making it easy to update datasets regularly, share them with your team, and ensure that your models are trained and tested with the most accurate and current information.
+
+---
+
+This article was inspired by insights shared in a post titled [Collecting Data for Backtesting Your Trading Strategies](https://blog.paperswithbacktest.com/p/how-to-collect-data-for-backtesting). It emphasizes the importance of high-quality data for systematic trading, a core principle that remains vital in the realm of algorithmic finance.
