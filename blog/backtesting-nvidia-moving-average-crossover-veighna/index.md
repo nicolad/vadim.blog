@@ -1,6 +1,6 @@
 ---
 slug: backtesting-nvidia-moving-average-crossover-veighna
-title: Backtesting NVIDIA Stock on VeighNa - Moving Average Crossover Strategy
+title: Backtesting NVIDIA Stock Strategies on VeighNa - Moving Average Crossover Strategy
 date: 2024-10-01
 authors: [nicolad]
 tags:
@@ -117,7 +117,7 @@ Insert the following configuration:
 
 ```json
 {
-  "datafeed.name": "edarchimbaud",
+  "datafeed.name": "pwb",
   "datafeed.username": "",
   "datafeed.password": ""
 }
@@ -408,28 +408,172 @@ With the historical data downloaded, configure the backtest:
 - **Price Tick**: 0.01
 - **Capital**: 1000 USD
 
-Run the backtest and view the performance results, including the Account NAV and Drawdown charts.
+## Running a Backtest on NVIDIA Stock (NVDA)
+
+### 1. Download Historical Data
+
+To backtest the above strategy on NVIDIA stock:
+
+1. Open the **CTA Backtester** in VeighNa.
+2. Set **Local Symbol** to `NVDA.NASDAQ`.
+3. Set the **Bar Period** to `d` (daily) and configure the start/end dates (e.g., `01/01/2007` to `30/09/2024`).
+4. Click **Download Data**.
+
+### 2. Backtest Configuration
+
+With the historical data downloaded, configure the backtest settings:
+
+- **Strategy**: Use `MaStrategy` as outlined above.
+- **Commission Rate**: 2.5e-05
+- **Slippage**: 0.2
+- **Contract Multiplier**: 300.0
+- **Price Tick**: 0.2
+- **Capital**: 1,000,000 USD
+
+Once you've set these parameters, click **Start Backtesting** to initiate the process.
+
+![CTA Backtester Results](./results.png)
+
+### 3. Analyze Backtest Results
+
+The backtest results are displayed, including:
+
+- **Balance**: A graph showing the balance over time.
+- **Drawdown**: Visual representation of drawdown throughout the backtest period.
+- **Profit and Loss (P&L)**: The P&L distribution graph shows the profit or loss for individual trades.
+
+The screenshot above shows the result of backtesting NVIDIA stock from **2007 to 2024**, with key statistics like:
+
+- **Total turnover**: 997,534.16
+- **Sharpe ratio**: -0.62
+- **Return drawdown ratio**: -0.79
+
+The results provide insight into the effectiveness of the strategy over the selected period, helping you to assess whether adjustments or optimizations are needed.
+
+## Order Details and Execution
+
+After backtesting, it's essential to review the specific orders generated during the simulation. This allows traders to verify whether the strategy executed trades as expected and at appropriate price levels. Below is a screenshot showing the details of the backtest orders:
+
+![Backtest Orders](./orders.png)
+
+### Understanding the Order Data
+
+The **Backtest Orders** table shows critical information such as:
+
+- **Exchange**: The exchange where the trades took place (e.g., NASDAQ).
+- **Type**: Whether the trade was executed as a limit order.
+- **Direction**: The direction of the trade (e.g., Long or Short).
+- **Price**: The price at which the order was placed.
+- **Volume**: The number of shares or contracts traded.
+- **Traded**: Confirms if the trade was fully executed.
+- **Status**: Shows the status of the order (e.g., All Traded).
+- **Datetime**: The exact time and date when the trade was executed.
+
+In this example, you can see the system placed multiple **Limit** orders at varying prices, primarily **Long** trades on the **NASDAQ** exchange, which were fully executed.
+
+### Why Review Orders?
+
+By reviewing individual orders, you can:
+
+1. **Validate Execution**: Ensure that the trades align with the strategy logic (e.g., entering positions when the fast moving average crosses the slow moving average).
+2. **Check Slippage and Costs**: Confirm that slippage, commission, and other fees were accurately accounted for.
+3. **Monitor Trade Timing**: Validate that the trades were placed at optimal times according to the strategy.
+
+Reviewing the detailed order list provides valuable insights into how efficiently the strategy executed its trades and highlights potential areas for refinement, such as adjusting entry/exit conditions or improving price execution strategies.
+
+## Trade Details
+
+After reviewing the orders, it's also important to look into the specific trades that were executed during the backtest. This allows you to monitor trade performance in terms of price, direction, and timing.
+
+Below is a screenshot of the backtest trades:
+
+![Backtest Trades](./trades.png)
+
+### Understanding the Trade Data
+
+The **Backtest Trades** table contains the following key details:
+
+- **Trade ID**: A unique identifier for each trade.
+- **Order ID**: The ID of the order associated with the trade.
+- **Symbol**: The stock symbol being traded (e.g., NVDA for NVIDIA).
+- **Exchange**: The exchange where the trade took place (e.g., NASDAQ).
+- **Direction**: Whether the trade was **Long** or **Short**.
+- **Offset**: Whether the trade opened or closed a position.
+- **Price**: The price at which the trade was executed.
+- **Volume**: The number of shares or contracts traded.
+- **Datetime**: The exact time and date the trade was executed.
+
+In this screenshot, we can observe that multiple **Long** and **Short** positions were opened and closed at different times during the backtest. Each trade shows the execution price and confirms whether the trade was made to open or close a position.
+
+### Why Review Trades?
+
+Analyzing trades helps you to:
+
+1. **Evaluate Strategy Performance**: Confirm that the strategy is executing trades at appropriate times and prices according to the backtest parameters.
+2. **Understand Market Behavior**: Look into the market conditions during each trade to better assess strategy performance in various market phases.
+3. **Refine Entry/Exit Conditions**: Identify potential improvements in the strategy’s entry and exit points by reviewing trades.
+
+By thoroughly examining both the **order** and **trade** details, you can fine-tune the strategy to improve its efficiency and profitability in future backtests and live trading scenarios.
+
+## Daily Profit & Loss (P&L)
+
+Another crucial aspect of backtesting is to review the daily Profit & Loss (P&L) data. This helps in understanding how the strategy performs on a day-to-day basis, tracking cumulative profits or losses over time.
+
+Below is a screenshot of the **Backtest P&L** data:
+
+![Backtest P&L](./daily-p-l.png)
+
+### Understanding the P&L Data
+
+The **Backtest P&L** table displays key information such as:
+
+- **Date**: The date for each entry.
+- **Trade Count**: Number of trades executed on that date.
+- **Start/End Position**: The position at the start and end of the day.
+- **Turnover**: Total value of the traded assets for that day.
+- **Commission**: The cost incurred due to commissions for executed trades.
+- **Slippage**: The estimated slippage costs from trade executions.
+- **Trading P&L**: Profit or loss from trading activities.
+- **Holding P&L**: Profit or loss from holding positions overnight.
+- **Total P&L**: The total profit or loss for that day, including both trading and holding P&L.
+- **Net P&L**: The overall profit or loss after accounting for all costs (e.g., commission, slippage).
+
+In this example, the table reveals that the strategy has fluctuating daily P&L results. The **Total P&L** provides insight into which days were more profitable and which incurred losses.
+
+### Why Review Daily P&L?
+
+By reviewing the daily P&L, you can:
+
+1. **Monitor Daily Performance**: Track how the strategy performs each day to identify profitable or unprofitable trends.
+2. **Assess Volatility**: Understand the variability in daily returns and how it impacts overall strategy performance.
+3. **Identify Improvement Areas**: Pinpoint specific days where the strategy performed poorly and investigate why, allowing for potential refinements.
+
+Thoroughly analyzing daily P&L helps ensure that the strategy is consistently profitable and can reveal periods of underperformance that may require adjustment.
+
+## Visualizing the Backtest - Bar Chart
+
+To get a more visual representation of how trades were executed during the backtest, it’s helpful to look at the **Backtest Bar Chart**. This chart provides a clear view of the price movements, volume, and points where trades were initiated or closed, helping to analyze the efficiency of the strategy.
+
+Below is a screenshot of the **Backtest Bar Chart**:
+
+![Backtest Bar Chart](./barchart.png)
+
+### Key Insights from the Bar Chart
+
+The bar chart above illustrates:
+
+- **Yellow Up Arrow**: The point where a **Long** position was opened.
+- **Yellow Down Arrow**: The point where a **Long** position was closed.
+- **Purple Downward Arrows**: Points where a **Short** position was opened.
+- **Purple Upward Arrows**: Points where a **Short** position was closed.
+- **Red Dotted Lines**: Indicate **profitable trades**.
+- **Green Dotted Lines**: Indicate **losing trades**.
+
+By looking at this chart, you can see where trades were made in relation to price movements and determine the overall profitability of the strategy. It also helps to visually correlate trade execution with market trends.
 
 ---
 
-## Optimizing Your NVIDIA Trading Strategy
-
-### 1. Strategy Optimization
-
-VeighNa supports parameter optimization using **exhaustive** or **genetic algorithms** to fine-tune strategies. Here's how to optimize the moving averages:
-
-1. Click **Optimize Parameters** in CTA Backtester.
-2. Choose **Sharpe ratio** as the optimization objective.
-3. Define parameter ranges for the fast and slow moving averages:
-   - Fast MA: 5 to 20 (step: 2)
-   - Slow MA: 15 to 50 (step: 5)
-4. Start **Multi-process Optimization** to test all combinations.
-
-### 2. Analyze Results
-
-After optimization, you’ll receive a sorted list of parameter sets based on their Sharpe ratio. Use the top-performing set to improve your NVIDIA trading strategy.
-
----
+By thoroughly examining the **orders**, **trades**, **daily P&L**, and **visualizing the bar chart**, you can better understand how the strategy performs in both day-to-day operations and over the entire backtesting period. This holistic review helps identify areas for improvement, ensuring that the strategy is optimized before live trading.
 
 ## Conclusion
 
@@ -439,4 +583,4 @@ Ensure you troubleshoot common issues using the provided gotchas and fixes, and 
 
 ---
 
-This article was inspired by insights shared in various algorithmic trading resources. It emphasizes the importance of high-quality data and thorough backtesting for systematic trading, core principles that remain vital in the realm of quantitative finance.
+This article was inspired by insights shared [here](https://blog.paperswithbacktest.com/p/backtesting-a-trading-strategy-on).
