@@ -1,173 +1,315 @@
 ---
-slug: automate-financial-data-collection-huggingface
-title: Automating Financial Data Collection and Uploading to Hugging Face for Algorithmic Trading
-date: 2024-09-29
+slug: understanding-sniper-algorithm-implementation
+title: Understanding the Sniper Algorithm Implementation in Algorithmic Trading
+date: 2024-10-05
 authors: [nicolad]
 tags:
   [
     Algorithmic Trading,
-    Financial Data,
-    Hugging Face,
-    Stock Market,
+    Sniper Algorithm,
+    Trading Algorithms,
     Python,
-    Quantitative Trading,
-    Data Pipelines,
+    VeighNa,
+    Execution Algorithms,
     Finance,
+    Quantitative Trading,
   ]
 ---
 
 ## Introduction
 
-In the fast-paced world of **algorithmic trading**, accessing reliable and timely financial data is essential for backtesting strategies, optimizing models, and making data-driven trading decisions. Automating data collection can streamline your workflow and ensure that you have access to the most recent market information. In this guide, we’ll walk through how to automate the collection of stock data using Python and **yfinance**, and how to upload this data to **Hugging Face** for convenient access and future use.
+In the realm of **algorithmic trading**, execution algorithms play a pivotal role in optimizing trade orders to minimize market impact and slippage. One such algorithm is the **Sniper Algorithm**, which is designed to execute trades discreetly and efficiently by capitalizing on favorable market conditions.
 
-Although this article uses **NVIDIA** stock data as an example, the process is applicable to any publicly traded company or financial instrument. By integrating data collection and storage into one automated pipeline, traders and analysts can focus on what matters most—developing strategies and maximizing returns.
+This article aims to **review and understand** the implementation of the Sniper Algorithm as provided in the [VeighNa](https://github.com/vnpy/vnpy) trading platform's open-source repository. By dissecting the code and explaining its components, we hope to provide clarity on how the algorithm functions and how it can be utilized in practical trading scenarios.
 
 <!-- truncate -->
 
-## Step 1: Collecting Financial Data
+## Overview of the Sniper Algorithm
 
-The first step in algorithmic trading is collecting historical financial data. In this use case, we will retrieve stock data using **yfinance** and save it to a CSV file for further analysis. This can be done for any stock, ETF, or index available on Yahoo Finance.
+### What Is the Sniper Algorithm?
 
-### Data Collection Script
+The **Sniper Algorithm** is an aggressive execution strategy that seeks to execute orders at optimal prices by swiftly acting on favorable market conditions. It avoids placing visible orders in the market, thereby reducing the likelihood of other market participants detecting and reacting to the trader's intentions. This stealthy approach is particularly useful for large orders or in markets where minimizing market impact is crucial.
 
-Below is the Python script for collecting stock data, which can easily be adapted for any ticker symbol.
+### Key Characteristics
+
+- **Aggressive Execution**: Executes orders immediately when conditions are favorable.
+- **Stealth Mode**: Does not post bids or offers, preventing exposure of trading intentions.
+- **Hidden Liquidity Detection**: Capable of identifying and tapping into hidden liquidity pools.
+- **High Participation Rate**: Achieves significant market participation without signaling intentions.
+
+### Sniper Algorithm Flowchart
+
+To better understand the flow of the Sniper Algorithm, consider the following flowchart:
+
+```mermaid
+flowchart TD
+    Start[Start]
+    --> CheckOrder{Is there an active order?}
+    CheckOrder -- Yes --> CancelOrder[Cancel all orders]
+    CancelOrder --> End
+    CheckOrder -- No --> Direction{Direction: Long or Short?}
+    Direction -- Long --> CheckPriceLong{Is ask price ≤ target price?}
+    Direction -- Short --> CheckPriceShort{Is bid price ≥ target price?}
+    CheckPriceLong -- Yes --> CalculateVolumeLong[Calculate order volume]
+    CheckPriceLong -- No --> End
+    CheckPriceShort -- Yes --> CalculateVolumeShort[Calculate order volume]
+    CheckPriceShort -- No --> End
+    CalculateVolumeLong --> PlaceBuyOrder[Place Buy Order]
+    CalculateVolumeShort --> PlaceSellOrder[Place Sell Order]
+    PlaceBuyOrder --> End
+    PlaceSellOrder --> End
+    End[End]
+```
+
+This flowchart outlines the decision-making process of the Sniper Algorithm during each market tick.
+
+## Understanding the Implementation in VeighNa
+
+The Sniper Algorithm is implemented in the VeighNa trading platform, an open-source algorithmic trading framework in Python. The code for the algorithm can be found in the [vnpy_algotrading](https://github.com/vnpy/vnpy_algotrading) repository.
+
+### Accessing the Code
+
+The implementation is located at:
+
+[https://github.com/vnpy/vnpy_algotrading/blob/main/vnpy_algotrading/algos/sniper_algo.py](https://github.com/vnpy/vnpy_algotrading/blob/main/vnpy_algotrading/algos/sniper_algo.py)
+
+### Code Breakdown
+
+Let's dissect the code to understand how the Sniper Algorithm operates within the VeighNa framework.
 
 ```python
-import yfinance as yf
-import pandas as pd
-import os
+from vnpy.trader.constant import Direction
+from vnpy.trader.object import TradeData, OrderData, TickData
+from vnpy.trader.engine import BaseEngine
 
-# Define the stock symbol and date range for data collection
-TICKER_SYMBOL = 'NVDA'  # Example: NVIDIA
-START_DATE = '2020-01-01'  # Start date
-END_DATE = '2024-09-28'  # End date
+from ..template import AlgoTemplate
 
-# Define the file path to save the collected data
-OUTPUT_FILE = 'financial_data.csv'
 
-def collect_data(ticker_symbol, start_date, end_date, output_file):
-    """Fetch and save stock data using yfinance."""
+class SniperAlgo(AlgoTemplate):
+    """Sniper Algorithm Class"""
 
-    # Fetch historical market data using yfinance
-    print(f"Fetching data for {ticker_symbol} from {start_date} to {end_date}...")
-    stock_data = yf.download(ticker_symbol, start=start_date, end=end_date)
+    display_name: str = "Sniper"
 
-    if stock_data.empty:
-        print("No data fetched. Please check the symbol or date range.")
+    default_setting: dict = {}
+
+    variables: list = ["vt_orderid"]
+
+    def __init__(
+        self,
+        algo_engine: BaseEngine,
+        algo_name: str,
+        vt_symbol: str,
+        direction: str,
+        offset: str,
+        price: float,
+        volume: float,
+        setting: dict,
+    ) -> None:
+        """Constructor"""
+        super().__init__(
+            algo_engine, algo_name, vt_symbol, direction, offset, price, volume, setting
+        )
+
+        # Variables
+        self.vt_orderid = ""
+
+        self.put_event()
+```
+
+#### Class Definition and Initialization
+
+- **Imports**: The algorithm imports necessary modules from VeighNa's trading framework, including data structures and constants.
+- **`SniperAlgo` Class**: Inherits from `AlgoTemplate`, which provides the basic structure and functions for an algorithm.
+- **`display_name`**: Human-readable name for the algorithm.
+- **`variables`**: List of variable names used in the algorithm for tracking purposes.
+- **`__init__` Method**: Initializes the algorithm with parameters such as trading symbol, direction, price, and volume.
+
+#### Variables
+
+- **`self.vt_orderid`**: Stores the unique identifier for the current order. Initialized as an empty string.
+
+### Core Methods
+
+#### `on_tick`
+
+```python
+def on_tick(self, tick: TickData) -> None:
+    """Tick callback"""
+    if self.vt_orderid:
+        self.cancel_all()
         return
 
-    # Save the data to a CSV file
-    stock_data.to_csv(output_file)
-    print(f"Data saved to {output_file}")
+    if self.direction == Direction.LONG:
+        if tick.ask_price_1 <= self.price:
+            order_volume: float = self.volume - self.traded
+            order_volume = min(order_volume, tick.ask_volume_1)
 
-if __name__ == "__main__":
-    # Check if the data file already exists
-    if not os.path.exists(OUTPUT_FILE):
-        collect_data(TICKER_SYMBOL, START_DATE, END_DATE, OUTPUT_FILE)
+            self.vt_orderid = self.buy(self.price, order_volume, offset=self.offset)
     else:
-        print(f"{OUTPUT_FILE} already exists. Delete it if you want to fetch fresh data.")
+        if tick.bid_price_1 >= self.price:
+            order_volume: float = self.volume - self.traded
+            order_volume = min(order_volume, tick.bid_volume_1)
+
+            self.vt_orderid = self.sell(
+                self.price, order_volume, offset=self.offset
+            )
+
+    self.put_event()
 ```
 
-### Explanation
+##### Explanation
 
-- **yfinance** fetches daily OHLCV (open, high, low, close, volume) data for a specific stock symbol between the provided date range.
-- The data is saved in a CSV format to ensure it can be accessed and processed later.
-- This script is designed to avoid overwriting the data unless explicitly requested, preventing redundant API calls.
+- **Purpose**: This method is called whenever a new tick (market data update) is received.
+- **Active Order Check**: If there's an active order (`self.vt_orderid` is not empty), it cancels all orders to avoid duplication and exits the method.
+- **Trade Logic**:
+  - **Long Direction**:
+    - Checks if the **best ask price** (`tick.ask_price_1`) is less than or equal to the target price (`self.price`).
+    - Calculates the remaining volume to trade (`self.volume - self.traded`).
+    - Adjusts the order volume based on available market depth.
+    - Places a buy order at the target price for the calculated volume.
+  - **Short Direction**:
+    - Checks if the **best bid price** (`tick.bid_price_1`) is greater than or equal to the target price.
+    - Calculates the remaining volume.
+    - Adjusts the order volume based on available market depth.
+    - Places a sell order at the target price.
+- **Order Volume Adjustment**: Ensures that the order volume does not exceed the available market volume (`tick.ask_volume_1` or `tick.bid_volume_1`).
+- **Order Execution**: The `buy` or `sell` method is called with the price, volume, and offset to execute the trade.
+- **Event Update**: Calls `self.put_event()` to update the algorithm's state in the UI or logs.
 
-### How to Run the Script
-
-```bash
-python data_collection_script.py
-```
-
-This script will generate a CSV file containing the financial data, such as stock prices, ready for backtesting and analysis. You can change the `TICKER_SYMBOL` to fetch data for different stocks, ETFs, or other financial instruments.
-
-## Step 2: Uploading Data to Hugging Face
-
-Once you have your dataset, storing it in a shared location like Hugging Face is ideal for easy access and collaboration. Hugging Face's **dataset repositories** allow you to upload and share your data publicly or privately.
-
-### Upload Script
-
-This Python script automates the process of uploading your data to Hugging Face.
+#### `on_order`
 
 ```python
-import os
-from dotenv import load_dotenv
-from huggingface_hub import HfApi
-
-# Load Hugging Face token from the environment variable
-load_dotenv(".env.local")
-huggingface_token = os.getenv("HUGGINGFACE_TOKEN")
-
-# Instantiate the Hugging Face API
-api = HfApi()
-
-# Repository information
-repo_name = "financial-data-collection"  # Example repository name
-username = "your_username"               # Your Hugging Face username
-
-# Create the repository (if it does not already exist)
-try:
-    api.create_repo(repo_id=f"{username}/{repo_name}", repo_type="dataset", exist_ok=True)
-    print(f"Repository {repo_name} created successfully or already exists.")
-except Exception as e:
-    print(f"Error creating repository: {e}")
-
-# Define the local path to the data file
-data_file = "financial_data.csv"  # Local data file
-
-# Upload the file to Hugging Face repository
-try:
-    api.upload_file(
-        path_or_fileobj=data_file,            # Path to your dataset file
-        path_in_repo="financial_data.csv",    # Name of the file in the repository
-        repo_id=f"{username}/{repo_name}",    # Repository ID on Hugging Face
-        repo_type="dataset",                  # Type of repository
-        token=huggingface_token               # Hugging Face token for authentication
-    )
-    print(f"File {data_file} uploaded successfully.")
-except Exception as e:
-    print(f"Error uploading file: {e}")
+def on_order(self, order: OrderData) -> None:
+    """Order callback"""
+    if not order.is_active():
+        self.vt_orderid = ""
+        self.put_event()
 ```
 
-### How It Works
+##### Explanation
 
-- The **dotenv** library loads the Hugging Face token from a `.env.local` file to securely authenticate API requests.
-- The script creates a repository if one doesn’t exist, making it easier to manage datasets.
-- Finally, the stock data CSV is uploaded to Hugging Face, where it is publicly accessible or private depending on your repository settings.
+- **Purpose**: Handles updates to order status.
+- **Order Status Check**: If the order is no longer active (filled, canceled, or rejected), it resets `self.vt_orderid` to an empty string, allowing new orders to be placed on subsequent ticks.
+- **Event Update**: Calls `self.put_event()` to refresh the state.
 
-### Running the Upload Script
+#### `on_trade`
 
-Ensure your `.env.local` file contains the Hugging Face token:
-
-```plaintext
-HUGGINGFACE_TOKEN=your_huggingface_token
+```python
+def on_trade(self, trade: TradeData) -> None:
+    """Trade callback"""
+    if self.traded >= self.volume:
+        self.write_log(
+            f"Traded quantity: {self.traded}, total quantity: {self.volume}"
+        )
+        self.finish()
+    else:
+        self.put_event()
 ```
 
-Then, run the script:
+##### Explanation
 
-```bash
-python huggingface_upload.py
+- **Purpose**: Called when a trade is executed.
+- **Trade Completion Check**: If the total traded volume (`self.traded`) is greater than or equal to the desired volume (`self.volume`), the algorithm logs the completion and calls `self.finish()` to terminate the algorithm.
+- **Event Update**: If not completed, updates the state.
+
+### Sequence Diagram of Order Execution
+
+To visualize the interaction between methods during order execution, consider the following sequence diagram:
+
+```mermaid
+sequenceDiagram
+    participant Trader
+    participant SniperAlgo
+    participant Market
+
+    Trader->>SniperAlgo: Start Algorithm
+    SniperAlgo->>Market: Subscribe to Tick Data
+    loop On Tick
+        Market-->>SniperAlgo: tick_data
+        SniperAlgo->>SniperAlgo: on_tick()
+        alt Active Order Exists
+            SniperAlgo->>Market: Cancel All Orders
+        else No Active Order
+            SniperAlgo->>SniperAlgo: Check Direction and Price
+            alt Conditions Met
+                SniperAlgo->>Market: Place Order
+                SniperAlgo->>SniperAlgo: Store vt_orderid
+            else Conditions Not Met
+                SniperAlgo->>SniperAlgo: Wait for Next Tick
+            end
+        end
+    end
+    Market-->>SniperAlgo: Order Update
+    SniperAlgo->>SniperAlgo: on_order()
+    SniperAlgo->>SniperAlgo: Update vt_orderid
+    Market-->>SniperAlgo: Trade Execution
+    SniperAlgo->>SniperAlgo: on_trade()
+    alt Trade Complete
+        SniperAlgo->>Trader: Log Completion
+        SniperAlgo->>SniperAlgo: Finish Algorithm
+    else Trade Incomplete
+        SniperAlgo->>SniperAlgo: Wait for Next Tick
+    end
 ```
 
-This will upload your financial dataset to Hugging Face, where it can be shared with collaborators or accessed for further analysis.
+This diagram illustrates the flow of events from starting the algorithm to completing the trade.
 
-## Why Automate Financial Data Collection?
+## Practical Usage
 
-Automating the collection and storage of financial data allows for:
+### Configuring the Algorithm
 
-1. **Up-to-date Data**: By automating this process, traders and analysts can ensure that they always have access to the latest stock market data, without manually pulling it.
-2. **Efficient Backtesting**: Having a reliable source of historical data enables traders to backtest and refine their trading strategies based on real-world performance.
-3. **Collaboration**: Sharing datasets via Hugging Face allows multiple stakeholders to access the same data, making collaboration on algorithmic trading strategies seamless.
+To use the Sniper Algorithm in VeighNa:
 
-In algorithmic trading, the ability to access and utilize **real-time** and **historical financial data** can significantly impact the performance of a strategy. Automating this pipeline eliminates manual intervention and ensures your data is always up-to-date and readily available.
+1. **Set Parameters**:
+
+   - **Symbol**: The trading symbol of the instrument.
+   - **Direction**: `LONG` for buying, `SHORT` for selling.
+   - **Price**: The target price for execution.
+   - **Volume**: Total quantity to trade.
+   - **Offset**: Position offset, e.g., open or close.
+
+2. **Load the Algorithm**: Ensure the `sniper_algo.py` file is placed in the appropriate directory so that VeighNa recognizes it.
+
+3. **Connect to Broker**: Configure VeighNa to connect to your broker's API, such as Interactive Brokers, and subscribe to real-time market data.
+
+### Running the Algorithm
+
+1. **Start VeighNa**: Launch the VeighNa trading application.
+
+2. **Select the Algorithm**: In the algorithm management interface, select the Sniper Algorithm.
+
+3. **Input Parameters**: Enter the desired trading parameters into the algorithm's configuration.
+
+4. **Monitor Execution**: Observe the algorithm's performance through the platform's interface, monitoring orders, trades, and logs.
+
+5. **Manage Risk**: Be prepared to intervene if market conditions change or if the algorithm behaves unexpectedly.
+
+## Benefits and Limitations
+
+### Benefits
+
+- **Reduced Market Impact**: Executes trades without alerting other market participants.
+- **Improved Execution Prices**: Takes advantage of favorable price movements.
+- **Flexibility**: Can be customized to fit specific trading strategies or market conditions.
+
+### Limitations
+
+- **Complex Market Conditions**: May not perform well in illiquid or highly volatile markets.
+- **Missed Opportunities**: Strict conditions might lead to unexecuted orders if the market doesn't meet the criteria.
+- **Requires Real-Time Data**: Dependent on accurate and timely market data for optimal performance.
 
 ## Conclusion
 
-Building a pipeline to automate the collection and upload of financial data is essential for any serious **algorithmic trading** strategy. This guide demonstrated how to fetch stock data using Python's **yfinance** library, and then upload it to Hugging Face using their API. By leveraging these tools, traders can streamline their data collection processes, allowing them to focus on refining and optimizing their trading strategies.
+The Sniper Algorithm offers a strategic approach to executing trades discreetly and efficiently in algorithmic trading. By reviewing the implementation provided in the VeighNa platform, we gain insights into how such an algorithm operates and how it can be employed in practical trading scenarios.
 
-With this automated pipeline in place, you can collect data on any financial instrument, making it easy to update datasets regularly, share them with your team, and ensure that your models are trained and tested with the most accurate and current information.
+Understanding the code helps traders and developers:
+
+- **Customize the Algorithm**: Modify parameters or logic to better suit their trading strategies.
+- **Improve Risk Management**: Anticipate how the algorithm behaves under different market conditions.
+- **Enhance Execution Quality**: Leverage the algorithm's design to achieve better trade execution outcomes.
+
+As algorithmic trading continues to evolve, familiarizing oneself with execution algorithms like the Sniper Algorithm becomes increasingly valuable. Whether you are a trader seeking to optimize your executions or a developer aiming to build sophisticated trading tools, understanding such implementations is essential.
 
 ---
 
-This article was inspired by insights shared in a post titled [Collecting Data for Backtesting Your Trading Strategies](https://blog.paperswithbacktest.com/p/how-to-collect-data-for-backtesting). It emphasizes the importance of high-quality data for systematic trading, a core principle that remains vital in the realm of algorithmic finance.
+This article is a review of the Sniper Algorithm's implementation in the VeighNa trading platform, inspired by the original code available at [vnpy_algotrading](https://github.com/vnpy/vnpy_algotrading/blob/main/vnpy_algotrading/algos/sniper_algo.py). It aims to provide a clear understanding of how the algorithm functions within the platform and how it can be utilized in algorithmic trading strategies.
