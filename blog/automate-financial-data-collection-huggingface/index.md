@@ -19,7 +19,9 @@ tags:
 
 ## Introduction
 
-In the intricate world of **algorithmic trading**, seamless integration between trading platforms and broker APIs is paramount. One common hurdle traders encounter is the error:
+In the intricate world of **algorithmic trading**, seamless integration between trading platforms and broker APIs is paramount.
+
+One common issue when interfacing with **Interactive Brokers (IB)** API is encountering the error:
 
 ```
 ERROR:root:Error - ReqId: 1, Code: 200, Message: No security definition has been found for the request
