@@ -1,7 +1,7 @@
 ---
 slug: correct-exchange-mapping-ib-veighna
 title: Correct Exchange Mapping in VeighNa to Resolve IB Security Definition Errors
-date: 2024-10-09
+date: 2024-10-12
 authors: [nicolad]
 tags:
   [
