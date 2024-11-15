@@ -1,115 +1,195 @@
 ---
-slug: understanding-linear-regression-in-machine-learning
-title: Understanding Linear Regression in Machine Learning
+slug: understanding-gradient-descent-in-linear-regression
+title: Understanding Gradient Descent in Linear Regression
 date: 2024-11-14
 authors: [nicolad]
-tags: [Machine Learning, Linear Regression, AI]
+tags: [Machine Learning, Linear Regression, Gradient Descent, AI]
 ---
 
-## Introduction
+Introduction
 
-Linear regression is a fundamental algorithm in supervised machine learning, widely used for predicting continuous outcomes. It models the relationship between a dependent variable and one or more independent variables by fitting a linear equation to observed data. This article delves into the components of linear regression, explaining how inputs, parameters, and the cost function work together to create a predictive model.
+Gradient descent is a fundamental optimization algorithm used in machine learning to minimize the cost function and find the optimal parameters of a model. In the context of linear regression, gradient descent helps in finding the best-fitting line by iteratively updating the model parameters. This article delves into the mechanics of gradient descent in linear regression, focusing on how the parameters are updated and the impact of the sign of the gradient.
 
 <!-- truncate -->
 
-## The Linear Regression Model
+The Linear Regression Model
 
-### Model Equation
+Model Equation
 
-At the heart of linear regression is the model equation:
+Linear regression aims to model the relationship between an independent variable and a dependent variable by fitting a linear equation to observed data:
 
 $$
 f_{w,b}(x) = w \cdot x + b
 $$
 
-- $x$: The input feature or independent variable.
-- $w$: The weight or coefficient, representing the slope of the line.
-- $b$: The bias or intercept term, indicating where the line crosses the y-axis.
-- $f_{w,b}(x)$: The predicted output for a given input $x$.
+• $x$: The input feature or independent variable.
+• $w$: The weight or coefficient, representing the slope of the line.
+• $b$: The bias or intercept term, indicating where the line crosses the y-axis.
+• $f_{w,b}(x)$: The predicted output for a given input $x$.
 
 This equation represents a straight line in two-dimensional space, where the goal is to find the optimal values of $w$ and $b$ that minimize the difference between the predicted outputs and the actual outputs.
 
-### Inputs or Features
+Cost Function
 
-The **inputs**, also known as **features**, are the data fed into the model to make predictions. In the context of the linear regression model:
-
-- $x$ is the input feature that the model uses to predict an output $y$.
-- The model expects $x$ as input to compute the predicted value $f_{w,b}(x)$.
-
-### Parameters
-
-The **parameters** of the model are the variables that the learning algorithm adjusts during training:
-
-- $w$ (weight): Determines how much the input $x$ influences the output.
-- $b$ (bias): Allows the model to shift the line up or down to better fit the data.
-
-These parameters are **not** inputs to the model; instead, they are learned from the data during the training process to minimize the prediction error.
-
-## Training the Model
-
-### Cost Function
-
-To evaluate how well the model is performing, we use a **cost function** $J(w, b)$, often defined as the mean squared error (MSE) between the predicted outputs and the actual outputs:
+To assess the accuracy of the model, we use a cost function $J(w, b)$, commonly defined as the Mean Squared Error (MSE):
 
 $$
 J(w, b) = \frac{1}{2m} \sum_{i=1}^{m} \left( f_{w,b}\left( x^{(i)} \right) - y^{(i)} \right)^2
 $$
 
-- $m$: The number of training examples.
-- $x^{(i)}$: The $i$-th input feature.
-- $y^{(i)}$: The actual output corresponding to $x^{(i)}$.
+• $m$: The number of training examples.
+• $x^{(i)}$: The $i$-th input feature.
+• $y^{(i)}$: The actual output corresponding to $x^{(i)}$.
 
-The cost function quantifies the error of the model; the objective is to find the parameters $w$ and $b$ that minimize $J(w, b)$.
+The goal is to find the parameters $w$ and $b$ that minimize this cost function.
 
-### Gradient Descent
+Gradient Descent Algorithm
 
-To minimize the cost function, we use the **gradient descent** algorithm, which iteratively updates the parameters in the direction of the steepest descent:
+Update Rules
 
-**Update rule for $w$:**
+Gradient descent minimizes the cost function by updating the parameters in the opposite direction of the gradient:
+
+Update rule for $w$:
 
 $$
 w \leftarrow w - \alpha \frac{\partial J(w, b)}{\partial w}
 $$
 
-**Update rule for $b$:**
+Update rule for $b$:
 
 $$
 b \leftarrow b - \alpha \frac{\partial J(w, b)}{\partial b}
 $$
 
-- $\alpha$: The learning rate, controlling the size of the steps taken to reach the minimum.
+• $\alpha$: The learning rate, controlling the step size during each iteration.
 
-By updating $w$ and $b$ using the gradients of the cost function, the model progressively improves its predictions.
+```mermaid
+graph LR
+    A[Current Parameters: w, b] --> B[Compute Gradients]
+    B --> C[Update w and b]
+    C --> A
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bfb,stroke:#333,stroke-width:2px
+```
 
-## Model Evaluation
+Computing the Gradients
 
-### Interpreting the Cost Function Value
+Partial derivative with respect to $w$:
 
-- When $J(w, b)$ is very close to zero, it indicates that the model's predictions are very close to the actual outputs in the training data.
-- A higher value of $J(w, b)$ implies a larger error between the predicted and actual values, suggesting that the model may need more training or a different approach.
+$$
+\frac{\partial J(w, b)}{\partial w} = \frac{1}{m} \sum_{i=1}^{m} \left( f_{w,b}\left( x^{(i)} \right) - y^{(i)} \right) x^{(i)}
+$$
 
-### Evaluating on Test Data
+Partial derivative with respect to $b$:
 
-After training, it's essential to evaluate the model's performance on a separate test dataset to ensure it generalizes well to unseen data. Common metrics include:
+$$
+\frac{\partial J(w, b)}{\partial b} = \frac{1}{m} \sum_{i=1}^{m} \left( f_{w,b}\left( x^{(i)} \right) - y^{(i)} \right)
+$$
 
-- **Mean Squared Error (MSE):**
+Understanding Parameter Updates
 
-  $$
-  \text{MSE} = \frac{1}{n} \sum_{i=1}^{n} \left( f_{w,b}\left( x_{\text{test}}^{(i)} \right) - y_{\text{test}}^{(i)} \right)^2
-  $$
+Impact of Negative Gradient on $w$
 
-- **Coefficient of Determination (R² Score):**
+When $\frac{\partial J(w, b)}{\partial w}$ is a negative number (less than zero), what happens to $w$ after one update step?
 
-  $$
-  R^2 = 1 - \frac{\sum_{i=1}^{n} \left( y_{\text{test}}^{(i)} - f_{w,b}\left( x_{\text{test}}^{(i)} \right) \right)^2}{\sum_{i=1}^{n} \left( y_{\text{test}}^{(i)} - \bar{y}_{\text{test}} \right)^2}
-  $$
+Explanation:
 
-  - $\bar{y}_{\text{test}}$: The mean of the actual test outputs.
+• The update rule for $w$ is:
 
-An R² score close to 1 indicates that the model explains a large portion of the variance in the data.
+$$
+w \leftarrow w - \alpha \frac{\partial J(w, b)}{\partial w}
+$$
 
-## Conclusion
+• If $\frac{\partial J(w, b)}{\partial w} < 0$, then:
 
-Linear regression serves as a foundational tool in machine learning for understanding and predicting relationships between variables. By mastering the components of linear regression—such as the model equation, parameters, cost function, and optimization algorithm—you can build models that effectively predict continuous outcomes. This understanding also paves the way for exploring more complex models and algorithms in the field of machine learning.
+$$
+w \leftarrow w - \alpha (\text{negative number}) = w + \alpha |\text{negative number}|
+$$
 
-For further reading on linear regression and its applications, consider exploring topics like regularization techniques, multivariate regression, and the assumptions underlying linear models.
+• Since $\alpha > 0$ and $|\text{negative number}| > 0$, the term $\alpha |\text{negative number}|$ is positive.
+• Therefore, $w$ increases after the update.
+
+Conclusion: When the gradient of the cost function with respect to $w$ is negative, the parameter $w$ increases during the gradient descent update.
+
+Update Step for Parameter $b$
+
+For linear regression, what is the update step for parameter $b$?
+
+$$
+b \leftarrow b - \alpha \frac{1}{m} \sum_{i=1}^{m} \left( f_{w,b}\left( x^{(i)} \right) - y^{(i)} \right)
+$$
+
+Explanation:
+
+• The gradient with respect to $b$ is:
+
+$$
+\frac{\partial J(w, b)}{\partial b} = \frac{1}{m} \sum_{i=1}^{m} \left( f_{w,b}\left( x^{(i)} \right) - y^{(i)} \right)
+$$
+
+• Substituting this into the update rule:
+
+$$
+b \leftarrow b - \alpha \frac{\partial J(w, b)}{\partial b}
+$$
+
+• Thus, the update step for $b$ is as given.
+
+Note: The update for $b$ does not include the term $x^{(i)}$, unlike the update for $w$.
+
+```mermaid
+graph TD
+    A[Compute Gradient] --> B{Update b}
+    B --> C[b is updated]
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bfb,stroke:#333,stroke-width:2px
+```
+
+Practical Implications
+
+Effect of Gradient Sign on Parameter Updates
+
+• Negative Gradient ($\frac{\partial J}{\partial w} < 0$):
+• The parameter $w$ increases.
+• Moves $w$ in the direction that decreases the cost function.
+• Positive Gradient ($\frac{\partial J}{\partial w} > 0$):
+• The parameter $w$ decreases.
+• Also aims to reduce the cost function.
+
+```mermaid
+graph LR
+    A[Gradient Sign] --> B{Is Gradient Negative?}
+    B -- Yes --> C[Increase $w$]
+    B -- No --> D[Decrease $w$]
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bfb,stroke:#333,stroke-width:2px
+    style D fill:#bfb,stroke:#333,stroke-width:2px
+```
+
+Importance of the Learning Rate
+
+• The learning rate $\alpha$ determines how big the update steps are.
+• A small $\alpha$ may result in slow convergence.
+• A large $\alpha$ may cause overshooting the minimum or divergence.
+
+```mermaid
+graph LR
+    A[Learning Rate $\alpha$] --> B{Choose $\alpha$}
+    B -- Small --> C[Slow Convergence]
+    B -- Large --> D[Overshooting or Divergence]
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#fbb,stroke:#333,stroke-width:2px
+    style D fill:#fbb,stroke:#333,stroke-width:2px
+```
+
+Conclusion
+
+Understanding how gradient descent updates the parameters in linear regression is crucial for effectively training models. When the gradient with respect to a parameter is negative, the parameter increases, and when the gradient is positive, the parameter decreases. The specific update rules for $w$ and $b$ reflect their roles in the model and ensure that the cost function is minimized.
+
+By mastering these concepts, you can better tune your models and achieve higher predictive accuracy in your machine learning tasks.
+
+Feel free to explore more about gradient descent variations, such as stochastic gradient descent and mini-batch gradient descent, to enhance your understanding and application of optimization algorithms in machine learning.
