@@ -1,10 +1,12 @@
 ---
 slug: qlib-ai-quant-workflow-adarnn
 title: Adaptive Deep Learning in Quant Finance with Qlib’s PyTorch AdaRNN
-date: 2024-12-23
+date: 2024-12-22
 authors: [nicolad]
 tags:
   [
+    python,
+    platform,
     finance,
     machine-learning,
     research,
@@ -32,10 +34,10 @@ tags:
 
 ```mermaid
 flowchart LR
-    A((Data Flow)) --> B[Non-stationary <br> Financial Time Series]
-    B --> C[Temporal Covariate Shift (TCS)]
-    C --> D(AdaRNN)
-    D --> E[Adaptive <br> Forecasts]
+    A((DataFlow)) --> B[NonstationaryFinancialData]
+    B --> C[TemporalCovariateShiftTCS]
+    C --> D[AdaRNNCore]
+    D --> E[AdaptiveForecasts]
     style A fill:#bbf,stroke:#333,stroke-width:1px
     style B fill:#ddf,stroke:#333,stroke-width:1px
     style C fill:#f9f,stroke:#333,stroke-width:1px
@@ -54,7 +56,6 @@ flowchart LR
 
   1. **Temporal Distribution Characterization**:  
      Better captures distribution information in time-series data.
-
   2. **Temporal Distribution Matching**:  
      Bridges the gap between older and newer data via advanced distribution alignment (e.g., MMD, CORAL, COSINE).
 
@@ -64,8 +65,8 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    S((Older Market)) -->|Distribution Shift| T((Newer Market))
-    C(((AdaRNN <br> Model))) -->|Align Representations| S
+    S[OlderMarket] -->|DistShift| T[NewerMarket]
+    C[AdaRNNModel] -->|AdaptiveAlign| S
     C --> T
     style S fill:#ccf,stroke:#333,stroke-width:1px
     style T fill:#ccf,stroke:#333,stroke-width:1px
@@ -88,10 +89,10 @@ Below is an excerpt from a Qlib-friendly YAML configuration. By running one comm
 
 ```mermaid
 flowchart LR
-    A(Qlib Init) --> B[Data Load & Transform]
-    B --> C[[AdaRNN or PyTorch Model]]
-    C --> D[Metrics (IC, MSE, etc.)]
-    D --> E(Backtest with <br> transaction costs)
+    A[QlibInit] --> B[DataLoadTransform]
+    B --> C[AdaRNNorPyTorchModel]
+    C --> D[ICandMSEMetrics]
+    D --> E[BacktestCosts]
     style A fill:#ddf,stroke:#333,stroke-width:1px
     style B fill:#ddf,stroke:#333,stroke-width:1px
     style C fill:#bfb,stroke:#333,stroke-width:1px
@@ -212,12 +213,10 @@ When you run:
 qrun workflow_config_adarnn_Alpha360.yaml
 ```
 
-You may see logs akin to:
+You may see logs such as:
 
 ```
-[50515:MainThread](2024-12-23 19:23:40,640) INFO - qlib.qrun - [cli.py:78] - Render the template with the context: {}
 [50515:MainThread](2024-12-23 19:23:44,889) INFO - qlib.ADARNN - ADARNN pytorch version...
-[50515:MainThread](2024-12-23 19:23:44,889) INFO - qlib.ADARNN - ADARNN parameters setting:
 d_feat : 6
 hidden_size : 64
 num_layers : 2
@@ -230,24 +229,20 @@ early_stop : 20
 optimizer : adam
 loss_type : mse
 ...
-Time cost: 106.287s | Init data Done
-
-Epoch0:
-training...
-ic/train: 0.016603, icir/train: 0.097398, mse/train: 0.010481, ...
-ic/valid: 0.007023, icir/valid: 0.046692, mse/valid: 0.013398, ...
-Epoch1:
-training...
+Epoch0: training...
+ic/train: 0.016603, mse/train: 0.010481, ...
+ic/valid: 0.007023, mse/valid: 0.013398, ...
+Epoch1: training...
 ic/train: 0.017488, ...
 ic/valid: 0.007711, ...
 ```
 
 ```mermaid
-flowchart LR
-    L[Load Data<br>(Alpha360)] --> P[Process Data<br>(RobustZScore,Fillna)]
-    P --> M((AdaRNN Training))
-    M --> M2[Metrics: IC / MSE]
-    M2 --> B((Backtest <br> PortAnaRecord))
+flowchart TD
+    L[LoadAlpha360] --> P[ProcessData]
+    P --> M[TrainAdaRNN]
+    M --> M2[MetricsICMSEetc]
+    M2 --> B[BacktestRecord]
     style L fill:#ddd,stroke:#333,stroke-width:1px
     style P fill:#ccf,stroke:#333,stroke-width:1px
     style M fill:#fdf,stroke:#333,stroke-width:1px
@@ -257,42 +252,41 @@ flowchart LR
 
 **Key Points**:
 
-- **d_feat=6**: The model uses 6 features per time step.
-- AdaRNN runs for up to `n_epochs = 200` with an early-stop around `metric : loss`.
-- Early logs show moderate IC values (~0.01), suggesting potential room for feature or parameter refinement.
+- `d_feat=6` indicates the model uses 6 features per time step (Alpha360 can have ~360; some examples show 6 for a simpler demonstration).
+- AdaRNN attempts to adapt to distribution shifts with a specialized gating mechanism, plus distance-based alignment (e.g., MMD, cosine).
+- Low or moderate `ic` (information coefficient) values in early epochs typically mean you might tune your features or hyperparams further.
 
 ### Practical Notes
 
 - Setting `GPU: 0` uses CPU-only mode—suitable for debugging or if CUDA is unavailable.
-- Increase `batch_size` or `max_steps` carefully; large settings might cause longer training or memory issues.
-- For heavier distribution shift, consider `'cosine'`, `'adv'`, or `'mmd_rbf'` loss types in AdaRNN.
+- If distribution shift is severe, consider `'adv'`, `'mmd_rbf'`, or `'cosine'` in the AdaRNN code base to better handle changing market regimes.
+- Check memory usage and concurrency settings (`kernels: 1`) if you encounter long training times or segmentation faults.
 
 ---
 
 ## Data & Requirements
 
-Per **AdaRNN**’s official repo:
+In **AdaRNN**’s original repository, they discuss:
 
-- **Python >= 3.7**, pinned **PyTorch ~1.6.0** for best compatibility.
-- GPU acceleration recommended, though you can run CPU mode via `GPU: 0`.
-
-In **Qlib**, you can seamlessly adapt these with a Conda environment, ensuring consistent versions across both AdaRNN and Qlib.
+- **Air-quality dataset** but the technique extends well to **finance**.
+- **Python >= 3.7**, **PyTorch ~1.6** for best results.
+- Ensure your Qlib environment has matching dependencies (e.g. `requirements.txt` pinned versions) to avoid conflicts.
 
 ---
 
 ## Conclusion
 
-AdaRNN’s **adaptive** architecture offers an effective toolset for **non-stationary** financial data, bridging older regimes to modern contexts via distribution matching. Within Qlib:
+AdaRNN’s **adaptive** architecture is particularly suited to **non-stationary** financial data, bridging older regimes to modern ones via distribution matching. Within Qlib:
 
-1. **Single-Command Workflow**: from data load, factor engineering, model training, and advanced metric logging.
-2. **Flexibility**: Tweak gating, hidden units, or distribution distances (MMD, CORAL, COSINE, etc.) for improved alpha.
-3. **Transparent Logs**: IC, MSE, or custom metrics allow rapid iteration on factor sets or hyperparameters.
+1. You unify data ingestion, factor engineering, neural training, and evaluation into **one YAML**.
+2. You easily measure correlation (IC, Rank IC) and simulate real trading costs via **PortAnaRecord**.
+3. You can adapt AdaRNN’s gating, hidden-layers, or distribution distances for maximum alpha discovery in shifting markets.
 
 ```mermaid
-flowchart TD
-   A((AdaRNN)) -->|Adaptive <br> Loss| B[Distribution Shift <br> Mitigated]
-   B --> C(Alpha Gains <br> & Signals)
-   C --> D(Backtest <br> & Evaluate)
+flowchart LR
+   A[AdaRNN] -->|AdaptiveLoss| B[ShiftMitigated]
+   B --> C[AlphaSignals]
+   C --> D[BacktestResults]
    style A fill:#ffc,stroke:#333,stroke-width:1px
    style B fill:#cff,stroke:#333,stroke-width:1px
    style C fill:#cec,stroke:#333,stroke-width:1px
@@ -301,9 +295,9 @@ flowchart TD
 
 **Next Steps**:
 
-- Explore advanced “transfer-loss” modes (`'adv'`, `'mmd_rbf'`) to mitigate drastic market regime changes.
-- Merge fundamental, sentiment, or alternative data for richer “temporal distribution characterization.”
-- Evaluate backtest performance using multiple cost models or large-scale rolling updates.
+- Try different distribution-losses (MMD, CORAL, `'adv'`) in AdaRNN to see which best handles your market regime changes.
+- Combine fundamental, sentiment, or alt data to strengthen “temporal distribution characterization.”
+- Evaluate the final portfolio PnL and IR thoroughly in Qlib’s logs, adjusting hyperparameters (`dw`, `pre_epoch`, `hidden_size`) for improved adaptation.
 
 ---
 
@@ -314,4 +308,4 @@ flowchart TD
 2. [AdaRNN GitHub Repo](https://github.com/jindongwang/transferlearning/tree/master/code/deep/adarnn)
 3. [Qlib on GitHub](https://github.com/microsoft/qlib)
 
-_Pro Tip_: For heavily shifting data, try an adapted **Transformer** or rolling updates. Fine-tune AdaRNN hyperparameters (`dw`, `pre_epoch`, `hidden_size`) to unlock better distribution alignment in a volatile market.
+_Pro Tip_: If you see low IC or negative alpha, consider rolling or incremental re-training. Fine-tuning AdaRNN’s distribution alignment parameters can be crucial for dealing with abrupt financial market changes.
