@@ -58,7 +58,7 @@ flowchart LR
      Bridges the gap between older and newer data via advanced distribution alignment (e.g., MMD, CORAL, COSINE).
 
 - **Paper & Code References**:
-  - [CIKM 2021 Paper](https://arxiv.org/abs/2108.08515)
+  - [CIKM 2021 Paper](https://arxiv.org/abs/2108.04443)
   - [Official Repo](https://github.com/jindongwang/transferlearning/tree/master/code/deep/adarnn)
 
 ```mermaid
