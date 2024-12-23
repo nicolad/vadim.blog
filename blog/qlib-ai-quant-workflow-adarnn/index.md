@@ -26,7 +26,7 @@ tags:
 
 ## Introduction
 
-[**AdaRNN**](https://github.com/jindongwang/transferlearning/tree/master/code/deep/adarnn) is a specialized **PyTorch** model designed to adaptively learn from **non-stationary** financial time series—where market distributions evolve over time. Originally proposed in the paper _AdaRNN: Adaptive Learning and Forecasting for Time Series_ ([Du et al., CIKM 2021][1]), it leverages both **GRU layers** and **transfer-loss** techniques to mitigate the effects of distributional shift. This article demonstrates how AdaRNN can be applied within Microsoft’s **Qlib**—an open-source, AI-oriented platform for quantitative finance.
+[**AdaRNN**](https://github.com/jindongwang/transferlearning/tree/master/code/deep/adarnn) is a specialized **PyTorch** model designed to adaptively learn from **non-stationary** financial time series—where market distributions evolve over time. Originally proposed in the paper _AdaRNN: Adaptive Learning and Forecasting for Time Series_, it leverages both **GRU layers** and **transfer-loss** techniques to mitigate the effects of distributional shift. This article demonstrates how AdaRNN can be applied within Microsoft’s **Qlib**—an open-source, AI-oriented platform for quantitative finance.
 
 <!-- truncate -->
 
