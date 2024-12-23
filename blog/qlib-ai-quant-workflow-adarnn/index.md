@@ -5,8 +5,6 @@ date: 2024-12-22
 authors: [nicolad]
 tags:
   [
-    python,
-    platform,
     finance,
     machine-learning,
     research,
