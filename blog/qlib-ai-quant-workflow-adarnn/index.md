@@ -49,7 +49,7 @@ This article focuses on how **score IC** links directly to profit potential, and
 
 ## High-Level Flow: Scores to Profit
 
-Below is a **Mermaid.js** diagram (now oriented **top-to-bottom**) illustrating how raw data (features and labels) are processed by a predictive model, which then outputs “scores.” Qlib’s strategies use these scores to generate trades, and finally we evaluate profits in backtests. The diagram includes a styling approach compatible with both **dark mode** and **light mode**.
+Below is a **Mermaid.js** diagram (oriented **top-to-bottom**) illustrating how raw data (features and labels) are processed by a predictive model, which then outputs “scores.” Qlib’s strategies use these scores to generate trades, and finally we evaluate profits in backtests. The diagram includes a styling approach compatible with both **dark mode** and **light mode**.
 
 ```mermaid
 flowchart TD
@@ -84,7 +84,7 @@ flowchart TD
 
 ## Detailed Trading Flow
 
-For an even clearer view, here’s another diagram depicting how **scores** become actual trades and profits. Qlib typically takes the top K instruments by score, buys them (or overweight), and then measures returns via backtests.
+For more clarity, here’s a diagram showing how Qlib translates **scores** into trades. The system ranks instruments by their score, buys or overweights the top scorers, and then measures returns via backtests.
 
 ```mermaid
 flowchart TD
@@ -92,9 +92,9 @@ flowchart TD
     classDef lightMode fill:#fff,stroke:#333,stroke-width:1px,color:#333
 
     S["Scores from Model"]:::lightMode
-    R["Rank & Sort (Top-K)"]:::darkMode
+    R["Rank & Select Top-K"]:::darkMode
     T["Generate Trades (Buy High Scores)"]:::lightMode
-    P["Execute & Monitor Portfolio"]:::darkMode
+    P["Update Portfolio"]:::darkMode
     U["Evaluate Profit & Risk"]:::lightMode
 
     S --> R
@@ -107,6 +107,35 @@ flowchart TD
     class T lightMode
     class P darkMode
     class U lightMode
+```
+
+---
+
+## Additional Data Pipeline Diagram
+
+Qlib simplifies data ingestion and feature engineering. The diagram below shows how **instrument data** flows through Qlib’s handlers and processors before being split into train/test sets. This process is crucial for generating consistent labels and features, which in turn affect your **score IC**.
+
+```mermaid
+flowchart TD
+    classDef darkMode fill:#333,stroke:#fff,stroke-width:1px,color:#fff
+    classDef lightMode fill:#fff,stroke:#333,stroke-width:1px,color:#333
+
+    X["Instrument Data (e.g., daily OHLC)"]:::lightMode
+    Y["Data Handler (Alpha360, etc.)"]:::darkMode
+    Z["Processors (Normalization, Fillna, etc.)"]:::lightMode
+    M["Train/Valid/Test Split"]:::darkMode
+    N["Final Dataset"]:::lightMode
+
+    X --> Y
+    Y --> Z
+    Z --> M
+    M --> N
+
+    class X lightMode
+    class Y darkMode
+    class Z lightMode
+    class M darkMode
+    class N lightMode
 ```
 
 ---
@@ -160,7 +189,7 @@ def score_ic_graph(pred_label: pd.DataFrame, show_notebook: bool = True, **kwarg
 
 ### How IC is Computed
 
-The following **Mermaid.js** diagram (also top-down) shows a more detailed process for computing IC and Rank IC from your predictions. Note the consistent use of **darkMode** and **lightMode** classes for better visibility:
+Below is another **top-down** Mermaid.js diagram illustrating the steps for computing IC and Rank IC from your predictions:
 
 ```mermaid
 flowchart TD
@@ -204,7 +233,7 @@ flowchart TD
    - **IC (Pearson)** for linear correlation.
    - **Rank IC (Spearman)** for ordinal correlation.
 5. **Daily IC Series** / **Daily Rank IC Series**: You get a time-series of how well your scores predicted returns each day.
-6. **Plot or Return Figure**: The function can plot in a notebook or return the figure object.
+6. **Plot or Return Figure**: The function can either plot in a notebook or return the figure object.
 7. **Analysis & Strategy**: Evaluate how effectively your scores correspond to profit opportunities.
 
 ---
