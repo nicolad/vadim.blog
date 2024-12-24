@@ -1,7 +1,7 @@
 ---
 slug: qlib-ai-quant-workflow-scoreic
 title: Understanding Score IC in Qlib for Enhanced Profit
-date: 2024-12-22
+date: 2024-12-24
 authors: [nicolad]
 tags:
   [
