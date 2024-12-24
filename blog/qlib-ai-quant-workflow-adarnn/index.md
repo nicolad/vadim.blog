@@ -1,6 +1,6 @@
 ---
-slug: qlib-ai-quant-workflow-adarnn
-title: Adaptive Deep Learning in Quant Finance with Qlib’s PyTorch AdaRNN
+slug: qlib-ai-quant-workflow-scoreic
+title: Understanding Score IC in Qlib for Enhanced Profit
 date: 2024-12-22
 authors: [nicolad]
 tags:
@@ -26,284 +26,209 @@ tags:
 
 ## Introduction
 
-[**AdaRNN**](https://github.com/jindongwang/transferlearning/tree/master/code/deep/adarnn) is a specialized **PyTorch** model designed to adaptively learn from **non-stationary** financial time series—where market distributions evolve over time. Originally proposed in the paper _AdaRNN: Adaptive Learning and Forecasting for Time Series_, it leverages both **GRU layers** and **transfer-loss** techniques to mitigate the effects of distributional shift. This article demonstrates how AdaRNN can be applied within Microsoft’s **Qlib**—an open-source, AI-oriented platform for quantitative finance.
+One of the core ideas in quantitative finance is that **model predictions**—often called “scores”—can be mapped to **expected returns** on an instrument. In **Qlib**, these scores are evaluated using metrics like the **Information Coefficient (IC)** and **Rank IC** to show how well the scores predict future returns. Essentially, **the higher the score, the more profit the instruments**—if your IC is positive and statistically significant, the highest-scored stocks should, on average, outperform the lower-scored ones.
 
 <!-- truncate -->
 
-```mermaid
-flowchart LR
-    A((DataFlow)) --> B[NonstationaryFinancialData]
-    B --> C[TemporalCovariateShiftTCS]
-    C --> D[AdaRNNCore]
-    D --> E[AdaptiveForecasts]
-    style A fill:#bbf,stroke:#333,stroke-width:1px
-    style B fill:#ddf,stroke:#333,stroke-width:1px
-    style C fill:#f9f,stroke:#333,stroke-width:1px
-    style D fill:#bfb,stroke:#333,stroke-width:1px
-    style E fill:#cfc,stroke:#333,stroke-width:1px
-```
+This article focuses on how **score IC** links directly to profit potential, and how you can visualize IC trends in **Qlib** via a built-in function that graphs daily IC or Rank IC over time.
 
 ---
 
-## Background: AdaRNN Methodology
+## Score, IC, and Profit
 
-- **Temporal Covariate Shift (TCS)**  
-  Market factors may differ drastically from historical data. AdaRNN addresses TCS by adaptively aligning representations over time.
+- **Score**  
+  In typical Qlib workflows, each instrument receives a numeric score (e.g., `predictions`). Qlib strategies, like `TopkDropoutStrategy`, buy the instruments with **top scores** and short or underweight those with **lowest scores**.
 
-- **Two-Phase Design**
+- **Information Coefficient (IC)**  
+  Measures how closely your predicted scores correlate with the instrument’s **future returns** (the “label”). A higher (positive) IC indicates that **when your model says “buy,” those instruments tend to go up**, and when it says “sell,” they tend to go down.
 
-  1. **Temporal Distribution Characterization**:  
-     Better captures distribution information in time-series data.
-  2. **Temporal Distribution Matching**:  
-     Bridges the gap between older and newer data via advanced distribution alignment (e.g., MMD, CORAL, COSINE).
+- **Why Profit Matters**  
+  A model that exhibits a **consistently positive IC** should produce profitable trading signals. If the daily or weekly IC remains positive, you can be more confident that the **“higher score” = “more profit”** assumption holds.
 
-- **Paper & Code References**:
-  - [CIKM 2021 Paper](https://arxiv.org/abs/2108.04443)
-  - [Official Repo](https://github.com/jindongwang/transferlearning/tree/master/code/deep/adarnn)
+---
+
+## High-Level Flow: Scores to Profit
+
+Below is a **Mermaid.js** diagram (now oriented **top-to-bottom**) illustrating how raw data (features and labels) are processed by a predictive model, which then outputs “scores.” Qlib’s strategies use these scores to generate trades, and finally we evaluate profits in backtests. The diagram includes a styling approach compatible with both **dark mode** and **light mode**.
 
 ```mermaid
 flowchart TD
-    S[OlderMarket] -->|DistShift| T[NewerMarket]
-    C[AdaRNNModel] -->|AdaptiveAlign| S
-    C --> T
-    style S fill:#ccf,stroke:#333,stroke-width:1px
-    style T fill:#ccf,stroke:#333,stroke-width:1px
-    style C fill:#bfb,stroke:#333,stroke-width:1px
+    classDef darkMode fill:#333,stroke:#fff,stroke-width:1px,color:#fff
+    classDef lightMode fill:#fff,stroke:#333,stroke-width:1px,color:#333
+
+    A["Raw Data (Features and Labels)"]:::lightMode
+    B["Predictive Model (Produces Scores)"]:::darkMode
+    C["Information Coefficient (Check Score-Return Correlation)"]:::lightMode
+    D["Trading Strategy (Buy Top Scores)"]:::darkMode
+    E["Backtest & Profit Evaluation"]:::lightMode
+
+    A --> B
+    B --> C
+    C --> D
+    D --> E
+
+    class A lightMode
+    class B darkMode
+    class C lightMode
+    class D darkMode
+    class E lightMode
 ```
 
-AdaRNN’s adaptability makes it relevant for **financial forecasting**, **air-quality prediction**, and **activity recognition**—any scenario where non-stationary data complicates model training.
+1. **Raw Data (Features and Labels)**: Historical features, plus the future return or label.
+2. **Predictive Model**: Outputs a numeric score per instrument.
+3. **Information Coefficient (IC)**: Measures correlation between predicted scores and actual returns.
+4. **Trading Strategy**: Allocates capital to instruments with **highest** predicted scores.
+5. **Backtest & Profit**: Evaluates performance to confirm “higher scores” lead to higher returns.
 
 ---
 
-## Qlib Integration
+## Detailed Trading Flow
 
-Below is an excerpt from a Qlib-friendly YAML configuration. By running one command, Qlib will:
-
-1. **Initialize** a US market environment (`^GSPC` as benchmark).
-2. **Load & transform** data (e.g. `Alpha360`) with specialized normalization and label dropping.
-3. **Train** a custom or placeholder PyTorch “AdaRNN” model.
-4. **Evaluate** predictions via correlation metrics and backtesting.
-5. **Generate** logs for advanced debugging and iteration.
-
-```mermaid
-flowchart LR
-    A[QlibInit] --> B[DataLoadTransform]
-    B --> C[AdaRNNorPyTorchModel]
-    C --> D[ICandMSEMetrics]
-    D --> E[BacktestCosts]
-    style A fill:#ddf,stroke:#333,stroke-width:1px
-    style B fill:#ddf,stroke:#333,stroke-width:1px
-    style C fill:#bfb,stroke:#333,stroke-width:1px
-    style D fill:#bbf,stroke:#333,stroke-width:1px
-    style E fill:#ddd,stroke:#333,stroke-width:1px
-```
-
-### Command
-
-```bash
-qrun workflow_config_adarnn_Alpha360.yaml
-```
-
-### YAML Snippet
-
-```yaml
-qlib_init:
-  provider_uri: "/Users/vadimnicolai/Public/work/qlib-cookbook/.data/us_data"
-  region: us
-  kernels: 1
-
-market: &market sp500
-benchmark: &benchmark ^GSPC
-
-data_handler_config: &data_handler_config
-  start_time: 2008-01-01
-  end_time: 2020-08-01
-  fit_start_time: 2008-01-01
-  fit_end_time: 2014-12-31
-  instruments: *market
-  infer_processors:
-    - class: RobustZScoreNorm
-      kwargs:
-        fields_group: feature
-        clip_outlier: true
-    - class: Fillna
-      kwargs:
-        fields_group: feature
-  learn_processors:
-    - class: DropnaLabel
-    - class: CSRankNorm
-      kwargs:
-        fields_group: label
-  label: ["Ref($close, -2) / Ref($close, -1) - 1"]
-
-port_analysis_config: &port_analysis_config
-  strategy:
-    class: TopkDropoutStrategy
-    module_path: qlib.contrib.strategy
-    kwargs:
-      signal: <PRED>
-      topk: 50
-      n_drop: 5
-  backtest:
-    start_time: 2017-01-01
-    end_time: 2020-08-01
-    account: 100000000
-    benchmark: *benchmark
-    exchange_kwargs:
-      limit_threshold: 0.095
-      deal_price: close
-      open_cost: 0.0005
-      close_cost: 0.0015
-      min_cost: 5
-
-task:
-  model:
-    # Demonstration of AdaRNN or a placeholder PyTorch model
-    class: DNNModelPytorch
-    module_path: qlib.contrib.model.pytorch_nn
-    kwargs:
-      batch_size: 1024
-      max_steps: 4000
-      loss: mse
-      lr: 0.002
-      optimizer: adam
-      GPU: 0
-      pt_model_kwargs:
-        input_dim: 360
-
-  dataset:
-    class: DatasetH
-    module_path: qlib.data.dataset
-    kwargs:
-      handler:
-        class: Alpha360
-        module_path: qlib.contrib.data.handler
-        kwargs: *data_handler_config
-      segments:
-        train: [2008-01-01, 2014-12-31]
-        valid: [2015-01-01, 2016-12-31]
-        test: [2017-01-01, 2020-08-01]
-
-  record:
-    - class: SignalRecord
-      module_path: qlib.workflow.record_temp
-      kwargs:
-        model: <MODEL>
-        dataset: <DATASET>
-    - class: SigAnaRecord
-      module_path: qlib.workflow.record_temp
-      kwargs:
-        ana_long_short: False
-        ann_scaler: 252
-    - class: PortAnaRecord
-      module_path: qlib.workflow.record_temp
-      kwargs:
-        config: *port_analysis_config
-```
-
----
-
-## Example Logs & Observations
-
-When you run:
-
-```bash
-qrun workflow_config_adarnn_Alpha360.yaml
-```
-
-You may see logs such as:
-
-```
-[50515:MainThread](2024-12-23 19:23:44,889) INFO - qlib.ADARNN - ADARNN pytorch version...
-d_feat : 6
-hidden_size : 64
-num_layers : 2
-dropout : 0.0
-n_epochs : 200
-lr : 0.001
-metric : loss
-batch_size : 800
-early_stop : 20
-optimizer : adam
-loss_type : mse
-...
-Epoch0: training...
-ic/train: 0.016603, mse/train: 0.010481, ...
-ic/valid: 0.007023, mse/valid: 0.013398, ...
-Epoch1: training...
-ic/train: 0.017488, ...
-ic/valid: 0.007711, ...
-```
+For an even clearer view, here’s another diagram depicting how **scores** become actual trades and profits. Qlib typically takes the top K instruments by score, buys them (or overweight), and then measures returns via backtests.
 
 ```mermaid
 flowchart TD
-    L[LoadAlpha360] --> P[ProcessData]
-    P --> M[TrainAdaRNN]
-    M --> M2[MetricsICMSEetc]
-    M2 --> B[BacktestRecord]
-    style L fill:#ddd,stroke:#333,stroke-width:1px
-    style P fill:#ccf,stroke:#333,stroke-width:1px
-    style M fill:#fdf,stroke:#333,stroke-width:1px
-    style M2 fill:#bbf,stroke:#333,stroke-width:1px
-    style B fill:#ddd,stroke:#333,stroke-width:1px
+    classDef darkMode fill:#333,stroke:#fff,stroke-width:1px,color:#fff
+    classDef lightMode fill:#fff,stroke:#333,stroke-width:1px,color:#333
+
+    S["Scores from Model"]:::lightMode
+    R["Rank & Sort (Top-K)"]:::darkMode
+    T["Generate Trades (Buy High Scores)"]:::lightMode
+    P["Execute & Monitor Portfolio"]:::darkMode
+    U["Evaluate Profit & Risk"]:::lightMode
+
+    S --> R
+    R --> T
+    T --> P
+    P --> U
+
+    class S lightMode
+    class R darkMode
+    class T lightMode
+    class P darkMode
+    class U lightMode
 ```
-
-**Key Points**:
-
-- `d_feat=6` indicates the model uses 6 features per time step (Alpha360 can have ~360; some examples show 6 for a simpler demonstration).
-- AdaRNN attempts to adapt to distribution shifts with a specialized gating mechanism, plus distance-based alignment (e.g., MMD, cosine).
-- Low or moderate `ic` (information coefficient) values in early epochs typically mean you might tune your features or hyperparams further.
-
-### Practical Notes
-
-- Setting `GPU: 0` uses CPU-only mode—suitable for debugging or if CUDA is unavailable.
-- If distribution shift is severe, consider `'adv'`, `'mmd_rbf'`, or `'cosine'` in the AdaRNN code base to better handle changing market regimes.
-- Check memory usage and concurrency settings (`kernels: 1`) if you encounter long training times or segmentation faults.
 
 ---
 
-## Data & Requirements
+## Code Snippet: Score IC in Qlib
 
-In **AdaRNN**’s original repository, they discuss:
+Below is a Qlib code excerpt that calculates and plots daily **IC** and **Rank IC** for your predictions. The key point is that by examining the correlation of `score` vs. actual `label`, you confirm whether your model’s top-scored instruments are indeed more profitable.
 
-- **Air-quality dataset** but the technique extends well to **finance**.
-- **Python >= 3.7**, **PyTorch ~1.6** for best results.
-- Ensure your Qlib environment has matching dependencies (e.g. `requirements.txt` pinned versions) to avoid conflicts.
+```python
+import pandas as pd
+
+from ..graph import ScatterGraph
+from ..utils import guess_plotly_rangebreaks
+
+def _get_score_ic(pred_label: pd.DataFrame):
+    concat_data = pred_label.copy()
+    concat_data.dropna(axis=0, how="any", inplace=True)
+
+    # Pearson correlation (IC)
+    _ic = concat_data.groupby(level="datetime").apply(lambda x: x["label"].corr(x["score"]))
+    # Spearman correlation (Rank IC)
+    _rank_ic = concat_data.groupby(level="datetime").apply(lambda x: x["label"].corr(x["score"], method="spearman"))
+
+    return pd.DataFrame({"ic": _ic, "rank_ic": _rank_ic})
+
+
+def score_ic_graph(pred_label: pd.DataFrame, show_notebook: bool = True, **kwargs) -> [list, tuple]:
+    """
+    score IC
+
+    :param pred_label: index is **pd.MultiIndex**; columns are **[score, label]**.
+    :param show_notebook: whether to display graphics in notebook, default is **True**.
+    :return: if show_notebook is True, displays in notebook; else returns a **plotly** Figure list.
+    """
+    _ic_df = _get_score_ic(pred_label)
+
+    _figure = ScatterGraph(
+        _ic_df,
+        layout=dict(
+            title="Score IC",
+            xaxis=dict(tickangle=45, rangebreaks=kwargs.get("rangebreaks", guess_plotly_rangebreaks(_ic_df.index))),
+        ),
+        graph_kwargs={"mode": "lines+markers"},
+    ).figure
+
+    if show_notebook:
+        ScatterGraph.show_graph_in_notebook([_figure])
+    else:
+        return (_figure,)
+```
+
+### How IC is Computed
+
+The following **Mermaid.js** diagram (also top-down) shows a more detailed process for computing IC and Rank IC from your predictions. Note the consistent use of **darkMode** and **lightMode** classes for better visibility:
+
+```mermaid
+flowchart TD
+    classDef darkMode fill:#333,stroke:#fff,stroke-width:1px,color:#fff
+    classDef lightMode fill:#fff,stroke:#333,stroke-width:1px,color:#333
+
+    A["Raw Data (Scores, Labels)"]:::lightMode
+    B["Drop Rows with NaN"]:::darkMode
+    C["Group by datetime"]:::lightMode
+    D["Compute Pearson Corr (IC)"]:::darkMode
+    E["Compute Spearman Corr (Rank IC)"]:::darkMode
+    F["Daily IC Series"]:::lightMode
+    G["Daily Rank IC Series"]:::darkMode
+    H["Plot or Return Figure (IC)"]:::lightMode
+    I["Analysis & Strategy (Score→Profit)"]:::darkMode
+
+    A --> B
+    B --> C
+    C --> D & E
+    D --> F
+    E --> G
+    F --> H
+    G --> H
+    H --> I
+
+    class A lightMode
+    class B darkMode
+    class C lightMode
+    class D darkMode
+    class E darkMode
+    class F lightMode
+    class G darkMode
+    class H lightMode
+    class I darkMode
+```
+
+1. **Raw Data (Scores, Labels)**: Predictions for each instrument on each day, plus actual next-day returns (labels).
+2. **Drop NaNs**: Ensures correlation is computed only on valid rows.
+3. **Group by Date**: Each date’s correlation is calculated separately.
+4. **Compute Correlation**:
+   - **IC (Pearson)** for linear correlation.
+   - **Rank IC (Spearman)** for ordinal correlation.
+5. **Daily IC Series** / **Daily Rank IC Series**: You get a time-series of how well your scores predicted returns each day.
+6. **Plot or Return Figure**: The function can plot in a notebook or return the figure object.
+7. **Analysis & Strategy**: Evaluate how effectively your scores correspond to profit opportunities.
+
+---
+
+## Visualizing IC for Profit Potential
+
+Once you generate the IC or Rank IC plot, you can observe:
+
+- **Trend**: Steadily positive IC means the model consistently **ranks profitable instruments higher**.
+- **Volatility**: If IC is highly volatile, it may still work on average, but can underperform in certain market conditions.
+- **Regime Changes**: If you see a sudden drop in IC, consider re-training or adjusting your strategy parameters. Markets evolve, and your model must adapt to maintain profitability.
+
+In all cases, a robust **IC** typically signals that **“the higher the score, the more profit the instruments.”**
 
 ---
 
 ## Conclusion
 
-AdaRNN’s **adaptive** architecture is particularly suited to **non-stationary** financial data, bridging older regimes to modern ones via distribution matching. Within Qlib:
+**Score IC** is a vital metric that directly links **predicted scores** to **potential profit**. A **positive and stable IC** typically indicates that **the higher the score, the more profit the instruments**—validating your model’s overall predictive quality. With Qlib’s built-in code snippet, you can quickly visualize IC and Rank IC over time, then decide how to optimize or fine-tune your strategy.
 
-1. You unify data ingestion, factor engineering, neural training, and evaluation into **one YAML**.
-2. You easily measure correlation (IC, Rank IC) and simulate real trading costs via **PortAnaRecord**.
-3. You can adapt AdaRNN’s gating, hidden-layers, or distribution distances for maximum alpha discovery in shifting markets.
+### Next Steps
 
-```mermaid
-flowchart LR
-   A[AdaRNN] -->|AdaptiveLoss| B[ShiftMitigated]
-   B --> C[AlphaSignals]
-   C --> D[BacktestResults]
-   style A fill:#ffc,stroke:#333,stroke-width:1px
-   style B fill:#cff,stroke:#333,stroke-width:1px
-   style C fill:#cec,stroke:#333,stroke-width:1px
-   style D fill:#bbb,stroke:#333,stroke-width:1px
-```
+1. **Run the `score_ic_graph`** function after each training session to see if your model is improving.
+2. **Optimize** hyperparameters or feature engineering if IC remains low or negative.
+3. **Deploy** top-scoring instruments in a live trading environment, monitoring real-world profit and risk metrics alongside IC.
 
-**Next Steps**:
-
-- Try different distribution-losses (MMD, CORAL, `'adv'`) in AdaRNN to see which best handles your market regime changes.
-- Combine fundamental, sentiment, or alt data to strengthen “temporal distribution characterization.”
-- Evaluate the final portfolio PnL and IR thoroughly in Qlib’s logs, adjusting hyperparameters (`dw`, `pre_epoch`, `hidden_size`) for improved adaptation.
-
----
-
-## References
-
-1. Du, Yuntao, et al. “AdaRNN: Adaptive Learning and Forecasting for Time Series.” _Proceedings of the 30th ACM International Conference on Information & Knowledge Management (CIKM)_, 2021.  
-   [Paper Video](https://www.youtube.com/watch?v=...) | [Zhihu (Chinese)](https://zhuanlan.zhihu.com/...)
-2. [AdaRNN GitHub Repo](https://github.com/jindongwang/transferlearning/tree/master/code/deep/adarnn)
-3. [Qlib on GitHub](https://github.com/microsoft/qlib)
-
-_Pro Tip_: If you see low IC or negative alpha, consider rolling or incremental re-training. Fine-tuning AdaRNN’s distribution alignment parameters can be crucial for dealing with abrupt financial market changes.
+Leverage Qlib’s extensive tooling—data pipelines, backtest strategies, and analysis charts—to refine your approach, **always remembering that a robust and consistent IC is your gateway to profitable trades**.
