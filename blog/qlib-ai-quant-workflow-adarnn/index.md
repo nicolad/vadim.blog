@@ -49,7 +49,7 @@ This article focuses on how **score IC** links directly to profit potential, and
 
 ## High-Level Flow: Scores to Profit
 
-Below is a **Mermaid.js** diagram (oriented **top-to-bottom**) illustrating how raw data (features and labels) are processed by a predictive model, which then outputs “scores.” Qlib’s strategies use these scores to generate trades, and finally we evaluate profits in backtests. The diagram includes a styling approach compatible with both **dark mode** and **light mode**.
+Below is a diagram illustrating how raw data (features and labels) are processed by a predictive model, which then outputs “scores.” Qlib’s strategies use these scores to generate trades, and finally we evaluate profits in backtests.
 
 ```mermaid
 flowchart TD
@@ -253,11 +253,3 @@ In all cases, a robust **IC** typically signals that **“the higher the score, 
 ## Conclusion
 
 **Score IC** is a vital metric that directly links **predicted scores** to **potential profit**. A **positive and stable IC** typically indicates that **the higher the score, the more profit the instruments**—validating your model’s overall predictive quality. With Qlib’s built-in code snippet, you can quickly visualize IC and Rank IC over time, then decide how to optimize or fine-tune your strategy.
-
-### Next Steps
-
-1. **Run the `score_ic_graph`** function after each training session to see if your model is improving.
-2. **Optimize** hyperparameters or feature engineering if IC remains low or negative.
-3. **Deploy** top-scoring instruments in a live trading environment, monitoring real-world profit and risk metrics alongside IC.
-
-Leverage Qlib’s extensive tooling—data pipelines, backtest strategies, and analysis charts—to refine your approach, **always remembering that a robust and consistent IC is your gateway to profitable trades**.
