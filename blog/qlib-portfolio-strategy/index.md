@@ -1,7 +1,7 @@
 ---
 slug: qlib-portfolio-strategy
 title: A Comprehensive Guide to Qlib’s Portfolio Strategy, TopkDropoutStrategy, and EnhancedIndexingStrategy
-date: 2024-12-24
+date: 2024-12-25
 authors: [nicolad]
 tags:
   [
