@@ -48,12 +48,12 @@ By the end of this article, you will learn:
 - **Modeling**: Easily pluggable ML models (LightGBM, Linear, RNN, etc.) with out-of-the-box training logic
 - **Evaluation and Backtest**: Includes modules for analyzing signals, computing IC/RankIC, and running trading strategies in a backtest simulator
 
-### Diagram: Top-Down Architecture of Qlib
+### Diagram: Qlib Architecture
 
 Below is a high-level view of Qlib’s architecture—how data flows from raw sources into Qlib’s data handlers, transforms into features, and ultimately fuels model training.
 
 ```mermaid
-flowchart TB
+flowchart TD
     subgraph QlibTopDown
     A((Raw Market Data)) --> B[Qlib Data Handlers]
     B --> C[[Feature Engineering - ExpressionOps]]
@@ -79,8 +79,8 @@ Some Qlib features—like intraday data handling or advanced factor expressions�
 ### Diagram: MLflow Overview
 
 ```mermaid
-flowchart TB
-    subgraph MLflowTopDown
+flowchart TD
+    subgraph MLflow
     A[MLflow Client] --> B((Tracking Server))
     B --> C[[Artifact Store or Database]]
     B --> D{MLflow UI for Comparison}
@@ -106,7 +106,7 @@ In typical usage, Qlib handles data ingestion, feature transformations, and mode
 Below is a top-down diagram showing how user code interacts with Qlib, which in turn leverages MLflow for run logging.
 
 ```mermaid
-flowchart TB
+flowchart TD
     subgraph QlibMLflowIntegration
     U[[User Code]] --> Q((Qlib Modules: Data, Models, Workflow))
     Q --> R{{Qlib Recorder logs to MLflow}}
