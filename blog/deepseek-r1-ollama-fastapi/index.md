@@ -26,8 +26,7 @@ This article covers the entire pipeline:
 
 1. Installing and configuring **Ollama** to serve DeepSeek-R1 locally
 2. Interacting with DeepSeek-R1 using the CLI, Python scripts, or a **FastAPI** endpoint for streaming responses
-3. Building a local retrieval-augmented generation (RAG) workflow with **Gradio** and **LangChain**
-4. Demonstrating a minimal **FastAPI** integration, so you can easily wrap your model in a web service
+3. Demonstrating a minimal **FastAPI** integration, so you can easily wrap your model in a web service
 
 By the end, you’ll see **how to run DeepSeek-R1 locally** while benefiting from **FastAPI**’s scalability, logging, and integration features—all without sending your data to external servers.
 
@@ -76,7 +75,7 @@ DeepSeek-R1 offers different parameter sizes (e.g., 1.5B, 7B, 14B, 70B, 671B) fo
 
 ### 2.3 Running DeepSeek-R1 in the Background
 
-To serve the model continuously (useful for external services like FastAPI or Gradio):
+To serve the model continuously (useful for external services like FastAPI):
 
 ```bash
 ollama serve
@@ -138,106 +137,7 @@ print(response["message"]["content"])
 
 ---
 
-## 4. Running a Local Gradio App for RAG With DeepSeek-R1
-
-**Retrieval-Augmented Generation (RAG)** blends LLM queries with external data to yield more accurate or domain-specific results. Below, we walk through building a PDF-based Q&A app using **Gradio** and **LangChain** for local retrieval.
-
-### 4.1 Install Required Libraries
-
-```bash
-pip install langchain chromadb gradio
-pip install -U langchain-community
-```
-
-These libraries handle chunking, storage, retrieval, and UI.
-
-### 4.2 PDF Ingestion and Indexing
-
-```python
-import gradio as gr
-from langchain_community.document_loaders import PyMuPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
-from langchain_community.embeddings import OllamaEmbeddings
-import ollama
-import re
-
-def process_pdf(pdf_bytes):
-    if pdf_bytes is None:
-        return None, None, None
-    loader = PyMuPDFLoader(pdf_bytes)
-    data = loader.load()
-
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=100)
-    chunks = text_splitter.split_documents(data)
-
-    embeddings = OllamaEmbeddings(model="deepseek-r1")
-    vectorstore = Chroma.from_documents(documents=chunks, embedding=embeddings)
-    retriever = vectorstore.as_retriever()
-    return text_splitter, vectorstore, retriever
-```
-
-1. **`PyMuPDFLoader`** reads PDF files.
-2. **`RecursiveCharacterTextSplitter`** splits text into smaller, overlapping chunks.
-3. **`OllamaEmbeddings`** uses DeepSeek-R1 to generate embeddings for each chunk.
-4. **`Chroma`** stores embeddings for fast similarity searches.
-
-### 4.3 Querying DeepSeek-R1
-
-```python
-def combine_docs(docs):
-    return "\n\n".join(doc.page_content for doc in docs)
-
-def ollama_llm(question, context):
-    formatted_prompt = f"Question: {question}\n\nContext: {context}"
-    response = ollama.chat(
-        model="deepseek-r1",
-        messages=[{'role': 'user', 'content': formatted_prompt}]
-    )
-    response_content = response['message']['content']
-
-    # Remove any <think> tags, if present
-    final_answer = re.sub(r'<think>.*?</think>', '', response_content, flags=re.DOTALL).strip()
-    return final_answer
-
-def rag_chain(question, text_splitter, vectorstore, retriever):
-    retrieved_docs = retriever.invoke(question)
-    formatted_content = combine_docs(retrieved_docs)
-    return ollama_llm(question, formatted_content)
-```
-
-### 4.4 Gradio Interface
-
-```python
-def ask_question(pdf_bytes, question):
-    text_splitter, vectorstore, retriever = process_pdf(pdf_bytes)
-    if text_splitter is None:
-        return None  # No PDF uploaded
-    return rag_chain(question, text_splitter, vectorstore, retriever)
-
-interface = gr.Interface(
-    fn=ask_question,
-    inputs=[
-        gr.File(label="Upload PDF (optional)"),
-        gr.Textbox(label="Ask a question"),
-    ],
-    outputs="text",
-    title="Ask questions about your PDF",
-    description="Use DeepSeek-R1 to answer questions about an uploaded PDF document.",
-)
-interface.launch()
-```
-
-**What happens:**
-
-- You upload a PDF (optional).
-- The system splits it, embeds each chunk, and stores them.
-- For each query, the relevant chunks are retrieved and used as context for DeepSeek-R1.
-- Gradio automatically creates a local web interface for you at a given localhost port.
-
----
-
-## 5. FastAPI Integration and Streaming Responses
+## 4. FastAPI Integration and Streaming Responses
 
 To wrap DeepSeek-R1 in a fully customizable **FastAPI** service, you can define streaming endpoints for advanced usage. Below is an example that sends chunked responses to the client:
 
@@ -344,6 +244,5 @@ With this setup, you can embed DeepSeek-R1 into more complex microservices or or
 
 - **Ollama** manages downloading and serving the DeepSeek-R1 models.
 - **FastAPI** provides a flexible web layer for streaming responses or building microservices.
-- **LangChain** + **Gradio** enable quick prototypes of retrieval-augmented Q&A apps.
 
 Build your local AI solutions confidently and privately—**DeepSeek-R1** is now at your fingertips.
