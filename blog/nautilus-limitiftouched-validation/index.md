@@ -1,76 +1,155 @@
 ---
-slug: nautilus-limitiftouched-validation
-title: Contributing a Safer LimitIfTouchedOrder to Nautilus Trader — A Small Open-Source Win for Rust Trading
+
+slug: nautilus-marketiftouched-validation
+title: Contributing a Safer **MarketIfTouchedOrder** to Nautilus Trader — Hardening Conditional Orders in Rust
 date: 2025-05-03
-authors: [nicolad]
----
+authors: \[nicolad]
+-------------------
 
 ## Introduction
 
-`LimitIfTouchedOrder` (LIT) is a conditional order that sits between a simple limit order and a stop-limit order: it rests _inactive_ until a **trigger price** is touched, then converts into a plain limit at the specified **limit price**.
-Because it straddles two distinct price levels and multiple conditional flags, _robust validation_ is critical—any silent mismatch can manifest as unwanted executions in live trading.
+`MarketIfTouchedOrder` (MIT) is the *mirror image* of a stop-market order: it rests **inactive** until the market price *touches* a predefined **trigger**, then converts into a market order and executes immediately. Because it links a latent trigger straight into an **instant execution** path, airtight validation is non-negotiable—any silent mismatch can manifest as an unwanted trade in production.
 
-Pull Request [#2533](https://github.com/nautechsystems/nautilus_trader/pull/2533) standardises and hardens the validation logic for LIT orders, bringing it up to the same quality bar as `MarketOrder` and `LimitOrder`. The PR was merged into `develop` on **May 1 2025** by @cjdsellers (+207 / −9 across one file). ([GitHub][1], [GitHub][2])
+Pull Request **#2577** delivers exactly that hardening. It was merged into `develop` on **May 1 2025** by @cjdsellers, landing **+159 / −13 across one file**. ([GitHub][1])
+
+---
+
+## Connection to Issue #2529 – “Standardise validations for orders”
+
+The work originates from **Issue #2529**, a meta-ticket demanding uniform, fail-fast checks across _all_ order types. PR #2577 is the first concrete deliverable and automatically closed the item via a “Fixes #2529” footer. ([GitHub][2])
 
 ---
 
 ## Why the Change Was Needed
 
-- **Inconsistent invariants** – `quantity`, `price`, and `trigger_price` were _not_ always checked for positivity.
-- **Edge-case foot-guns** – `TimeInForce::Gtd` could be set with a zero `expire_time`, silently turning a “good-til-date” order into “good-til-cancel”.
-- **Side/trigger mismatch** – A BUY order with a trigger _above_ the limit price (or SELL with trigger _below_ limit) yielded undefined behaviour.
-- **Developer frustration** – Consumers of the SDK had to replicate guard clauses externally; a single canonical constructor removes that burden.
+| Problem                                                                   | Consequence                                                                                     |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| _Partial_ positivity checks on `quantity`, `trigger_price`, `display_qty` | Invalid values slipped through and only triggered panics deep in matching or persistence layers |
+| `TimeInForce::Gtd` accepted `expire_time = None`                          | A “good-til-date” order silently degraded into “good-til-cancel”                                |
+| Iceberg abuse — no rule that `display_qty ≤ quantity`                     | Traders could expose more liquidity than they actually had                                      |
+| Legacy `new` constructor could only **panic**                             | Callers had no graceful error-handling path                                                     |
 
 ---
 
-## Key Enhancements
+## Key Enhancements in PR #2577
 
-| Area              | Before                 | After                                                                           |
-| ----------------- | ---------------------- | ------------------------------------------------------------------------------- |
-| Constructor API   | `new` (panic-on-error) | `new_checked` (returns `Result`) + `new` now wraps it                           |
-| Positivity checks | Only partial           | Guaranteed for `quantity`, `price`, `trigger_price`, and optional `display_qty` |
-| Display quantity  | Not validated          | Must be ≤ `quantity`                                                            |
-| GTD orders        | No expire validation   | Must supply `expire_time` when `TimeInForce::Gtd`                               |
-| Side/trigger rule | Undefined              | `BUY ⇒ trigger ≤ price`, `SELL ⇒ trigger ≥ price`                               |
-| Unit-tests        | 0 dedicated tests      | 5 focused tests (happy-path + 4 failure modes)                                  |
-
----
-
-## Implementation Highlights
-
-1. **`new_checked`** – a fallible constructor returning `anyhow::Result<Self>`. All invariants live here.
-2. **Guard helpers** – leverages `check_positive_quantity`, `check_positive_price`, and `check_predicate_false` from `nautilus_core::correctness`.
-3. **Legacy behaviour preserved** – the original `new` now calls `new_checked().expect("FAILED")`, so downstream crates that relied on panics keep working.
-4. **Concise `Display` impl** – human-readable string that shows side, quantity, instrument, prices, trigger type, TIF, and status for quick debugging.
-5. **Test suite** – written with _rstest_; covers `ok`, `quantity_zero`, `gtd_without_expire`, `buy_trigger_gt_price`, and `sell_trigger_lt_price`.
-
-Code diff stats: **207 additions**, **9 deletions**, affecting `crates/model/src/orders/limit_if_touched.rs`. ([GitHub][2])
+| Area              | Before (`v0`)              | After (`v1`)                                                            |
+| ----------------- | -------------------------- | ----------------------------------------------------------------------- |
+| Constructor API   | `new` → **panic on error** | **`new_checked`** returns `anyhow::Result<Self>`; legacy `new` wraps it |
+| Positivity checks | Partial                    | Guaranteed for `quantity`, `trigger_price`, optional `display_qty`      |
+| GTD orders        | `expire_time` optional     | **Required** when `TIF == GTD`                                          |
+| Iceberg rule      | None                       | `display_qty ≤ quantity` enforced                                       |
+| Error semantics   | Opaque panics              | Rich `anyhow::Error` with domain text                                   |
+| Tests             | None                       | 4 rstest cases prove happy-path and three failure modes                 |
 
 ---
 
-## Impact on Integrators
+## Walking Through the File
 
-_If you only called_ `LimitIfTouchedOrder::new` **nothing breaks**—you’ll merely enjoy better error messages if you misuse the API.
-For stricter compile-time safety, switch to the new `new_checked` constructor and handle `Result<T>` explicitly.
+1. **Header & Licence**
+   The usual LGPL 3.0 banner plus a 2015-2025 copyright line.
+
+2. **Imports**
+   _Domain helpers_ (`UUID4`, `UnixNanos`), numerical types (`rust_decimal::Decimal`), serde for (de)serialisation, and the big `crate::{ … }` prelude bringing in enums, identifiers, and strongly-typed finance primitives.
+
+3. **`MarketIfTouchedOrder` struct**
+
+   ```rust
+   pub struct MarketIfTouchedOrder {
+       pub trigger_price: Price,
+       pub trigger_type: TriggerType,
+       pub expire_time: Option<UnixNanos>,
+       pub display_qty: Option<Quantity>,
+       pub trigger_instrument_id: Option<InstrumentId>,
+       pub is_triggered: bool,
+       pub ts_triggered: Option<UnixNanos>,
+       core: OrderCore,
+   }
+   ```
+
+   - **`core`** is a flattened composition holding all common order fields (side, status, quantities, timestamps, events, etc.).
+   - Booleans and `Option`s track the state of the latent trigger.
+
+4. **`new_checked` (added by the PR)**
+   _All_ invariants live here:
+
+   ```rust
+   check_positive_quantity(quantity, "quantity")?;
+   check_positive_price(trigger_price, "trigger_price")?;
+   if let Some(disp) = display_qty {
+       check_positive_quantity(disp, "display_qty")?;
+       check_predicate_false(disp > quantity, "`display_qty` may not exceed `quantity`")?;
+   }
+   if time_in_force == TimeInForce::Gtd {
+       check_predicate_false(
+           expire_time.unwrap_or_default() == 0,
+           "Condition failed: `expire_time` is required for `GTD` order",
+       )?;
+   }
+   ```
+
+   The function then builds an `OrderInitialized` event, wraps it in `OrderCore`, and returns `Ok(Self)`.
+
+5. **Legacy `new`**
+   A thin wrapper that calls `new_checked(...).expect(FAILED)`, so existing test-code that _expects_ a panic still works, while production code can migrate to the `Result` API.
+
+6. **`impl Order for MarketIfTouchedOrder`**
+   Implements \~60 methods required by the `Order` trait. Highlights:
+
+   - `trigger_price()` and `trigger_type()` return `Some(..)` instead of `None`.
+   - `apply(&mut self, event: OrderEventAny)` recomputes slippage immediately after an order is filled.
+   - Setter helpers (`set_position_id`, `set_quantity`, etc.) mutate the inner `OrderCore` safely.
+
+7. **`impl From<OrderInitialized> for MarketIfTouchedOrder`**
+   Enables ergonomic `.into()` conversions from the event stream back to a _typed_ order, ensuring reconstruction is safe and validated.
+
+8. **Tests (new)**
+   _rstest_ module with four cases:
+
+   - `ok` (happy path)
+   - `quantity_zero` (**should panic**)
+   - `gtd_without_expire` (**should panic**)
+   - `display_qty_gt_quantity` (**should panic**)
+
+---
+
+## Mermaid – Order Lifecycle
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> Initialized
+    Initialized -->|submit()| Submitted
+    Submitted -->|accepted()| Resting
+    Resting -->|price touches trigger_price| Triggered
+    Triggered -->|auto-converts| MarketOrder
+    MarketOrder --> Filled
+    Resting -->|cancel()| Cancelled
+    Triggered -->|cancel()| Cancelled
+    Filled --> [*]
+    Cancelled --> [*]
+```
+
+---
+
+## Practical Usage Example
 
 ```rust
-let order = LimitIfTouchedOrder::new_checked(
+let mit = MarketIfTouchedOrder::new_checked(
     trader_id,
     strategy_id,
     instrument_id,
     client_order_id,
-    OrderSide::Buy,
+    OrderSide::Sell,
     qty,
-    limit_price,
     trigger_price,
     TriggerType::LastPrice,
     TimeInForce::Gtc,
     None,          // expire_time
-    false, false,  // post_only, reduce_only
-    false, None,   // quote_qty, display_qty
-    None, None,    // emulation_trigger, trigger_instrument_id
-    None, None,    // contingency_type, order_list_id
-    None,          // linked_order_ids
+    false, false,  // reduce_only, quote_quantity
+    None, None,    // display_qty, emulation_trigger
+    None, None,    // trigger_instrument_id, contingency_type
+    None, None,    // order_list_id, linked_order_ids
     None,          // parent_order_id
     None, None,    // exec_algorithm_id, params
     None,          // exec_spawn_id
@@ -80,15 +159,23 @@ let order = LimitIfTouchedOrder::new_checked(
 )?;
 ```
 
+If you prefer the old behaviour, continue using `MarketIfTouchedOrder::new`; you’ll simply get clearer panic messages if you pass invalid data.
+
 ---
 
 ## Conclusion
 
-PR \[#2533] dramatically reduces the surface area for invalid LIT orders by centralising all domain rules in a single, auditable place.
-Whether you’re building discretionary tooling or a fully automated strategy on top of **Nautilus Trader**, you now get _fail-fast_ behaviour with precise error semantics—no more mystery fills in production.
-
-> **Next steps:** adopt `new_checked`, make your own wrappers return `Result`, and enjoy safer trading.
+By centralising all MIT invariants in a single, auditable constructor—and tying the work back to the broader **“Standardise validations”** initiative—PR #2577 gives Nautilus Trader users _fail-fast safety_ without breaking existing code.
+Adopt `new_checked`, propagate the `Result`, and trade with confidence.
 
 ---
 
-[1]: https://github.com/nautechsystems/nautilus_trader/pull/2533 "Improve validations for LimitIfTouchedOrder by nicolad · Pull Request #2533 · nautechsystems/nautilus_trader · GitHub"
+### URLs
+
+- PR #2577 – “Improve validations for MarketIfTouchedOrder”
+  [https://github.com/nautechsystems/nautilus_trader/pull/2577](https://github.com/nautechsystems/nautilus_trader/pull/2577)
+- Issue #2529 – “Standardise validations for orders”
+  [https://github.com/nautechsystems/nautilus_trader/issues/2529](https://github.com/nautechsystems/nautilus_trader/issues/2529)
+
+[1]: https://github.com/nautechsystems/nautilus_trader/pull/2577 "Improve validations for MarketIfTouchedOrder by nicolad · Pull Request #2577 · nautechsystems/nautilus_trader · GitHub"
+[2]: https://github.com/nautechsystems/nautilus_trader/issues/2529 "Standardize validations for orders · Issue #2529 · nautechsystems/nautilus_trader · GitHub"
