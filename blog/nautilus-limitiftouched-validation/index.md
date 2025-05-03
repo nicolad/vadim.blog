@@ -1,6 +1,6 @@
 ---
 slug: nautilus-limitiftouched-validation
-title: Contributing a Safer `LimitIfTouchedOrder` to Nautilus Trader — A Small Open-Source Win for Rust Trading
+title: Contributing a Safer LimitIfTouchedOrder to Nautilus Trader — A Small Open-Source Win for Rust Trading
 date: 2025-05-03
 authors: [nicolad]
 ---
