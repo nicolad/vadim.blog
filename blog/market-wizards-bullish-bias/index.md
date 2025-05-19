@@ -1,6 +1,6 @@
 ---
 slug: market-wizard-bullish-bias-playbook
-title: Slaying Bullish Bias A Market Wizards 30-Point Playbook
+title: Slaying Bullish Bias - A Market Wizards Playbook
 date: 2025-05-19
 authors: [nicolad]
 ---
