@@ -118,7 +118,6 @@ Wallet signs payload  →  Exchange endpoint → Node → Validators (HyperBFT)
 
 1. **Passive Maker Ladder (ALO + STP)**
    Build dense post-only ladders, earn spread + rebates, cancel/repost gas-free.
-   [Python SDK example](https://github.com/hyperliquid-dex/hyperliquid-python-sdk/tree/main/examples)
 
 2. **Rebate Farming (maker-share)**
    Hit ≥0.5%, 1.5%, 3% maker volume shares to unlock –0.001%/–0.002%/–0.003%.
