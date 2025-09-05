@@ -1,6 +1,6 @@
 ---
 slug: tokio-vs-tokio-stream-websocket-adapters
-title: Tokio vs tokio-stream in WebSocket adapters: stream-first vs select!
+title: Tokio vs tokio-stream in WebSocket adapters - stream-first vs select!
 date: 2025-09-05
 authors: [nicolad]
 ---
