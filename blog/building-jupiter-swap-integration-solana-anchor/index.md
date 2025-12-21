@@ -8,14 +8,12 @@ image: ./jupiter.jpeg
 
 ![Jupiter swap integration architecture on Solana](./jupiter.jpeg)
 
-## TL;DR
+**TL;DR**: This is a production swap execution engine that wraps Jupiter with **guardrails**, **operational controls**, and **analytics-ready telemetry**—not just a technical integration example.
 
-- **Jupiter** is Solana's premier swap aggregator, routing through 20+ liquidity venues to find optimal prices
-- Built a **production-ready Anchor program** that integrates Jupiter v6 via Cross-Program Invocation (CPI)
-- Implemented **configurable fee collection**, slippage protection, and pause mechanisms
-- Created **comprehensive test suite**: 47 tests (29 unit + 18 integration) with 95% coverage
-- Frontend includes **React hooks** and modern UI components for seamless wallet integration
-- Key considerations: **Token-2022 compatibility**, transaction size limits (ALTs), and versioned transactions
+- Jupiter routes across 20+ venues for best execution
+- This guide adds an on-chain **policy layer**: fee collection, slippage caps, admin pause, and full auditability
+- Every swap is **attributable, debuggable, and measurable** via structured event telemetry
+- Designed for **product teams** who need: reliable execution, operational visibility, and supportability
 
 ---
 
@@ -50,6 +48,22 @@ Direct Jupiter API usage is simple, but wrapping it in an Anchor program enables
 | **Audit trail** | off-chain | on-chain events |
 | **Slippage protection** | client-side | program-enforced |
 
+### Policy layer: what is enforced where
+
+Understanding **enforcement boundaries** is critical for security and UX:
+
+| Concern | Enforced on-chain | Enforced in client | Notes |
+|---|:---:|:---:|---|
+| **Slippage ceiling** | Yes | Yes | On-chain cap prevents hostile clients from bypassing limits |
+| **Fee collection** | Yes | No | Must be deterministic; client cannot skip or reduce fees |
+| **Quote freshness** | No | Yes | Client refreshes quotes; include quote timestamp in intent |
+| **Route allowlist/denylist** | Optional | Optional | Useful for risk control (e.g., block suspicious pools) |
+| **Pause / emergency stop** | Yes | No | Admin can halt swaps immediately for incidents |
+| **Compute budget** | No | Yes | Client requests higher compute units for complex routes |
+| **Intent deduplication** | No | Off-chain | Backend checks `intent_id` before indexing |
+
+**Key principle**: On-chain enforces **non-bypassable invariants** (fees, caps, pauses). Client enforces **UX optimizations** (quote refresh, compute). Off-chain systems handle **analytics and deduplication**.
+
 ```mermaid
 flowchart TD
   U["User Wallet"]
@@ -70,6 +84,142 @@ flowchart TD
   P -->|"Emit event"| P
   P -->|"Return to user"| U
 ```
+
+---
+
+## Where this fits in a product
+
+This swap integration is a **component in an operating system**, not a standalone feature. Understanding the full lifecycle is critical for product reliability:
+
+```mermaid
+flowchart LR
+  UI["UI/UX Layer"]
+  Quote["Quote Service"]
+  Intent["Intent Creation"]
+  Exec["Swap Execution"]
+  Telem["Telemetry Events"]
+  Index["Indexer/DB"]
+  BO["Backoffice"]
+  
+  UI -->|"User action"| Quote
+  Quote -->|"Best price"| Intent
+  Intent -->|"intent_id + params"| Exec
+  Exec -->|"On-chain event"| Telem
+  Telem -->|"Structured log"| Index
+  Index -->|"Dashboards, alerts"| BO
+  BO -->|"Support, ops, analytics"| UI
+```
+
+**Workflow breakdown**:
+
+1. **UI → Quote**: User selects tokens and amount; frontend requests quote from Jupiter API
+2. **Quote → Intent**: UI creates a **swap intent** (client-side idempotency key) with user parameters
+3. **Intent → Execute**: Program validates intent, enforces policy, executes swap via CPI to Jupiter
+4. **Execute → Telemetry**: On-chain event emitted with full context (intent ID, amounts, fees, route, timestamps)
+5. **Telemetry → Indexer**: Off-chain indexer writes structured event to database (Postgres, ClickHouse, etc.)
+6. **Indexer → Backoffice**: Dashboards show conversion funnels, failure rates, revenue; support uses intent IDs for debugging
+
+**Why this matters**:
+
+- **Idempotency**: Intent IDs prevent double-swaps on retries
+- **Attribution**: Every swap traces back to user session, client version, marketing campaign
+- **Debuggability**: Support can search by intent ID, see full context in one query
+- **Operability**: Dashboards answer "Why did conversion drop 10%?" without guessing
+
+---
+
+## Intent model: idempotency + attribution
+
+In production systems, you need **reliable execution** and **clean analytics**. The intent model provides both.
+
+### What is a swap intent?
+
+A **SwapIntent** captures user action before execution:
+
+```typescript
+interface SwapIntent {
+  intent_id: string;           // UUIDv4 or client-generated unique ID
+  wallet: PublicKey;           // User wallet address
+  input_mint: PublicKey;       // Source token
+  output_mint: PublicKey;      // Destination token
+  amount_in: u64;              // Input amount (lamports)
+  max_slippage_bps: u16;       // Max acceptable slippage
+  created_at: i64;             // Client timestamp
+  client_version: string;      // App version (e.g., "web-v2.1.3")
+  metadata?: Record<string, string>; // Campaign ID, referrer, etc.
+}
+```
+
+### Client-side intent creation
+
+```typescript
+import { v4 as uuidv4 } from 'uuid';
+
+function createSwapIntent(params: {
+  wallet: PublicKey;
+  inputMint: PublicKey;
+  outputMint: PublicKey;
+  amountIn: number;
+  slippageBps: number;
+}): SwapIntent {
+  return {
+    intent_id: uuidv4(),
+    wallet: params.wallet,
+    input_mint: params.inputMint,
+    output_mint: params.outputMint,
+    amount_in: params.amountIn,
+    max_slippage_bps: params.slippageBps,
+    created_at: Date.now(),
+    client_version: process.env.NEXT_PUBLIC_APP_VERSION || 'unknown',
+    metadata: {
+      campaign_id: getCampaignId(),
+      referrer: document.referrer,
+    },
+  };
+}
+```
+
+### Benefits of the intent model
+
+**1. Idempotency (no double-swaps)**:
+
+```typescript
+// User clicks "Swap" → creates intent
+const intent = createSwapIntent(params);
+
+// Network error on first attempt
+try {
+  await executeSwap(intent); // Fails
+} catch (error) {
+  // User retries with SAME intent_id
+  await executeSwap(intent); // Succeeds
+}
+
+// Backend deduplicates by intent_id
+// Only ONE swap executed, even with multiple transactions
+```
+
+**2. Consistent analytics**:
+
+- Every event has `intent_id` → join quote request, execution, and outcome
+- Measure **quote-to-swap conversion** accurately
+- Track **funnel drop-off** by stage
+
+**3. Clean support threads**:
+
+```
+User: "My swap failed!"
+Support: "Please send your transaction signature or intent ID"
+User: "abc123-def456-..."
+Support: [searches DB] → sees stale quote, invalid route, or slippage exceeded
+Support: "Your quote expired. Please refresh and try again."
+```
+
+**Implementation note**: You don't need to store intents on-chain (expensive). Store them:
+
+- **Client-side**: Browser localStorage for retry logic
+- **Off-chain DB**: When user initiates swap, log intent to database
+- **In events**: Include `intent_id` in on-chain event for correlation
 
 ---
 
@@ -267,10 +417,10 @@ pub fn jupiter_swap<'info>(
 #### Token-2022 compatibility
 
 ```rust
-// ❌ WRONG: Trusting instruction amount
+// WRONG: Trusting instruction amount
 let output_amount = minimum_amount_out;
 
-// ✅ CORRECT: Observe vault delta
+// CORRECT: Observe vault delta
 let vault_before = user_output_token.amount;
 // ... execute swap ...
 user_output_token.reload()?;
@@ -446,8 +596,8 @@ export function useJupiter() {
 Complex Jupiter routes exceed the 1232-byte transaction limit. ALTs compress account lists:
 
 ```typescript
-// Without ALT: 32 bytes per account × 40 accounts = 1280 bytes ❌
-// With ALT: table reference + indices = ~50 bytes ✅
+// Without ALT: 32 bytes per account × 40 accounts = 1280 bytes (fails)
+// With ALT: table reference + indices = ~50 bytes (works)
 ```
 
 Use **versioned transactions** (v0) to support ALTs.
@@ -459,7 +609,7 @@ Jupiter quotes expire quickly (10-30 seconds):
 ```typescript
 const quote = await getQuote(params);
 // Wait too long...
-await sleep(60000); // ❌ Quote now stale
+await sleep(60000); // Quote now stale
 await executeSwap(quote); // Likely fails with slippage error
 ```
 
@@ -578,7 +728,7 @@ export function JupiterSwap() {
 **UX enhancements**:
 
 - Real-time quote updates (auto-refresh)
-- Price impact warnings (>5% highlighted)
+- Price impact warnings (greater than 5% highlighted)
 - Route visualization (which venues are used)
 - Minimum output calculation (slippage tolerance display)
 
@@ -708,8 +858,6 @@ async fn test_slippage_protection() {
 | jupiter_swap.rs | 5 | Event emission, calculations |
 | jupiter_rust_tests.rs | 18 | End-to-end flows, security |
 
-**Total: 47 tests, 95% coverage**
-
 ---
 
 ## Production deployment checklist
@@ -756,7 +904,106 @@ solana program set-upgrade-authority <program_id> --final
 
 ---
 
-## Common pitfalls and solutions
+## Operational runbook: support & incident handling
+
+When swaps fail or users contact support, you need **immediate answers**. This runbook maps symptoms to root causes.
+
+### Required debug information
+
+Every support ticket needs:
+
+- **Transaction signature** (if swap was attempted)
+- **Intent ID** (from client logs or user session)
+- **Wallet address**
+- **Input/output mints**
+- **Timestamp** (when issue occurred)
+
+### Failure classification matrix
+
+| Symptom | Root cause | Diagnosis | Immediate mitigation |
+|---|---|---|---|
+| "Slippage tolerance exceeded" | Quote stale OR low liquidity | Check `quote_age_seconds` in event | Shorten quote refresh interval to 5-10s |
+| "Transaction simulation failed" | Compute budget exceeded | Check route complexity (hops >3) | Bump compute units to 400k for complex routes |
+| "Account not found" | ALT missing or not loaded | Check `addressLookupTableAccounts` in txn | Ensure ALTs created and extended with pool accounts |
+| "Insufficient funds" | User balance < amount + fees | Check wallet balance vs `amount_in` | Show clear error: "Need X SOL for fees" |
+| "Custom program error: 0x1770" | Token-2022 transfer fee | Check if token has transfer fee extension | Use vault delta verification (not instruction data) |
+| "Transaction timeout" | Network congestion | Check priority fee paid | Increase priority fee dynamically (use Helius API) |
+| "Invalid instruction data" | Jupiter program upgraded | Check program version mismatch | Update Jupiter program ID constant |
+| Swap succeeds but user didn't receive full amount | Token-2022 fee-on-transfer | Compare quote vs actual received | Document this in UI ("Receives ~X after fees") |
+
+### Incident response playbook
+
+#### Scenario 1: Sudden spike in failures (greater than 10% failure rate)
+
+**Immediate actions**:
+
+1. Check Solana network status (https://status.solana.com)
+2. Verify Jupiter API health (https://status.jup.ag)
+3. Query last 100 failures by `error_code`:
+
+   ```sql
+   SELECT error_code, COUNT(*) as count
+   FROM swap_failed_events
+   WHERE timestamp > NOW() - INTERVAL '1 hour'
+   GROUP BY error_code
+   ORDER BY count DESC;
+   ```
+
+4. If `error_code=1005` (compute exceeded): Bump compute budget globally
+5. If `error_code=1002` (stale quote): Reduce quote refresh interval
+6. If widespread network issue: Enable **pause toggle** via admin
+
+#### Scenario 2: User reports "missing tokens"
+
+**Debug flow**:
+
+1. Get transaction signature → check on Solscan/Explorer
+2. Verify transaction succeeded (success or failure)
+3. If succeeded:
+   - Check `JupiterSwapEvent.amount_out`
+   - Compare to user's token account balance
+   - Check for Token-2022 transfer fees (some tokens deduct on transfer)
+4. If failed:
+   - Check `JupiterSwapFailedEvent.error_code`
+   - Map to human-readable explanation
+   - Guide user on fix (refresh quote, increase slippage, etc.)
+
+#### Scenario 3: Revenue suddenly drops
+
+**Diagnostic queries**:
+
+```sql
+-- Check if swap volume dropped or fee collection failed
+SELECT
+  DATE_TRUNC('hour', timestamp) as hour,
+  COUNT(*) as swap_count,
+  SUM(amount_in) as total_volume,
+  SUM(platform_fee) as revenue
+FROM swap_events
+WHERE timestamp > NOW() - INTERVAL '24 hours'
+GROUP BY hour
+ORDER BY hour DESC;
+```
+
+Possible causes:
+
+- Fee collection logic broken (check program logs)
+- Users bypassing your wrapper (check if they're using Jupiter directly)
+- Platform fee set to 0 accidentally (check config PDA)
+
+### Proactive monitoring alerts
+
+Set up alerts for:
+
+- **Failure rate greater than 5%** for 10 minutes
+- **Quote-to-swap conversion less than 70%** (indicates UX friction)
+- **Median execution latency greater than 30 seconds** (quote staleness)
+- **Zero swaps for 15 minutes** (system down or paused)
+- **Platform fee revenue drops greater than 50%** hour-over-hour
+
+---
+
+## Common pitfalls and solutions (reference)
 
 ### 1. Transaction size limits (exceeded max accounts)
 
@@ -845,13 +1092,13 @@ let compute_ix = ComputeBudgetInstruction::set_compute_unit_limit(400_000);
 ### Account lookup optimization
 
 ```rust
-// ❌ Inefficient: Multiple account lookups
+// Inefficient: Multiple account lookups
 for account in ctx.remaining_accounts.iter() {
     let data = account.try_borrow_data()?;
     // Process...
 }
 
-// ✅ Efficient: Single borrow per account
+// Efficient: Single borrow per account
 let accounts: Vec<_> = ctx.remaining_accounts
     .iter()
     .map(|a| (a.key(), a.try_borrow_data()))
@@ -861,10 +1108,10 @@ let accounts: Vec<_> = ctx.remaining_accounts
 ### Fee calculation (avoid division)
 
 ```rust
-// ❌ Slower: Division
+// Slower: Division
 let fee = (amount * fee_bps) / 10000;
 
-// ✅ Faster: Shift (if fee_bps is power of 2)
+// Faster: Shift (if fee_bps is power of 2)
 // For 0.5% (50 bps): multiply by 1/200 = right shift by ~8
 // Not always applicable, but pattern to consider
 ```
@@ -872,11 +1119,11 @@ let fee = (amount * fee_bps) / 10000;
 ### Frontend quote batching
 
 ```typescript
-// ❌ Sequential quotes
+// Sequential quotes (slower)
 const quote1 = await getQuote({ inputMint: SOL, outputMint: USDC, amount: 1e9 });
 const quote2 = await getQuote({ inputMint: SOL, outputMint: USDT, amount: 1e9 });
 
-// ✅ Parallel quotes
+// Parallel quotes (faster)
 const [quote1, quote2] = await Promise.all([
   getQuote({ inputMint: SOL, outputMint: USDC, amount: 1e9 }),
   getQuote({ inputMint: SOL, outputMint: USDT, amount: 1e9 }),
@@ -887,31 +1134,195 @@ const [quote1, quote2] = await Promise.all([
 
 ## Monitoring and analytics
 
-### On-chain events
+### On-chain events (CRM/ops-grade telemetry)
+
+Your event schema defines **what you can measure and debug**. Make it comprehensive:
 
 ```rust
 #[event]
 pub struct JupiterSwapEvent {
-    pub user: Pubkey,
+    // Attribution
+    pub intent_id: [u8; 16],         // UUID bytes for client-side correlation
+    pub user: Pubkey,                 // Wallet address
+    pub client_version: [u8; 32],     // App version (e.g., "web-v2.1.3\0\0...")
+    
+    // Swap details
     pub input_mint: Pubkey,
     pub output_mint: Pubkey,
     pub amount_in: u64,
     pub amount_out: u64,
     pub platform_fee: u64,
+    
+    // Execution context
+    pub quote_timestamp: i64,         // When quote was generated (detect staleness)
+    pub execution_timestamp: i64,     // When swap executed
+    pub route_hash: u64,              // Hash of route plan (fingerprint venues used)
+    pub slippage_bps_requested: u16,  // User-requested slippage
+    pub slippage_bps_effective: u16,  // Actual slippage observed
+    
+    // Operational data
+    pub compute_units_consumed: u64,  // For performance tuning
+    pub priority_fee_paid: u64,       // MEV/congestion analysis
+}
+
+#[event]
+pub struct JupiterSwapFailedEvent {
+    // Attribution (same as success event)
+    pub intent_id: [u8; 16],
+    pub user: Pubkey,
+    pub client_version: [u8; 32],
+    
+    // Failure context
+    pub input_mint: Pubkey,
+    pub output_mint: Pubkey,
+    pub amount_in: u64,
+    pub minimum_amount_out: u64,
+    
+    // Diagnostic data
+    pub error_code: u32,              // Mapped to human-readable reasons
+    pub program_error: Option<String>, // Anchor error details
+    pub quote_age_seconds: i64,       // How old was the quote?
     pub timestamp: i64,
 }
 ```
 
-### Metrics to track
+**Why these fields matter**:
 
-| Metric | Calculation | Why it matters |
-|---|---|---|
-| **Total volume** | Sum of `amount_in` (USD-normalized) | Revenue projections |
-| **Fee revenue** | Sum of `platform_fee` | Monetization tracking |
-| **Success rate** | Successful swaps / total attempts | UX quality |
-| **Avg slippage** | `(quote_out - actual_out) / quote_out` | Routing efficiency |
-| **Popular pairs** | Group by `(input_mint, output_mint)` | Optimize ALTs |
-| **Peak TPS** | Swaps per 10-second window | Scaling needs |
+- **`intent_id`**: Join client logs, backend DB, and on-chain events for full trace
+- **`client_version`**: Identify bugs introduced in specific releases
+- **`quote_timestamp` vs `execution_timestamp`**: Measure latency, detect stale quotes
+- **`route_hash`**: Identify which venue combinations succeed/fail most
+- **`slippage_bps_effective`**: Measure if users are over-allocating slippage tolerance
+- **`compute_units_consumed`**: Optimize compute budgets dynamically
+- **`error_code`**: Build dashboards showing top failure reasons
+
+### Failure telemetry (first-class error logging)
+
+Most teams only emit success events. **Failures are more valuable for ops**:
+
+```rust
+pub fn jupiter_swap<'info>(
+    ctx: Context<'_, '_, 'info, 'info, JupiterSwap<'info>>,
+    intent_id: [u8; 16],
+    amount_in: u64,
+    minimum_amount_out: u64,
+) -> Result<()> {
+    // ... validation and swap execution ...
+    
+    // If swap fails, emit failure event BEFORE returning error
+    if let Err(e) = execute_jupiter_cpi(&ctx, amount_in) {
+        emit!(JupiterSwapFailedEvent {
+            intent_id,
+            user: ctx.accounts.user.key(),
+            client_version: get_client_version(),
+            input_mint: ctx.accounts.input_mint.key(),
+            output_mint: ctx.accounts.output_mint.key(),
+            amount_in,
+            minimum_amount_out,
+            error_code: map_error_to_code(&e),
+            program_error: Some(e.to_string()),
+            quote_age_seconds: calculate_quote_age(),
+            timestamp: Clock::get()?.unix_timestamp,
+        });
+        return Err(e);
+    }
+    
+    // Success: emit success event
+    emit!(JupiterSwapEvent { /* ... */ });
+    Ok(())
+}
+```
+
+**Error code mapping** (for structured dashboards):
+
+```rust
+fn map_error_to_code(error: &anchor_lang::error::Error) -> u32 {
+    match error {
+        JupiterSwapError::MinimumOutputNotMet => 1001,
+        JupiterSwapError::StaleQuote => 1002,
+        JupiterSwapError::JupiterPaused => 1003,
+        JupiterSwapError::InsufficientLiquidity => 1004,
+        JupiterSwapError::ComputeBudgetExceeded => 1005,
+        JupiterSwapError::ALTMissing => 1006,
+        JupiterSwapError::Token2022TransferFee => 1007,
+        _ => 9999, // Unknown error
+    }
+}
+```
+
+### Dashboard-ready KPI definitions
+
+These metrics map directly to SQL queries and BI dashboards:
+
+| KPI | Formula | Query example | Target |
+|---|---|---|---|
+| **Quote → Swap conversion** | `completed_swaps / quote_requests` | `SELECT COUNT(DISTINCT intent_id) FROM swaps / COUNT(*) FROM quotes` | greater than 80% |
+| **Intent completion rate** | `completed_intents / created_intents` | `SELECT successful / total FROM intent_summary` | greater than 90% |
+| **Failure rate by reason** | `failures(reason=X) / total_attempts` | `SELECT error_code, COUNT(*) / total FROM failures GROUP BY error_code` | less than 5% overall |
+| **Median execution latency** | `median(event_time - intent_creation_time)` | `SELECT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY latency) FROM swaps` | less than 15s |
+| **Revenue (USD)** | `SUM(platform_fee * token_price_usd)` | `SELECT SUM(f.amount * p.price) FROM fees f JOIN prices p ON f.mint = p.mint` | Track growth |
+| **Route health score** | `success_rate_per_route_fingerprint` | `SELECT route_hash, COUNT(*) successes / total FROM swaps GROUP BY route_hash` | greater than 95% per route |
+| **Effective slippage** | `AVG((quote_out - actual_out) / quote_out * 10000)` | `SELECT AVG((quoted - actual) / quoted * 10000) FROM swaps` | less than 50 BPS |
+| **Repeat user rate** | `users_with_2plus_swaps / total_users` | `SELECT COUNT(DISTINCT user) FROM (SELECT user, COUNT(*) c FROM swaps GROUP BY user HAVING c >= 2)` | greater than 40% |
+
+**Sample dashboard SQL** (Postgres):
+
+```sql
+-- Real-time conversion funnel
+WITH funnel AS (
+  SELECT
+    COUNT(DISTINCT q.intent_id) as quotes,
+    COUNT(DISTINCT s.intent_id) as swaps,
+    COUNT(DISTINCT CASE WHEN s.success = true THEN s.intent_id END) as successful
+  FROM quote_requests q
+  LEFT JOIN swap_events s ON q.intent_id = s.intent_id
+  WHERE q.created_at > NOW() - INTERVAL '1 hour'
+)
+SELECT
+  quotes,
+  swaps,
+  successful,
+  ROUND(100.0 * swaps / NULLIF(quotes, 0), 2) as quote_to_swap_pct,
+  ROUND(100.0 * successful / NULLIF(swaps, 0), 2) as success_rate
+FROM funnel;
+
+-- Top failure reasons (last 24 hours)
+SELECT
+  CASE error_code
+    WHEN 1001 THEN 'Slippage exceeded'
+    WHEN 1002 THEN 'Stale quote'
+    WHEN 1005 THEN 'Compute budget exceeded'
+    WHEN 1006 THEN 'ALT missing'
+    WHEN 1007 THEN 'Token-2022 transfer fee'
+    ELSE 'Unknown'
+  END as failure_reason,
+  COUNT(*) as occurrences,
+  ROUND(100.0 * COUNT(*) / SUM(COUNT(*)) OVER (), 2) as percentage
+FROM swap_failed_events
+WHERE timestamp > NOW() - INTERVAL '24 hours'
+GROUP BY error_code
+ORDER BY occurrences DESC;
+
+-- Revenue by token pair (last 7 days)
+SELECT
+  s.input_mint,
+  s.output_mint,
+  COUNT(*) as swap_count,
+  SUM(s.platform_fee) as total_fee_tokens,
+  SUM(s.platform_fee * p.price_usd) as revenue_usd
+FROM swap_events s
+JOIN token_prices p ON s.output_mint = p.mint
+WHERE s.timestamp > NOW() - INTERVAL '7 days'
+GROUP BY s.input_mint, s.output_mint
+ORDER BY revenue_usd DESC
+LIMIT 10;
+```
+
+**Grafana/Metabase integration**:
+
+- Create alerts on conversion rate drop (greater than 10% decrease)
+- Dashboard panels: conversion funnel, failure reasons pie chart, revenue time series
+- User cohort analysis: new vs returning users by swap count
 
 ### Indexing with Helius/Hellomoon
 
@@ -1084,6 +1495,61 @@ const breakdown: RouteBreakdown[] = [
 
 ---
 
+## Production integration checklist
+
+Use this checklist before deploying to mainnet:
+
+### Pre-deployment
+
+- [ ] **Intent ID propagated end-to-end**: Client generates UUID → passed to program → included in events
+- [ ] **Client version tracking**: App version captured in all events for release correlation
+- [ ] **Quote refresh mechanism**: Auto-refresh every 10s; warn user if quote >30s old
+- [ ] **Slippage calculation**: Dynamic slippage based on liquidity depth (not hardcoded)
+- [ ] **Quote staleness guard**: Validate `quote_timestamp` on backend before execution
+
+### Smart contract
+
+- [ ] **CPI remaining accounts tested**: Verified with 2-hop, 3-hop, and 5-hop routes
+- [ ] **Token-2022 vault delta validation**: Output amount observed from token account change, not instruction data
+- [ ] **ALT/v0 transaction support**: Complex routes (>20 accounts) tested with Address Lookup Tables
+- [ ] **Platform fee collection**: Verified fees transfer to correct account on every swap
+- [ ] **Slippage enforcement**: On-chain max slippage cap cannot be bypassed by client
+- [ ] **Pause toggle works**: Admin can halt swaps; verified in integration tests
+- [ ] **Overflow protection**: All fee calculations use `checked_mul` / `checked_div`
+
+### Telemetry & observability
+
+- [ ] **Success events comprehensive**: Include intent_id, route_hash, slippage_effective, compute_units
+- [ ] **Failure events captured**: Emit `SwapFailedEvent` with error_code before returning errors
+- [ ] **Error code mapping**: All program errors map to documented reason codes (1001-1007+)
+- [ ] **Event indexer running**: Helius/Hellomoon/custom indexer writes events to database
+- [ ] **Dashboard metrics live**: Conversion rate, failure breakdown, revenue tracking operational
+
+### Operational readiness
+
+- [ ] **Support runbook documented**: Team knows how to classify failures by error code
+- [ ] **Admin key security**: Stored in hardware wallet or multisig (not hot wallet)
+- [ ] **Monitoring alerts configured**: Failure rate greater than 5%, conversion less than 70%, revenue drops
+- [ ] **Incident response plan**: Who to contact for Jupiter API issues, network outages
+- [ ] **User-facing error messages**: Map error codes to helpful guidance (e.g., "Quote expired. Refresh and retry.")
+
+### Testing
+
+- [ ] **Mainnet-like environment**: Tested on devnet with realistic routes and tokens
+- [ ] **Token-2022 tokens tested**: USDT (transfer fee), BONK (token extensions)
+- [ ] **High-compute routes tested**: 5+ hop routes with compute budget adjustments
+- [ ] **Failure scenarios tested**: Stale quote, slippage exceeded, insufficient balance
+- [ ] **End-to-end user flow**: Quote → Intent → Execute → Event → Dashboard (full trace)
+
+### Deployment
+
+- [ ] **Verifiable build**: `anchor build --verifiable` succeeds; hash matches deployed program
+- [ ] **Config PDA initialized**: Admin, fee account, platform fee, max slippage set correctly
+- [ ] **Frontend pointing to correct program**: Program ID hardcoded matches deployed address
+- [ ] **Upgrade authority finalized**: Set to multisig or `--final` after audit
+
+---
+
 ## Conclusion
 
 Building a Jupiter integration on Solana requires:
@@ -1096,8 +1562,6 @@ Building a Jupiter integration on Solana requires:
 
 The result is a **composable, fee-collecting swap infrastructure** that leverages Jupiter's best-in-class routing while maintaining control over user experience and revenue.
 
-With **47 tests passing** and **95% coverage**, this implementation is production-ready for mainnet deployment.
-
 ---
 
 **Key takeaways**:
@@ -1108,4 +1572,4 @@ With **47 tests passing** and **95% coverage**, this implementation is productio
 - Address Lookup Tables are essential for complex routes
 - Testing prevents costly mainnet bugs (each fix costs 0.5-1 SOL)
 
-Ship safe. 🚀
+Ship safe.
