@@ -361,13 +361,13 @@ pub fn jupiter_swap<'info>(
     let swap_ix = Instruction {
         program_id: ctx.accounts.jupiter_program.key(),
         accounts,
-        data: /* Jupiter swap instruction data */,
+        data: swap_data, // Jupiter swap instruction data
     };
     
     invoke_signed(&swap_ix, ctx.remaining_accounts, &[])?;
     
     // 5. Verify output amount (Token-2022 safe)
-    let output_amount = /* observe vault delta */;
+    let output_amount = observe_vault_delta(); // observe vault delta
     require!(
         output_amount >= minimum_amount_out,
         JupiterSwapError::MinimumOutputNotMet
