@@ -8,32 +8,6 @@ image: ./jupiter.jpeg
 
 ![Jupiter swap integration architecture on Solana](./jupiter.jpeg)
 
-<div style={{textAlign: 'center', margin: '20px 0'}}>
-  <a href="#production-integration-checklist" style={{
-    display: 'inline-block',
-    padding: '12px 24px',
-    backgroundColor: '#00D4AA',
-    color: '#000',
-    borderRadius: '6px',
-    textDecoration: 'none',
-    fontWeight: '600',
-    marginRight: '10px'
-  }}>
-    Production Checklist →
-  </a>
-  <a href="#operational-runbook-support--incident-handling" style={{
-    display: 'inline-block',
-    padding: '12px 24px',
-    backgroundColor: '#7C3AED',
-    color: '#fff',
-    borderRadius: '6px',
-    textDecoration: 'none',
-    fontWeight: '600'
-  }}>
-    Support Runbook →
-  </a>
-</div>
-
 **TL;DR**: Production swap execution engine with **guardrails**, **operational controls**, and **analytics-ready telemetry**.
 
 - Jupiter routes across 20+ venues for best execution
