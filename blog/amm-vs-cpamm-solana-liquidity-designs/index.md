@@ -1,6 +1,6 @@
 ---
 slug: amm-vs-cpamm-solana-liquidity-designs
-title: AMM vs CPAMM on Solana — constant product vs CLMM, DLMM, PMM, and order books
+title: "AMM vs CPAMM on Solana: constant product vs CLMM, DLMM, PMM, and order books"
 date: 2025-12-20
 authors: [nicolad]
 ---
@@ -32,6 +32,7 @@ authors: [nicolad]
 ### AMM (the umbrella)
 
 An **AMM** is any on-chain market maker that:
+
 - holds on-chain state (reserves, inventory, parameters),
 - updates price algorithmically,
 - executes swaps against that state.
@@ -47,6 +48,7 @@ $$
 `x` and `y` are pool reserves.
 
 So:
+
 - **all CPAMMs are AMMs**
 - **not all AMMs are CPAMMs**
 
@@ -57,17 +59,20 @@ So:
 Let reserves be `(x, y)` and you swap `dx` of X for Y.
 
 ### Fee model (input fee)
+
 If fee is `f` (e.g. 0.003 for 30 bps):
 $$
 dx' = dx \cdot (1 - f)
 $$
 
 ### Output
+
 $$
 dy = \frac{y \cdot dx'}{x + dx'}
 $$
 
 ### Reserve update
+
 - `x := x + dx`  
 - `y := y - dy`
 
@@ -95,6 +100,7 @@ dx_{eff} = vault_{after} - vault_{before}
 $$
 
 ### Price intuition (useful when comparing designs)
+
 - Spot price (ignoring fees): `p ≈ y/x` (direction depends on quote convention)
 - For small trades, **slippage** is roughly proportional to trade size / liquidity depth.
 - Fees retained in the pool tend to increase `k` over time (LPs get paid via reserve growth).
@@ -261,7 +267,9 @@ flowchart TD
 ## Anchor CPAMM: the “don’t ship this” checklist (most common bugs)
 
 ### 1) Proportional deposits are ratios, not products
+
 If you want users to deposit proportionally, you preserve:
+
 - `amount_a / amount_b ≈ reserve_a / reserve_b`
 
 A clamp-style approach:
@@ -271,6 +279,7 @@ $$
 and then you clamp the other side if user supplies less.
 
 ### 2) LP minting: `sqrt(Δa·Δb)` is bootstrap-only
+
 For subsequent deposits, use proportional minting:
 $$
 liquidity = \min\left(
@@ -281,12 +290,16 @@ $$
 Otherwise LP shares drift and you can mint unfairly.
 
 ### 3) Invariant checks must be `A·B` and must use `u128`
+
 If you verify `k`, do:
+
 - `new_x * new_y >= old_k` (often allowing rounding to favor LPs)
 - compute with `u128` intermediates.
 
 ### 4) Token-2022: do not trust `amount_in`
+
 For fee-on-transfer tokens:
+
 - the only safe `dx` is `vault_after - vault_before`.
 
 ---
@@ -348,45 +361,45 @@ pub fn cpamm_out_amount(x: u64, y: u64, dx_eff: u64) -> u64 {
 ## References (URLs)
 
 - Uniswap v2 constant product (conceptual):
-  https://docs.uniswap.org/contracts/v2/concepts/protocol-overview/how-uniswap-works
+  <https://docs.uniswap.org/contracts/v2/concepts/protocol-overview/how-uniswap-works>
 
 - SPL Token Swap constant product curve (Solana reference implementation notes):
-  https://github.com/solana-labs/solana-program-library/blob/master/docs/src/token-swap.md
+  <https://github.com/solana-labs/solana-program-library/blob/master/docs/src/token-swap.md>
 
 - Curve StableSwap overview (hybrid curve intuition):
-  https://docs.curve.finance/stableswap-exchange/overview/
+  <https://docs.curve.finance/stableswap-exchange/overview/>
 
 - Orca Whirlpools (CLMM/CLAMM on Solana):
-  https://dev.orca.so/
-  https://github.com/orca-so/whirlpools
+  <https://dev.orca.so/>
+  <https://github.com/orca-so/whirlpools>
 
 - Raydium constant product pool creation (CP/CPMM program docs):
-  https://docs.raydium.io/raydium/pool-creation/creating-a-constant-product-pool
-  https://docs.raydium.io/raydium/protocol/developers/addresses
+  <https://docs.raydium.io/raydium/pool-creation/creating-a-constant-product-pool>
+  <https://docs.raydium.io/raydium/protocol/developers/addresses>
 
 - Meteora (DLMM + enhanced constant product families):
-  https://docs.meteora.ag/developer-guide/home
-  https://docs.meteora.ag/user-guide/guides/how-to-use-dlmm
-  https://docs.meteora.ag/overview/products/damm-v2/what-is-damm-v2
-  https://docs.meteora.ag/overview/products/dbc/what-is-dbc
-  https://github.com/MeteoraAg/dynamic-bonding-curve
+  <https://docs.meteora.ag/developer-guide/home>
+  <https://docs.meteora.ag/user-guide/guides/how-to-use-dlmm>
+  <https://docs.meteora.ag/overview/products/damm-v2/what-is-damm-v2>
+  <https://docs.meteora.ag/overview/products/dbc/what-is-dbc>
+  <https://github.com/MeteoraAg/dynamic-bonding-curve>
 
 - Lifinity (PMM / oracle-anchored market making on Solana):
-  https://docs.lifinity.io/
+  <https://docs.lifinity.io/>
 
 - Phoenix (crankless on-chain order book infra):
-  https://github.com/Ellipsis-Labs/phoenix-v1
+  <https://github.com/Ellipsis-Labs/phoenix-v1>
 
 - OpenBook v2 (CLOB program):
-  https://github.com/openbook-dex/openbook-v2
+  <https://github.com/openbook-dex/openbook-v2>
 
 - Solana TWAMM:
-  https://github.com/solana-labs/twamm
+  <https://github.com/solana-labs/twamm>
 
 - Token-2022 extensions (transfer fees / transfer hooks):
-  https://solana.com/docs/tokens/extensions
-  https://solana.com/docs/tokens/extensions/transfer-fees
-  https://solana.com/developers/guides/token-extensions/transfer-hook
+  <https://solana.com/docs/tokens/extensions>
+  <https://solana.com/docs/tokens/extensions/transfer-fees>
+  <https://solana.com/developers/guides/token-extensions/transfer-hook>
 
 - Jupiter routing (what venues get routed):
-  https://support.jup.ag/hc/en-us/articles/22627174618780-Which-AMMs-does-Jupiter-route-through
+  <https://support.jup.ag/hc/en-us/articles/22627174618780-Which-AMMs-does-Jupiter-route-through>

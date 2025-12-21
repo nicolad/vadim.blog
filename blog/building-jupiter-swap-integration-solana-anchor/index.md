@@ -8,32 +8,44 @@ image: ./jupiter.jpeg
 
 ![Jupiter swap integration architecture on Solana](./jupiter.jpeg)
 
-**TL;DR**: This is a production swap execution engine that wraps Jupiter with **guardrails**, **operational controls**, and **analytics-ready telemetry**—not just a technical integration example.
+<div style={{textAlign: 'center', margin: '20px 0'}}>
+  <a href="#production-integration-checklist" style={{
+    display: 'inline-block',
+    padding: '12px 24px',
+    backgroundColor: '#00D4AA',
+    color: '#000',
+    borderRadius: '6px',
+    textDecoration: 'none',
+    fontWeight: '600',
+    marginRight: '10px'
+  }}>
+    Production Checklist →
+  </a>
+  <a href="#operational-runbook-support--incident-handling" style={{
+    display: 'inline-block',
+    padding: '12px 24px',
+    backgroundColor: '#7C3AED',
+    color: '#fff',
+    borderRadius: '6px',
+    textDecoration: 'none',
+    fontWeight: '600'
+  }}>
+    Support Runbook →
+  </a>
+</div>
+
+**TL;DR**: Production swap execution engine with **guardrails**, **operational controls**, and **analytics-ready telemetry**.
 
 - Jupiter routes across 20+ venues for best execution
-- This guide adds an on-chain **policy layer**: fee collection, slippage caps, admin pause, and full auditability
-- Every swap is **attributable, debuggable, and measurable** via structured event telemetry
-- Designed for **product teams** who need: reliable execution, operational visibility, and supportability
+- On-chain **policy layer**: fee collection, slippage caps, admin pause, auditability
+- **Attributable, debuggable, measurable** via structured event telemetry
+- Built for **product teams**: reliable execution, operational visibility, supportability
 
 ---
 
 ## Why integrate Jupiter programmatically?
 
-### The aggregator value proposition
-
-Jupiter aggregates liquidity from:
-
-- **CPAMM pools** (Raydium, Orca)
-- **CLMM venues** (Orca Whirlpools, Raydium CLMM)
-- **DLMM** (Meteora)
-- **PMM** (Lifinity)
-- **Order books** (Phoenix, OpenBook)
-
-For traders, this means:
-
-- **Best execution**: automatic routing finds optimal prices across venues
-- **Reduced slippage**: splits large orders across multiple pools
-- **MEV protection**: private routing options and advanced order types
+Jupiter aggregates liquidity from **20+ venues** (CPAMM, CLMM, DLMM, PMM, order books) providing best execution, reduced slippage, and MEV protection through automatic routing and order splitting.
 
 ### Why wrap Jupiter in your own program?
 
@@ -110,21 +122,9 @@ flowchart LR
   BO -->|"Support, ops, analytics"| UI
 ```
 
-**Workflow breakdown**:
+**Workflow**: UI → Quote → Intent (idempotency key) → Execute (policy enforcement) → Telemetry (event emission) → Indexer (DB write) → Backoffice (dashboards, support)
 
-1. **UI → Quote**: User selects tokens and amount; frontend requests quote from Jupiter API
-2. **Quote → Intent**: UI creates a **swap intent** (client-side idempotency key) with user parameters
-3. **Intent → Execute**: Program validates intent, enforces policy, executes swap via CPI to Jupiter
-4. **Execute → Telemetry**: On-chain event emitted with full context (intent ID, amounts, fees, route, timestamps)
-5. **Telemetry → Indexer**: Off-chain indexer writes structured event to database (Postgres, ClickHouse, etc.)
-6. **Indexer → Backoffice**: Dashboards show conversion funnels, failure rates, revenue; support uses intent IDs for debugging
-
-**Why this matters**:
-
-- **Idempotency**: Intent IDs prevent double-swaps on retries
-- **Attribution**: Every swap traces back to user session, client version, marketing campaign
-- **Debuggability**: Support can search by intent ID, see full context in one query
-- **Operability**: Dashboards answer "Why did conversion drop 10%?" without guessing
+**Benefits**: Idempotency prevents double-swaps, attribution tracks user sessions, debuggability via intent IDs, operability through conversion dashboards.
 
 ---
 
@@ -199,27 +199,11 @@ try {
 // Only ONE swap executed, even with multiple transactions
 ```
 
-**2. Consistent analytics**:
+**2. Consistent analytics**: Every event has `intent_id` enabling quote-to-swap conversion tracking and funnel analysis.
 
-- Every event has `intent_id` → join quote request, execution, and outcome
-- Measure **quote-to-swap conversion** accurately
-- Track **funnel drop-off** by stage
+**3. Clean support**: Intent IDs allow instant lookup of swap context (stale quote, slippage, route issues).
 
-**3. Clean support threads**:
-
-```
-User: "My swap failed!"
-Support: "Please send your transaction signature or intent ID"
-User: "abc123-def456-..."
-Support: [searches DB] → sees stale quote, invalid route, or slippage exceeded
-Support: "Your quote expired. Please refresh and try again."
-```
-
-**Implementation note**: You don't need to store intents on-chain (expensive). Store them:
-
-- **Client-side**: Browser localStorage for retry logic
-- **Off-chain DB**: When user initiates swap, log intent to database
-- **In events**: Include `intent_id` in on-chain event for correlation
+**Storage**: Store intents client-side (localStorage), off-chain DB (on initiation), and in events (correlation).
 
 ---
 
