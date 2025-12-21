@@ -1065,22 +1065,22 @@ const breakdown: RouteBreakdown[] = [
 
 ### Official documentation
 
-- **Jupiter docs**: <https://station.jup.ag/docs/apis/swap-api>
-- **Jupiter v6 program**: <https://solscan.io/account/JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4>
-- **Anchor framework**: <https://www.anchor-lang.com/>
-- **Token-2022 extensions**: <https://solana.com/docs/tokens/extensions>
+- **Jupiter docs**: [https://station.jup.ag/docs/apis/swap-api](https://station.jup.ag/docs/apis/swap-api)
+- **Jupiter v6 program**: [https://solscan.io/account/JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4](https://solscan.io/account/JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4)
+- **Anchor framework**: [https://www.anchor-lang.com/](https://www.anchor-lang.com/)
+- **Token-2022 extensions**: [https://solana.com/docs/tokens/extensions](https://solana.com/docs/tokens/extensions)
 
 ### Code examples
 
 - **This implementation**: [GitHub link to your repo]
-- **Jupiter SDK**: <https://github.com/jup-ag/jupiter-quote-api-node>
-- **Anchor CPI patterns**: <https://book.anchor-lang.com/anchor_in_depth/CPIs.html>
+- **Jupiter SDK**: [https://github.com/jup-ag/jupiter-quote-api-node](https://github.com/jup-ag/jupiter-quote-api-node)
+- **Anchor CPI patterns**: [https://book.anchor-lang.com/anchor_in_depth/CPIs.html](https://book.anchor-lang.com/anchor_in_depth/CPIs.html)
 
 ### Community
 
-- **Jupiter Discord**: <https://discord.gg/jup>
-- **Solana Stack Exchange**: <https://solana.stackexchange.com/>
-- **Anchor Discord**: <https://discord.gg/anchor>
+- **Jupiter Discord**: [https://discord.gg/jup](https://discord.gg/jup)
+- **Solana Stack Exchange**: [https://solana.stackexchange.com/](https://solana.stackexchange.com/)
+- **Anchor Discord**: [https://discord.gg/anchor](https://discord.gg/anchor)
 
 ---
 
