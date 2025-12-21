@@ -769,8 +769,8 @@ Every support ticket needs:
 
 **Immediate actions**:
 
-1. Check Solana network status (<https://status.solana.com>)
-2. Verify Jupiter API health (<https://status.jup.ag>)
+1. Check Solana network status (https://status.solana.com)
+2. Verify Jupiter API health (https://status.jup.ag)
 3. Query last 100 failures by `error_code`:
 
    ```sql
