@@ -692,132 +692,6 @@ export function JupiterSwap() {
 
 ---
 
-## Testing strategy
-
-### Unit tests (29 tests across 7 modules)
-
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_config_validation() {
-        // Valid config
-        let config = JupiterConfig {
-            admin: Pubkey::new_unique(),
-            fee_account: Pubkey::new_unique(),
-            platform_fee_bps: 50,  // 0.5%
-            max_slippage_bps: 100, // 1%
-            paused: false,
-            bump: 255,
-        };
-        assert!(config.is_valid());
-
-        // Invalid platform fee
-        let bad_config = JupiterConfig {
-            platform_fee_bps: 10001, // > 100%
-            ..config
-        };
-        assert!(!bad_config.is_valid());
-    }
-
-    #[test]
-    fn test_fee_calculation() {
-        let output = 1_000_000; // 1 USDC (6 decimals)
-        let fee_bps = 30; // 0.3%
-        
-        let fee = (output as u128)
-            .checked_mul(fee_bps as u128)
-            .unwrap()
-            .checked_div(10000)
-            .unwrap() as u64;
-        
-        assert_eq!(fee, 300); // 0.003 USDC
-    }
-
-    #[test]
-    fn test_overflow_protection() {
-        // u64::MAX * fee_bps should not panic
-        let result = (u64::MAX as u128)
-            .checked_mul(100)
-            .unwrap()
-            .checked_div(10000);
-        
-        assert!(result.is_some());
-    }
-}
-```
-
-### Integration tests (18 tests)
-
-```rust
-#[tokio::test]
-async fn test_jupiter_swap_e2e() {
-    let program = setup_program().await;
-    let config_pda = /* derive config */;
-    
-    // 1. Initialize config
-    program.methods()
-        .initJupiterConfig(
-            fee_account,
-            50,   // 0.5% platform fee
-            100,  // 1% max slippage
-        )
-        .accounts(/* ... */)
-        .rpc()
-        .await
-        .unwrap();
-    
-    // 2. Execute swap
-    let swap_result = program.methods()
-        .jupiterSwap(1_000_000_000, 950_000) // 1 SOL → min 0.95 USDC
-        .accounts(/* ... */)
-        .remaining_accounts(/* Jupiter route accounts */)
-        .rpc()
-        .await;
-    
-    assert!(swap_result.is_ok());
-    
-    // 3. Verify fee collection
-    let fee_account_balance = /* check fee account */;
-    assert!(fee_account_balance > 0);
-}
-
-#[tokio::test]
-async fn test_slippage_protection() {
-    let program = setup_program().await;
-    
-    // Intentionally set min_out higher than achievable
-    let result = program.methods()
-        .jupiterSwap(1_000_000, 999_999_999) // Impossible min_out
-        .accounts(/* ... */)
-        .rpc()
-        .await;
-    
-    // Should fail with MinimumOutputNotMet
-    assert!(result.is_err());
-    assert_eq!(
-        result.unwrap_err().to_string(),
-        "MinimumOutputNotMet"
-    );
-}
-```
-
-**Test coverage breakdown**:
-
-| Module | Tests | Focus |
-|---|---:|---|
-| state.rs | 5 | Validation logic, size calculations |
-| constants.rs | 5 | Program ID parsing, seed lengths |
-| errors.rs | 2 | Error code existence |
-| init_jupiter_config.rs | 4 | Init validation, boundary cases |
-| update_jupiter_config.rs | 7 | Partial updates, admin transfer |
-| jupiter_swap.rs | 5 | Event emission, calculations |
-| jupiter_rust_tests.rs | 18 | End-to-end flows, security |
-
----
-
 ## Production deployment checklist
 
 ### Pre-deployment validation
@@ -895,8 +769,8 @@ Every support ticket needs:
 
 **Immediate actions**:
 
-1. Check Solana network status (https://status.solana.com)
-2. Verify Jupiter API health (https://status.jup.ag)
+1. Check Solana network status (<https://status.solana.com>)
+2. Verify Jupiter API health (<https://status.jup.ag>)
 3. Query last 100 failures by `error_code`:
 
    ```sql
