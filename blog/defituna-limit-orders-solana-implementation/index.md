@@ -920,6 +920,5 @@ The mainnet transactions in this guide prove that limit orders are truly **store
 ## Resources
 
 - **DeFiTuna SDK**: [https://github.com/DefiTuna/tuna-sdk](https://github.com/DefiTuna/tuna-sdk)
-- **Full Code Examples**: [GitHub Repository](https://github.com/nicolad/solana-trading-apps/tree/main/bots/defituna-bot)
 - **Orca Whirlpools**: [https://docs.orca.so/](https://docs.orca.so/)
 - **Solana RPC Docs**: [https://solana.com/docs/rpc](https://solana.com/docs/rpc)
