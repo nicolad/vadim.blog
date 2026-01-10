@@ -1,6 +1,6 @@
 ---
 slug: defituna-limit-orders-solana-implementation
-title: "Building On-Chain Limit Orders with DeFiTuna"
+title: "DeFiTuna: On-Chain Limit Orders on Solana"
 date: 2026-01-10
 authors: [nicolad]
 tags: [solana, defi, rust, rpc, limit-orders]
