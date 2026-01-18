@@ -1,16 +1,16 @@
 ---
-title: "Building Long-Running TTS Pipelines with LangGraph: Orchestrating Multi-Hour Audio Generation"
-description: "Deep dive into architecting a resilient long-form text-to-speech system using LangGraph orchestration, PostgreSQL checkpointing, and OpenAI TTS streaming for multi-hour audio content with resumable workflows"
+title: "Building Long-Running TTS Pipelines with LangGraph: Orchestrating Long-Form Audio Generation"
+description: "Deep dive into architecting a resilient long-form text-to-speech system using LangGraph orchestration, PostgreSQL checkpointing, and OpenAI TTS streaming for long-form audio content with resumable workflows"
 date: 2026-01-18
 authors: [nicolad]
 tags: [langgraph, tts, architecture, python, deepseek, openai, cloudflare-r2, postgres, audio-generation]
 ---
 
-# Building Long-Running TTS Pipelines with LangGraph: Orchestrating Multi-Hour Audio Generation
+# Building Long-Running TTS Pipelines with LangGraph: Orchestrating Longform
 
 ## Introduction
 
-Generating long-form audio content—audiobooks spanning hours, educational courses, or extended podcasts—presents unique challenges: API rate limits, network failures, resource constraints, and the sheer duration of processing. This article explores a production-ready architecture for **long-running TTS pipelines** that can gracefully handle multi-hour generation tasks, resume after failures, and maintain state across distributed systems.
+Generating long-form audio content—audiobooks spanning hours, educational courses, or extended podcasts—presents unique challenges: API rate limits, network failures, resource constraints, and the sheer duration of processing. This article explores a production-ready architecture for **long-running TTS pipelines** that can gracefully handle long-form generation tasks, resume after failures, and maintain state across distributed systems.
 
 Built with **LangGraph**, the system orchestrates complex workflows involving AI content generation (DeepSeek), text-to-speech conversion (OpenAI TTS), and distributed storage (Cloudflare R2). The key innovation: **PostgreSQL checkpointing** enables resumable execution, making it possible to generate 5-30+ minute audio segments reliably, even when individual API calls or processing steps fail.
 
@@ -304,7 +304,7 @@ final_state = await run_pipeline(initial_state, thread_id="job-12345")
 
 - **Cost Savings**: No wasted API calls on retry
 - **Time Efficiency**: Resume from 80% complete, not 0%
-- **Reliability**: Transient failures (rate limits, timeouts) don't kill multi-hour jobs
+- **Reliability**: Transient failures (rate limits, timeouts) don't kill long-form jobs
 - **Observability**: Query checkpoint table to monitor progress
 - **Parallel Execution**: Multiple jobs with different `thread_id` values
 
@@ -907,14 +907,14 @@ The system successfully processes **5-30+ minute long-form narratives** (up to 7
 
 **Key Takeaways for Long-Running Pipelines**:
 
-- **LangGraph + Postgres checkpointing** is essential for multi-hour workflows
+- **LangGraph + Postgres checkpointing** is essential for long-form workflows
 - **Streaming TTS to disk** prevents memory exhaustion on long generations
 - **Smart chunking** (4K chars) balances API limits with narrative coherence
 - **Immediate R2 uploads** ensure partial results survive crashes
 - **Async architecture** enables fire-and-forget long operations
 - **Thread-based recovery** makes interrupted jobs trivial to resume
 
-The architecture scales to **multi-hour audio generation**: audiobooks (10+ hours), comprehensive courses, documentary narration, or serialized storytelling—any use case where reliability and resumability are non-negotiable.
+The architecture scales to **long-form audio generation**: audiobooks (10+ hours), comprehensive courses, documentary narration, or serialized storytelling—any use case where reliability and resumability are non-negotiable.
 
 ## References
 
