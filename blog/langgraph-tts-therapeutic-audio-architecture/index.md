@@ -644,9 +644,9 @@ bucket_name = "longform-tts"
 | Stage | Duration | Checkpointed | Retryable |
 |-------|----------|--------------|----------|
 | Text Generation (DeepSeek) | 30-60s | ✅ After completion | ✅ Full retry |
-| Text Chunking | <1s | ✅ After completion | ✅ Instant |
-| TTS Segment 1-12 | 10-20s each | ✅ After each segment | ✅ Per-segment |
-| Audio Merging (ffmpeg) | 1-3s | ✅ After completion | ✅ Full retry |
+| Text Chunking | &lt;1s | ✅ After completion | ✅ Instant |
+| TTS Segments (1–12) | 10-20s each | ✅ After each segment | ✅ Per-segment |
+| Audio Merging (ffmpeg) | 1–3s | ✅ After completion | ✅ Full retry |
 | R2 Upload (merged) | 2-5s | ✅ After completion | ✅ Full retry |
 | **Total Pipeline** | **3-5 minutes** | **15+ checkpoints** | **Granular recovery** |
 
@@ -669,9 +669,9 @@ total_time = ~15 minutes for 2-hour audio
 
 **Failure Recovery Times:**
 
-- Crash at 80% complete → Resume in 1-2 seconds, continue from segment 36/45
-- Network timeout on segment 20 → Retry only segment 20, not segments 1-19
-- Database connection loss → Reconnect and load last checkpoint (<500ms)
+- Crash at 80% complete → Resume in 1–2 seconds, continue from segment 36/45
+- Network timeout on segment 20 → Retry only segment 20, not segments 1–19
+- Database connection loss → Reconnect and load last checkpoint (&lt;500ms)
 
 ### Error Handling & Resilience
 
@@ -901,7 +901,7 @@ The system successfully processes **5-30+ minute long-form narratives** (up to 7
 **Real-World Performance:**
 
 - **30-minute generation**: 12-15 TTS chunks, ~3-5 minutes total processing time
-- **Failure recovery**: Resume from any checkpoint in <1 second
+- **Failure recovery**: Resume from any checkpoint in &lt;1 second
 - **Cost efficiency**: $0.02-$0.07 per 30-minute audio (DeepSeek + OpenAI TTS)
 - **Throughput**: 10+ concurrent jobs on single instance
 
