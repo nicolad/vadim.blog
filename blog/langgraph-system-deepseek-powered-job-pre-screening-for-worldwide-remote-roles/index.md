@@ -1,6 +1,6 @@
 ---
 
-title: "LangGraph System: DeepSeek-Powered Job Pre-Screening for Worldwide Remote Roles"
+title: "Agentic Job Pre-Screening with LangGraph + DeepSeek: Auto-Reject Fake “Remote” Roles"
 description: "Build a production-grade job pre-screening agent with LangGraph + DeepSeek structured extraction to detect remote constraints, visa sponsorship blockers, and hidden location/timezone requirements before you waste a single application"
 date: 2026-01-25
 authors: [nicolad]
