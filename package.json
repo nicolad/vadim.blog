@@ -32,20 +32,8 @@
     "@docusaurus/types": "3.9.2",
     "typescript": "~5.5.2"
   },
-  "browserslist": {
-    "production": [
-      ">0.5%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 3 chrome version",
-      "last 3 firefox version",
-      "last 5 safari version"
-    ]
-  },
   "engines": {
     "node": ">=22.0"
   },
-  "packageManager": "pnpm@10.0.0"
+  "packageManager": "pnpm@10.28.2"
 }
