@@ -1,7 +1,7 @@
 ---
 title: Schema-First RAG with Eval-Gated Grounding and Claim-Card Provenance
 description: Top-down architecture for multi-source research retrieval, schema-validated extraction, eval-gated grounding, and auditable claim artifacts
-slug: /researchthera/research-architecture
+slug: /eval-gated-grounded-research-pipeline
 sidebar_position: 1
 authors: [nicolad]
 tags: [mastra, agents, workflows, rag, evals, grounding, zod, libsql, turso, provenance, claim-cards]
