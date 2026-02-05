@@ -92,13 +92,14 @@ The research pipeline generates structured research content using a focused Lang
 
 ```mermaid
 stateDiagram-v2
-    [*] --> GenerateResearch: Input: Goal + Age + Therapeutic Type
+    [*] --> GenerateResearch
     
-    GenerateResearch --> ParseResearch: DeepSeek generates JSON research
-    ParseResearch --> SaveToDB: Extract structured data
-    SaveToDB --> [*]: Return research items
+    GenerateResearch --> ParseResearch
+    ParseResearch --> SaveToDB
+    SaveToDB --> [*]
     
     note right of GenerateResearch
+        Input: Goal + Age + Therapeutic Type
         Uses DeepSeek with low temperature (0.3)
         Generates 3-5 structured research items
         Includes: titles, authors, abstracts,
@@ -106,6 +107,7 @@ stateDiagram-v2
     end note
     
     note right of ParseResearch
+        DeepSeek generates JSON research
         JSON parsing with fallback
         Validation of research structure
         Confidence scoring
@@ -119,6 +121,7 @@ stateDiagram-v2
 ```
 
 **Key Features**:
+
 - Low temperature (0.3) for factual accuracy
 - Structured JSON output with validation
 - Evidence level classification (A/B/C)
@@ -130,20 +133,25 @@ The most sophisticated workflow, supporting both full generation and audio-only 
 
 ```mermaid
 stateDiagram-v2
-    [*] --> DecisionPoint: Check therapeutic_story
+    [*] --> DecisionPoint
     
     DecisionPoint --> GenerateText: No existing story
-    DecisionPoint --> ChunkText: Story exists (audio-only mode)
+    DecisionPoint --> ChunkText: Story exists
     
-    GenerateText --> SaveToDB: Store generated narrative
-    SaveToDB --> AudioDecision: Check generate_audio flag
+    GenerateText --> SaveToDB
+    SaveToDB --> AudioDecision
     
     AudioDecision --> ChunkText: Audio enabled
     AudioDecision --> [*]: Text-only mode
     
-    ChunkText --> GenerateAudio: Split into 4000-char chunks
-    GenerateAudio --> UpdateURLs: Upload segments to R2
-    UpdateURLs --> [*]: Complete
+    ChunkText --> GenerateAudio
+    GenerateAudio --> UpdateURLs
+    UpdateURLs --> [*]
+    
+    note right of DecisionPoint
+        Check therapeutic_story
+        Determines full generation vs audio-only mode
+    end note
     
     note right of GenerateText
         DeepSeek generates long-form narrative
@@ -153,7 +161,16 @@ stateDiagram-v2
         Target duration: 5-30 minutes
     end note
     
+    note right of SaveToDB
+        Store generated narrative
+    end note
+    
+    note right of AudioDecision
+        Check generate_audio flag
+    end note
+    
     note right of ChunkText
+        Split into 4000-char chunks
         Smart chunking algorithm
         Paragraph-first splitting
         Sentence-level fallback
@@ -313,6 +330,7 @@ final_state = await run_pipeline(initial_state, thread_id="job-12345")
 For 30-minute audio (4,500+ words), naive chunking creates jarring transitions. Our algorithm balances API constraints with narrative flow:
 
 **Constraints:**
+
 - OpenAI TTS: 4,096 character limit per request
 - Target: ~4,000 chars per chunk (safety margin)
 - Goal: Natural pauses at paragraph/sentence boundaries
@@ -717,11 +735,13 @@ Key metrics to track:
 ### Scaling Patterns
 
 **Horizontal Scaling**:
+
 - FastAPI instances behind load balancer
 - Stateless design (state in Postgres)
 - R2 for distributed storage
 
 **Batch Processing**:
+
 ```python
 async def batch_generate_audio(goal_ids: List[int]):
     """Process multiple goals in parallel."""
@@ -731,6 +751,7 @@ async def batch_generate_audio(goal_ids: List[int]):
 ```
 
 **Queue-Based Processing**:
+
 - Use background tasks for long-running jobs
 - Celery/Redis for distributed task queue
 - Webhook callbacks for completion notifications

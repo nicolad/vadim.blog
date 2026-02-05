@@ -29,6 +29,18 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+/* Mermaid diagrams */
+.mermaid {
+  max-width: 100%;
+  overflow: auto;
+}
+
+.mermaid svg {
+  max-width: 100%;
+  height: auto;
+  min-height: 400px;
+}
+
 [aria-hidden="true"] {
   display: none;
 }
