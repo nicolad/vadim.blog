@@ -5,6 +5,7 @@ slug: /researchthera/research-architecture
 sidebar_position: 1
 authors: [nicolad]
 tags: [mastra, agents, workflows, rag, evals, grounding, zod, libsql, turso, provenance, claim-cards]
+image: ./image.png
 ---
 
 This article documents a production-grade architecture for generating **research-grounded therapeutic content**. The system prioritizes **verifiable artifacts** (papers → structured extracts → scored outputs → claim cards) over unstructured text.
