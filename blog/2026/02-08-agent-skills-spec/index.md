@@ -2,6 +2,7 @@
 title: Agent Skills spec + Mastra integration
 description: How to author SKILL.md skills, structure skill folders, validate them, and wire them into Mastra Workspaces (discovery, activation, search indexing).
 authors: [nicolad]
+image: ./image.png
 ---
 
 import Tabs from "@theme/Tabs";
