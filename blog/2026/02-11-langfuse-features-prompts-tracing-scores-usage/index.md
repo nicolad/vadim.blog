@@ -1,16 +1,27 @@
 ---
-title: Langfuse Features: Prompts, Tracing, Scores, Usage
+title: "Langfuse Features: Prompts, Tracing, Scores, Usage"
 description: Complete guide to using Langfuse features in Nomadically.work
 tags: [langfuse, prompts, tracing, scores, usage, ai, llm, integration]
 authors: [nicolad]
-image: ./image.jpeg
 slug: /langfuse-features-prompts-tracing-scores-usage
 ---
 
 
 # Langfuse Integration Guide
 
-This document covers all Langfuse features implemented in our codebase, providing a comprehensive production-ready setup for prompt management, tracing, evaluation, and observability.
+A comprehensive guide to implementing Langfuse features for production-ready AI applications, covering prompt management, tracing, evaluation, and observability.
+
+## Overview
+
+This guide covers:
+
+- Prompt management with caching and versioning
+- Distributed tracing with OpenTelemetry
+- User feedback and scoring
+- Usage tracking and analytics
+- A/B testing and experimentation
+
+<!-- truncate -->
 
 ## Architecture Overview
 
@@ -27,7 +38,7 @@ graph TD
     E --> I[Usage Tracker]
     
     F --> J[Langfuse Client]
-    G --> K[@langfuse/openai]
+    G --> K["@langfuse/openai"]
     H --> J
     I --> L[Observations API v2]
     
@@ -35,9 +46,9 @@ graph TD
     J --> N[Langfuse Cloud]
     L --> N
     
-    style A fill:#e1f5ff
-    style N fill:#fff3cd
-    style M fill:#d4edda
+    style A fill:#1a3a52,stroke:#4a9eff,color:#fff
+    style N fill:#4a3c1f,stroke:#ffd93d,color:#fff
+    style M fill:#1f3d2a,stroke:#59c9a5,color:#fff
 ```
 
 ## Environment Setup
@@ -94,8 +105,8 @@ graph TD
     I --> H
     C --> H
     
-    style H fill:#d4edda
-    style J fill:#f8d7da
+    style H fill:#1f3d2a,stroke:#59c9a5,color:#fff
+    style J fill:#4a1f23,stroke:#ff6b6b,color:#fff
 ```
 
 ```typescript
@@ -115,12 +126,14 @@ export async function fetchLangfusePrompt(
 }
 ```
 
-**Cache TTL Strategy:**
+**Cache Strategy:**
 
-- Production: 300 seconds (5 minutes)
-- Development: 0 seconds (instant updates)
+| Environment | TTL | Behavior |
+|------------|-----|----------|
+| Production | 300s | Cached for 5 minutes |
+| Development | 0s | Always fetch latest |
 
-**Guaranteed Availability:**
+**Reliability Features:**
 
 - Fallback prompts for first-fetch failures
 - Stale-while-revalidate pattern
@@ -155,12 +168,12 @@ graph TD
     G -->|No| H
     H -->|No| J[Deny Access]
     
-    style I fill:#d4edda
-    style J fill:#f8d7da
+    style I fill:#1f3d2a,stroke:#59c9a5,color:#fff
+    style J fill:#4a1f23,stroke:#ff6b6b,color:#fff
 ```
 
 ```typescript
-// Convert: "my-prompt" → "users/alice-example-com/my-prompt"
+// Convert: "my-prompt" to "users/alice-example-com/my-prompt"
 export function toUserPromptName(
   userIdOrEmail: string,
   shortName: string,
@@ -203,7 +216,7 @@ Reuse prompt snippets across multiple prompts to maintain DRY principles.
 ```mermaid
 graph TD
     A[Parent Prompt] --> B[Contains References?]
-    B -->|Yes| C[Parse @@@langfusePrompt...]
+    B -->|Yes| C["Parse @@@langfusePrompt..."]
     B -->|No| D[Return As-Is]
     
     C --> E[Fetch Referenced Prompt]
@@ -217,8 +230,8 @@ graph TD
     J -->|Yes| C
     J -->|No| K[Return Resolved]
     
-    style K fill:#d4edda
-    style H fill:#f8d7da
+    style K fill:#1f3d2a,stroke:#59c9a5,color:#fff
+    style H fill:#4a1f23,stroke:#ff6b6b,color:#fff
 ```
 
 **Reference Format:**
@@ -279,7 +292,7 @@ compilePrompt(prompt, {
     app: "Nomadically"
   }
 });
-// → "Hello Alice, welcome to Nomadically!"
+// Result: "Hello Alice, welcome to Nomadically!"
 ```
 
 #### 4.2 Message Placeholders (Chat Prompts)
@@ -323,7 +336,7 @@ graph TD
     K --> L[Merge with Overrides]
     L --> M[Pass to API]
     
-    style C fill:#fff3cd
+    style C fill:#4a3c1f,stroke:#ffd93d,color:#fff
 ```
 
 **DeepSeek-Focused Config:**
@@ -376,7 +389,7 @@ graph TD
     J --> K[Compare Metrics]
     K --> L[Label: prod-a vs prod-b]
     
-    style K fill:#d4edda
+    style K fill:#1f3d2a,stroke:#59c9a5,color:#fff
 ```
 
 ```typescript
@@ -434,7 +447,7 @@ graph TD
     P --> R[Langfuse Dashboard]
     Q --> R
     
-    style R fill:#fff3cd
+    style R fill:#4a3c1f,stroke:#ffd93d,color:#fff
 ```
 
 **Key Features:**
@@ -465,7 +478,7 @@ export async function generateDeepSeekWithLangfuse(
   const cfg = extractPromptConfig(langfusePrompt.config);
 
   const traced = observeOpenAI(getDeepSeekClient(), {
-    langfusePrompt,        // ← Links to prompt version
+    langfusePrompt,        // Links to prompt version
     userId: input.userId,
     sessionId: input.sessionId,
     tags: input.tags,
@@ -510,7 +523,7 @@ graph TD
     J --> O[Langfuse Score API]
     O --> P[Analytics & Evals]
     
-    style P fill:#d4edda
+    style P fill:#1f3d2a,stroke:#59c9a5,color:#fff
 ```
 
 ```typescript
@@ -534,11 +547,11 @@ export async function createScore(input: {
 
 **Use Cases:**
 
-- 👍👎 Thumbs up/down feedback
-- ⭐ Star ratings (1-5)
-- ✅ Correctness evaluation
-- 🛡️ Guardrail checks
-- 📊 Custom metrics
+- Thumbs up/down feedback
+- Star ratings (1-5)
+- Correctness evaluation
+- Guardrail checks
+- Custom metrics
 
 ### 9. Usage Tracking via Observations API
 
@@ -564,7 +577,7 @@ graph TD
     J --> N[startTime]
     J --> O[sessionId]
     
-    style I fill:#fff3cd
+    style I fill:#4a3c1f,stroke:#ffd93d,color:#fff
 ```
 
 ```typescript
@@ -621,7 +634,7 @@ graph TD
     I --> K
     J --> K
     
-    style K fill:#fff3cd
+    style K fill:#4a3c1f,stroke:#ffd93d,color:#fff
 ```
 
 **Setup:**
@@ -654,12 +667,13 @@ export async function register() {
 }
 ```
 
-## GraphQL Integration
+## GraphQL API
 
-All features are exposed via GraphQL for client consumption.
+All Langfuse features are accessible via GraphQL.
+
+### Query Prompts
 
 ```graphql
-# Fetch a prompt
 query GetPrompt($name: String!, $label: String) {
   prompt(name: $name, label: $label, resolveComposition: true) {
     name
@@ -671,8 +685,11 @@ query GetPrompt($name: String!, $label: String) {
     tags
   }
 }
+```
 
-# Get my usage
+### Track Usage
+
+```graphql
 query MyUsage($limit: Int) {
   myPromptUsage(limit: $limit) {
     promptName
@@ -681,8 +698,11 @@ query MyUsage($limit: Int) {
     traceId
   }
 }
+```
 
-# Create a prompt
+### Create Prompts
+
+```graphql
 mutation CreatePrompt($input: CreatePromptInput!) {
   createPrompt(input: $input) {
     name
@@ -694,28 +714,28 @@ mutation CreatePrompt($input: CreatePromptInput!) {
 
 ## Best Practices
 
-### ✅ Do's
+### Recommended Practices
 
-1. **Always use caching** in production (300s TTL)
-2. **Provide fallbacks** for critical prompts
-3. **Prewarm** prompts on server startup
-4. **Tag all generations** with userId, sessionId
-5. **Use labels** for A/B testing (prod-a/prod-b)
-6. **Folder-style naming** for organization
-7. **Compose prompts** to avoid duplication
-8. **Extract config** from prompts (don't hardcode)
-9. **Flush scores** in serverless environments
-10. **Use Observations API** for real usage data
+- **Caching**: Always use caching in production (300s TTL)
+- **Fallbacks**: Provide fallback prompts for critical operations
+- **Prewarming**: Prewarm prompts on server startup
+- **Tagging**: Tag all generations with userId and sessionId
+- **A/B Testing**: Use labels for experiments (prod-a/prod-b)
+- **Organization**: Use folder-style naming convention
+- **DRY Principle**: Compose prompts to avoid duplication
+- **Configuration**: Extract config from prompts (avoid hardcoding)
+- **Serverless**: Flush scores in serverless environments
+- **Production Data**: Use Observations API for real usage tracking
 
-### ❌ Don'ts
+### Common Pitfalls to Avoid
 
-1. Don't bypass caching in production
-2. Don't hardcode model parameters
-3. Don't create circular prompt references
-4. Don't skip ACL checks
-5. Don't use in-memory logs for usage
-6. Don't forget to call `initOtel()` before tracing
-7. Don't mix manual prompt names with namespace convention
+- Bypassing caching in production
+- Hardcoding model parameters
+- Creating circular prompt references
+- Skipping ACL checks
+- Using in-memory logs for usage tracking
+- Forgetting to call `initOtel()` before tracing
+- Mixing manual prompt names with namespace convention
 
 ## Performance Characteristics
 
@@ -723,28 +743,28 @@ mutation CreatePrompt($input: CreatePromptInput!) {
 |---------|---------|----------------|-------|
 | Prompt Fetch (cached) | ~1ms | 95%+ | In-process cache |
 | Prompt Fetch (miss) | ~50-100ms | - | Network + DB |
-| Prompt Compilation | <1ms | - | Pure computation |
+| Prompt Compilation | &lt;1ms | - | Pure computation |
 | Score Creation | ~20-50ms | - | Async, buffered |
 | Observations API | ~100-200ms | - | Paginated queries |
 | Composed Prompt (3 refs) | ~150ms | 80%+ | Parallel fetches |
 
 ## Security Considerations
 
-1. **Credentials**: Never expose `LANGFUSE_SECRET_KEY` to client
-2. **ACL Enforcement**: Always call `assertPromptAccess()`
-3. **User Isolation**: Folder-style naming prevents leaks
-4. **API Rate Limits**: Observations API limited to 1000/query
-5. **Idempotency**: Use score IDs to prevent duplicate feedback
+- **Credentials**: Never expose `LANGFUSE_SECRET_KEY` to client-side code
+- **Access Control**: Always validate access with `assertPromptAccess()`
+- **User Isolation**: Folder-style naming prevents cross-user data leaks
+- **Rate Limits**: Observations API has a limit of 1000 records per query
+- **Idempotency**: Use score IDs to prevent duplicate feedback submission
 
 ## Monitoring & Debugging
 
 ### In Langfuse Dashboard
 
-1. **Traces** → Filter by userId, sessionId, tags
-2. **Prompts** → View usage per version/label
-3. **Scores** → Aggregate feedback by name
-4. **Sessions** → Track multi-turn conversations
-5. **Datasets** → Export for evals (future)
+1. **Traces** - Filter by userId, sessionId, tags
+2. **Prompts** - View usage per version/label
+3. **Scores** - Aggregate feedback by name
+4. **Sessions** - Track multi-turn conversations
+5. **Datasets** - Export for evals (future)
 
 ### Local Development
 
@@ -762,17 +782,31 @@ NODE_ENV=development
 # Use resolveComposedPrompt() directly
 ```
 
-## Migration Path
+## Migration Guide
 
-If upgrading from a previous implementation:
+Upgrading from a previous implementation:
 
-1. ✅ Install new packages: `@langfuse/openai`, `@langfuse/otel`
-2. ✅ Add `instrumentation.ts` for OTel
-3. ✅ Replace `Langfuse` with `LangfuseClient`
-4. ✅ Update prompt fetching to use caching API
-5. ✅ Switch to folder-style naming
-6. ✅ Replace in-memory usage with Observations API
-7. ✅ Add `langfusePrompt` to all `observeOpenAI` calls
+**Step 1: Install Dependencies**
+
+```bash
+pnpm add @langfuse/openai @langfuse/otel
+```
+
+**Step 2: Setup OpenTelemetry**
+
+- Add `instrumentation.ts` for OTel initialization
+- Configure `LangfuseSpanProcessor`
+
+**Step 3: Update Client**
+
+- Replace `Langfuse` with `LangfuseClient`
+- Update prompt fetching to use the caching API
+
+**Step 4: Refactor Code**
+
+- Switch to folder-style naming convention
+- Replace in-memory usage tracking with Observations API
+- Add `langfusePrompt` parameter to all `observeOpenAI` calls
 
 ## Resources
 
@@ -783,12 +817,27 @@ If upgrading from a previous implementation:
 - [A/B Testing Guide](https://langfuse.com/docs/prompt-management/features/a-b-testing)
 - [Prompt Composability](https://langfuse.com/docs/prompt-management/features/prompt-composability)
 
-## Support
+## Troubleshooting
 
-For issues with this integration:
+Common issues and solutions:
 
-1. Check build logs for TypeScript errors
-2. Verify environment variables are set
-3. Confirm OTel is initialized before first LLM call
-4. Review Langfuse dashboard for traces
-5. Check Network tab for API errors
+**Build Errors**
+
+- Check build logs for TypeScript errors
+- Verify all required dependencies are installed
+
+**Configuration Issues**
+
+- Verify environment variables are set correctly
+- Confirm `LANGFUSE_SECRET_KEY` and `LANGFUSE_PUBLIC_KEY` are valid
+
+**Runtime Issues**
+
+- Confirm OTel is initialized before first LLM call
+- Check that `initOtel()` is called in `instrumentation.ts`
+
+**Monitoring**
+
+- Review Langfuse dashboard for traces and errors
+- Check browser Network tab for API errors
+- Verify API responses and status codes
