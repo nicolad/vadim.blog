@@ -745,3 +745,10 @@ The pattern can be adapted for other use cases like podcast generation, audioboo
 - [AWS SDK v3 for JavaScript](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/)
 - [Mastra RAG Documentation](https://mastra.ai/docs/rag)
 - [music-metadata npm package](https://www.npmjs.com/package/music-metadata)
+
+## Live Implementation
+
+This implementation is used in production at:
+
+- [Research Thera](https://researchthera.com/) - AI-powered therapeutic audio platform
+- [GitHub Repository](https://github.com/nicolad/research-thera) - Open source implementation
