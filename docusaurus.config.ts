@@ -41,6 +41,7 @@ const config: Config = {
         docs: false,
         blog: {
           routeBasePath: "/", // Serve the blog at the site's root
+          blogSidebarCount: "ALL",
           showReadingTime: true,
           feedOptions: {
             type: ["rss", "atom"],
