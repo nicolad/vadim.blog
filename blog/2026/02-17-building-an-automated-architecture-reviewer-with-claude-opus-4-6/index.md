@@ -265,17 +265,3 @@ npx tsx scripts/run-architect-agent.ts
 ```
 
 The agent will explore your repo, run audits, and produce `ARCHITECTURE_REPORT.md` and `ARCHITECTURE_REPORT.json` in your repo root.
-
----
-
-## What's Next
-
-We're extending the agent framework with specialised variants — a **Security Agent** (focused OWASP + dependency audit), a **Performance Agent** (profiling + bottleneck detection), and a **Migration Agent** (for large refactors like our Turso → D1 migration). Each shares the same `streamAgent` core but with different system prompts and tool configurations.
-
-The goal: a suite of AI reviewers that run in CI alongside your tests, catching architectural drift before it ships.
-
----
-
-:::tip Docusaurus Setup
-To render the Mermaid diagrams in this article, ensure you have `@docusaurus/theme-mermaid` installed and `markdown: { mermaid: true }` in your `docusaurus.config.js`.
-:::
