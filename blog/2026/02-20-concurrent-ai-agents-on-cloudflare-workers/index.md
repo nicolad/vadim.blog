@@ -3,6 +3,7 @@ title: Concurrent AI Agents on CF Workers — Three-Level Rig Patterns
 sidebar_label: Concurrent AI Agents on CF Workers
 description: How to run concurrent AI agent workloads on Cloudflare Workers/WASM using Rig framework patterns — without tokio, without reqwest, without threading.
 authors: [nicolad]
+slug: concurrent-ai-agents-on-cloudflare-workers
 tags: [rust, cloudflare-workers, wasm, rig, ai, concurrency]
 ---
 
