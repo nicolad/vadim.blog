@@ -2,6 +2,7 @@
 title: "Trigger.dev Deep Dive: Background Jobs, Queue Fan-Out, MCP, and Agent Skills"
 description: "A comprehensive guide to Trigger.dev — serverless background task infrastructure with durable execution, queue concurrency control, MCP integration, AI agent skills, and a real-world TTS fan-out pipeline case study."
 slug: trigger-dev-deep-dive
+authors: [nicolad]
 tags: [trigger.dev, background-jobs, queues, mcp, ai-agents, tts, next.js]
 ---
 
