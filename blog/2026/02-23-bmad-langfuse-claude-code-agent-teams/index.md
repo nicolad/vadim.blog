@@ -498,34 +498,112 @@ These files are the bridge between BMAD's role system and Claude Code Agent Team
 
 ## How They Compose
 
-The three systems interlock at implementation time. Here's a typical workflow:
+The three systems interlock at implementation time. The clearest example is the job classification pipeline, which touches all three layers in a single request.
 
-**1. BMAD quick-spec → tech-spec file**
+### The Production Loop: Langfuse + DeepSeek
 
-A feature request goes through the quick-spec workflow, which produces a `tech-spec-*.md` file in `_bmad-output/implementation-artifacts/`. The spec includes tasks, acceptance criteria, files to modify, and code patterns to follow.
+`src/llm/deepseek.ts` is where Langfuse and the LLM pipeline meet. It fetches the versioned prompt, compiles it, calls DeepSeek, and ingests a trace — all in one function:
 
-**2. quick-dev → task execution**
+```typescript
+// src/llm/deepseek.ts
+export async function generateDeepSeekWithLangfuse(input: GenerateInput): Promise<string> {
+  // 1. Fetch prompt from Langfuse — versioned, labeled, cached
+  const langfusePrompt = await fetchLangfusePrompt(input.promptName, {
+    type: input.promptType,
+    label: input.label,              // "production" or "prod-a"/"prod-b"
+    cacheTtlSeconds: defaultCacheTtlSeconds(),
+    fallback: "You are a helpful assistant.\n\nUser: {{input}}\nAssistant:",
+  });
 
-The quick-dev workflow loads the tech-spec and executes it step by step — mode detection, context gathering, implementation, self-check. Each step loads fresh, carrying only the variables it needs.
+  // 2. Compile with runtime variables
+  const compiled = compilePrompt(langfusePrompt, { variables: input.variables });
 
-**3. Agent Teams provides the execution substrate**
+  // 3. Emit trace-create + observation-create before the call
+  const traceId = crypto.randomUUID();
+  const generationId = crypto.randomUUID();
 
-For larger specs, a team is spun up: PM validates scope, Architect reviews design, Dev implements, QA checks against BMAD checklists. Each role is seeded by a spawn prompt that bakes in project constraints.
+  void ingestLangfuseEvents([
+    { id: crypto.randomUUID(), type: "trace-create",
+      body: { id: traceId, name: "deepseek-generation",
+              userId: input.userId, sessionId: input.sessionId } },
+    { id: crypto.randomUUID(), type: "observation-create",
+      body: { id: generationId, traceId, type: "GENERATION",
+              model, input: messages,
+              promptName: langfusePrompt.name,
+              promptVersion: langfusePrompt.version } },
+  ]);
 
-**4. Langfuse observes the AI pipeline**
+  // 4. Call DeepSeek
+  const res = await client.chat.completions.create({ model, messages });
+  const output = res.choices?.[0]?.message?.content ?? "";
 
-While agents execute, LLM calls within the product (job classification, skill extraction) are traced via `ingestLangfuseEvents`. Prompts are fetched from Langfuse with version pinning so agent actions use the same prompt versions as the evaluation suite. Scores are submitted after each classification, building the feedback loop that drives prompt improvement.
+  // 5. Update observation with output + token usage
+  void ingestLangfuseEvents([
+    { id: crypto.randomUUID(), type: "observation-update",
+      body: { id: generationId, traceId, type: "GENERATION", output,
+              endTime: new Date().toISOString(),
+              usage: { input: res.usage?.prompt_tokens,
+                       output: res.usage?.completion_tokens, unit: "TOKENS" } } },
+  ]);
 
-**5. The feedback loop**
+  return output;
+}
+```
 
-Langfuse scores feed into Promptfoo evaluations (`pnpm eval:promptfoo`), which gate prompt changes behind an accuracy threshold (≥80%). BMAD's QA role validates implementation against acceptance criteria. Only code that passes both gates merges to main.
+The `promptName` and `promptVersion` fields on the observation link every LLM call back to the exact Langfuse prompt that drove it — enabling per-version accuracy tracking in the dashboard.
+
+### The Classifier: Langfuse Prompt → DeepSeek → D1
+
+One layer up, `src/agents/index.ts` uses `getPrompt` (which wraps `fetchLangfusePrompt` with a Map-based cache and a fallback) to drive the Remote EU classifier:
+
+```typescript
+// src/agents/index.ts
+export async function classifyJobForRemoteEU(input: {
+  title: string;
+  location: string;
+  description: string;
+}) {
+  // Fetch "job-classifier" prompt, labeled "production", with hardcoded fallback
+  const { text: promptText } = await getPrompt(PROMPTS.JOB_CLASSIFIER);
+
+  const result = await generateObject({
+    model: deepseek("deepseek-chat"),
+    system: promptText,
+    prompt: `Job Title: ${input.title}\nLocation: ${input.location}\nDescription: ${input.description}`,
+    schema: z.object({
+      isRemoteEU: z.boolean(),
+      confidence: z.enum(["high", "medium", "low"]),
+      reason: z.string(),
+    }),
+  });
+
+  return result.object;
+}
+```
+
+Changing the `job-classifier` prompt in the Langfuse UI takes effect on the next request — no deploy required. Rolling back is equally instant.
+
+### Where BMAD and Agent Teams Enter
+
+The prompt itself — `PROMPTS.JOB_CLASSIFIER` and the fallback text — was written and iterated by a BMAD dev agent constrained by `dev.md`. The workflow:
+
+1. **BMAD quick-spec** describes the change: update the classifier to handle a new edge case
+2. **quick-dev** executes: the dev agent reads `src/agents/index.ts` and `src/observability/prompts.ts`, modifies the fallback text and creates a new Langfuse prompt version
+3. **Promptfoo eval** (`pnpm eval:promptfoo`) gates the change: the new prompt must hit ≥80% accuracy on the eval dataset before merging
+4. **BMAD QA** marks the story done only after the eval passes and the Langfuse label `production` is updated to the new version
 
 ```
-BMAD spec → Agent Teams execution → Langfuse traces
-                   ↓
-           Langfuse scores → Promptfoo evals → accuracy gate
-                   ↓
-            BMAD QA checklist → merge
+BMAD quick-spec
+      ↓
+dev agent (constrained by dev.md) edits src/observability/prompts.ts
+      ↓
+new prompt version pushed to Langfuse
+      ↓
+pnpm eval:promptfoo → accuracy gate (≥80%)
+      ↓
+label "production" promoted → live in classifyJobForRemoteEU
+      ↓
+BMAD QA checklist → story closed
 ```
 
 ---
