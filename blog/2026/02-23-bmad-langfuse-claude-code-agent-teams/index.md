@@ -15,9 +15,9 @@ Running AI agents in a real codebase means solving three intertwined problems at
 ## Table of Contents
 
 - [The Three Pillars](#the-three-pillars)
-- [Pillar 1 — BMAD v6: Workflows and Quality Gates](#pillar-1--bmad-v6-workflows-and-quality-gates)
-- [Pillar 2 — Langfuse: Edge-Compatible Observability](#pillar-2--langfuse-edge-compatible-observability)
-- [Pillar 3 — Claude Code Agent Teams](#pillar-3--claude-code-agent-teams)
+- [Pillar 1 — BMAD v6: Workflows and Quality Gates](#pillar-1-bmad-v6)
+- [Pillar 2 — Langfuse: Edge-Compatible Observability](#pillar-2-langfuse)
+- [Pillar 3 — Claude Code Agent Teams](#pillar-3-agent-teams)
 - [How They Compose](#how-they-compose)
 - [Lessons Learned](#lessons-learned)
 
@@ -37,7 +37,7 @@ None of them is optional. Skip BMAD and you get agents that produce code that do
 
 ---
 
-## Pillar 1 — BMAD v6: Workflows and Quality Gates
+## Pillar 1 — BMAD v6: Workflows and Quality Gates {#pillar-1-bmad-v6}
 
 [BMAD Method](https://docs.bmad-method.org/) v6 structures AI-assisted development into explicit workflow phases, each controlled by a **step-file** — a self-contained Markdown document that tells the agent exactly what to do, what state to carry forward, and what file to load next.
 
@@ -121,7 +121,7 @@ These aren't suggestions — they're constraints baked into the agent's identity
 
 ---
 
-## Pillar 2 — Langfuse: Edge-Compatible Observability
+## Pillar 2 — Langfuse: Edge-Compatible Observability {#pillar-2-langfuse}
 
 [Langfuse](https://langfuse.com) is an open-source LLM observability platform: prompt management, tracing, scoring, and evaluation in one place. The standard `@langfuse/client` SDK is Node.js-only, which is a problem for a Next.js app deployed on Vercel with Edge Runtime routes. The solution is a hand-rolled fetch-based client.
 
@@ -288,7 +288,7 @@ Using `id` as an idempotency key means "update feedback" calls overwrite the sam
 
 ---
 
-## Pillar 3 — Claude Code Agent Teams
+## Pillar 3 — Claude Code Agent Teams {#pillar-3-agent-teams}
 
 [Claude Code Agent Teams](https://docs.anthropic.com/en/docs/claude-code/agent-teams) allows multiple Claude instances to collaborate on a project — each with a distinct role, tool set, and task ownership. The challenge is preventing conflicts: two agents editing the same file simultaneously produces chaos.
 
