@@ -41,6 +41,30 @@ None of them is optional. Skip BMAD and you get agents that produce code that do
 
 [BMAD Method](https://docs.bmad-method.org/) v6 structures AI-assisted development into explicit workflow phases, each controlled by a **step-file** — a self-contained Markdown document that tells the agent exactly what to do, what state to carry forward, and what file to load next.
 
+### Project Layout
+
+BMAD v6 is installed as a directory at the project root. The [installer](https://docs.bmad-method.org/docs/install) creates `_bmad/` with the core framework, the BMM (BMAD Method Module) with role agents and workflows, and a config file that sets user name, communication language, and artifact output paths:
+
+```
+_bmad/
+├── core/          ← core tasks, workflows (adversarial review, etc.)
+└── bmm/           ← BMM module: agents, checklists, workflows
+    ├── config.yaml
+    └── workflows/
+        └── bmad-quick-flow/
+            ├── quick-spec/
+            └── quick-dev/
+```
+
+```yaml
+# _bmad/bmm/config.yaml
+project_name: nomadically.work
+user_name: Vadim
+communication_language: English
+planning_artifacts: "{project-root}/_bmad-output/planning-artifacts"
+implementation_artifacts: "{project-root}/_bmad-output/implementation-artifacts"
+```
+
 ### Step-File Architecture
 
 The key insight in BMAD v6 is that large context windows suffer from "lost in the middle" — agents forget early instructions as the conversation grows. Step-files solve this by loading fresh context at each phase:
