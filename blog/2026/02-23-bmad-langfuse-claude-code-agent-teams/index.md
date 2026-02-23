@@ -3,6 +3,7 @@ title: "BMAD Method + Langfuse + Claude Code Agent Teams in Production"
 description: "How BMAD v6 workflows, Langfuse observability, and Claude Code Agent Teams compose into a coherent AI-heavy development system — with real code from nomadically.work."
 slug: bmad-langfuse-claude-code-agent-teams
 authors: [nicolad]
+image: ./image.jpeg
 tags: [bmad, langfuse, claude-code, ai-agents, observability, llm-evals, agent-teams]
 ---
 
