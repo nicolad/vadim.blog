@@ -290,7 +290,7 @@ Using `id` as an idempotency key means "update feedback" calls overwrite the sam
 
 ## Pillar 3 — Claude Code Agent Teams {#pillar-3-agent-teams}
 
-[Claude Code Agent Teams](https://docs.anthropic.com/en/docs/claude-code/agent-teams) allows multiple Claude instances to collaborate on a project — each with a distinct role, tool set, and task ownership. The challenge is preventing conflicts: two agents editing the same file simultaneously produces chaos.
+[Claude Code Agent Teams](https://docs.anthropic.com/en/docs/claude-code/agent-teams) allows multiple Claude instances to collaborate on a project — each with a distinct role, tool set, and task ownership. The underlying SDK ([`@anthropic-ai/claude-agent-sdk`](https://docs.anthropic.com/en/docs/agent-sdk)) provides the `defineSubagent`, `mergeSubagents`, and permission primitives used throughout this section. The challenge is preventing conflicts: two agents editing the same file simultaneously produces chaos.
 
 ### defineSubagent() — Role-Based Tool Restrictions
 
