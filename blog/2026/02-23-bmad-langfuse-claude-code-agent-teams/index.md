@@ -346,16 +346,46 @@ export function mergeSubagents(
 ): Record<string, AgentDefinition> {
   return Object.assign({}, ...agentDefs);
 }
+```
 
-// Usage:
+Usage — the README shows the canonical pattern with `TOOL_PRESETS`:
+
+```typescript
+import { runAgent, defineSubagent, mergeSubagents, TOOL_PRESETS } from "@/anthropic";
+
 const agents = mergeSubagents(
-  defineSubagent("reviewer", { tools: ["Read", "Glob", "Grep"], ... }),
-  defineSubagent("tester",   { tools: ["Bash", "Read"], ... }),
-  defineSubagent("linter",   { tools: ["Read", "Glob", "Grep"], model: "haiku", ... }),
+  defineSubagent("code-reviewer", {
+    description: "Expert code reviewer for quality and security reviews.",
+    prompt: "Analyze code quality and suggest improvements.",
+    tools: TOOL_PRESETS.READONLY,  // Read, Glob, Grep
+  }),
+  defineSubagent("test-runner", {
+    description: "Runs tests and reports results.",
+    prompt: "Execute tests and report failures.",
+    tools: ["Bash", "Read"],
+    model: "haiku",
+  }),
 );
 
-await runAgent("Review, test, and lint", {
-  tools: ["Read", "Glob", "Grep", "Task"],
+const result = await runAgent("Review and test the codebase", {
+  tools: ["Read", "Edit", "Bash", "Glob", "Grep", "Task"],
+  agents,
+});
+```
+
+Or use `SUBAGENT_PRESETS` for the built-in roles:
+
+```typescript
+import { runAgent, mergeSubagents, SUBAGENT_PRESETS } from "@/anthropic";
+
+const agents = mergeSubagents(
+  SUBAGENT_PRESETS.codeReviewer,
+  SUBAGENT_PRESETS.testRunner,
+  SUBAGENT_PRESETS.linter,
+);
+
+const result = await runAgent("Full code review pipeline", {
+  tools: ["Read", "Glob", "Grep", "Bash", "Task"],
   agents,
 });
 ```
@@ -380,17 +410,23 @@ export function composePermissions(...callbacks: CanUseTool[]): CanUseTool {
 }
 ```
 
-Practical example — a dev agent that can edit source files but not tests or infrastructure, and cannot run destructive commands:
+Practical example — compose allow-list, directory restriction, and command blocking in one pass:
 
 ```typescript
-const devPermissions = composePermissions(
-  allowOnly(['Read', 'Edit', 'Bash', 'Glob', 'Grep']),
-  restrictToDirectories(['/app/src']),
-  blockCommands([/rm\s+-rf/, /DROP\s+TABLE/i, /git\s+push\s+--force/]),
-);
+import {
+  runAgent,
+  composePermissions,
+  allowOnly,
+  restrictToDirectories,
+  blockCommands,
+} from "@/anthropic";
 
-await runAgent("Implement the feature", {
-  canUseTool: devPermissions,
+const result = await runAgent("Fix the codebase", {
+  canUseTool: composePermissions(
+    allowOnly(["Read", "Edit", "Bash", "Glob", "Grep"]),
+    restrictToDirectories(["/app/src"]),
+    blockCommands([/rm\s+-rf/]),
+  ),
 });
 ```
 
