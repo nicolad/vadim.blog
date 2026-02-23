@@ -315,19 +315,29 @@ export function defineSubagent(
 }
 ```
 
-The `SUBAGENT_PRESETS` object provides ready-made definitions for common roles:
+Every subagent prompt in `SUBAGENT_PRESETS` is prefixed with `GOAL_CONTEXT_LINE` — a single constant defined in `src/constants/goal.ts` that anchors every agent to the platform mission:
 
 ```typescript
+// src/constants/goal.ts
+export const GOAL_CONTEXT_LINE = `This codebase powers nomadically.work — a job board helping its owner land a fully remote AI Engineer or React Engineer role in Europe/worldwide.`;
+```
+
+This constant is the single source of truth imported by every agent, workflow, and evaluation in the codebase. The `SUBAGENT_PRESETS` object uses it in every prompt:
+
+```typescript
+// src/anthropic/subagents.ts
+import { GOAL_CONTEXT_LINE } from "@/constants/goal";
+
 export const SUBAGENT_PRESETS = {
   codeReviewer: defineSubagent("code-reviewer", {
     description: "Expert code reviewer for quality and security reviews.",
-    prompt: "Analyze code quality, security vulnerabilities, and suggest improvements.",
+    prompt: `${GOAL_CONTEXT_LINE} Analyze code quality, security vulnerabilities, and suggest improvements. Be specific and actionable.`,
     tools: ["Read", "Glob", "Grep"],  // read-only — can't modify files
   }),
 
   testRunner: defineSubagent("test-runner", {
     description: "Runs tests and reports results.",
-    prompt: "Execute tests and report failures with clear diagnostics.",
+    prompt: `${GOAL_CONTEXT_LINE} Execute tests and report failures with clear diagnostics.`,
     tools: ["Bash", "Read"],
     model: "haiku",  // fast + cheap for test execution
   }),
