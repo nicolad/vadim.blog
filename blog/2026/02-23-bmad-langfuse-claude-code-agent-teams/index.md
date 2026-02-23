@@ -508,14 +508,14 @@ BMAD spec → Agent Teams execution → Langfuse traces
 
 ## Lessons Learned
 
-**Step-files beat system prompts for long tasks.** A monolithic system prompt degrades as context grows. Step-files force explicit state transitions and keep each phase focused.
+**Step-files prevent state loss — and the failure modes prove they're necessary.** `step-01-mode-detection.md` lists as an explicit failure mode: *"Proceeding without capturing baseline commit"* and *"Not setting execution_mode variable."* These aren't hypothetical — they're real ways agents drift when state lives only in a monolithic prompt. The fix is making state explicit and checked at each transition, not hoping the model remembers it.
 
-**Edge Runtime forces discipline on observability.** The constraint of "no Node.js SDK" required building a lean, fetch-based Langfuse client — which turned out to be simpler and more portable than the official SDK for this use case.
+**The Node.js SDK constraint was the best thing that happened to observability.** The comment at the top of `src/langfuse/index.ts` reads: *"LangfuseClient SDK is Node.js only and not compatible with Edge Runtime. We use direct fetch API calls instead."* Being forced to drop the SDK meant writing 200 lines of direct `fetch` calls — which turned out to be easier to audit, port to Cloudflare Workers, and test than the SDK would have been. The constraint produced a better design.
 
-**Tool restrictions are ownership, not just security.** Defining exactly which tools each subagent can use isn't about preventing malicious behavior — it's about preventing accidental conflicts. A reviewer that can't write files will never accidentally overwrite a dev's work.
+**Tool restrictions enforce ownership more reliably than documentation.** `SUBAGENT_PRESETS.codeReviewer` has `tools: ["Read", "Glob", "Grep"]`. That's not a convention — it's a hard constraint. The agent is structurally incapable of calling `Edit` or `Write`. Compare this to a code comment saying "this agent should not modify files": one is enforced by the runtime, one is ignored under pressure.
 
-**Spawn prompts encode institutional knowledge.** The `.claude/team-roles/` files aren't just instructions — they're the accumulated project conventions that every agent inherits. Keeping them updated as the codebase evolves is as important as keeping `CLAUDE.md` current.
+**Spawn prompts are where project conventions become agent constraints.** The dev spawn prompt (`dev.md`) includes: *"D1 returns 0/1 for booleans — handle coercion in resolvers."* That line exists because an agent without it would write `parent.is_remote_eu === true` and get silent bugs when D1 returns `1` instead. The team-roles files are the diff between an agent that knows the project and one that doesn't.
 
-**BMAD quality gates are checklists, not bureaucracy.** The QA role's job is to run through a checklist before declaring work done. In a multi-agent team, this catches the drift between what was planned and what was implemented — the gap that single-agent systems miss.
+**Self-check steps catch implementation drift before it reaches review.** `step-04-self-check.md` requires marking every task `[x]` complete and verifying each acceptance criterion before proceeding. In practice this step caught a case where Task 2 was complete but the tech-spec still showed `status: ready-for-dev` — a stale status that would have confused any follow-on tooling. Small drift, caught early.
 
 The combination of structured workflows, persistent observability, and role-enforced ownership is what makes AI-assisted development reliable at the level of a production codebase. Any one of the three is useful in isolation. Together, they close the feedback loops that make the system improvable over time.
