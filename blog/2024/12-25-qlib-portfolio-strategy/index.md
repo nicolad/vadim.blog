@@ -27,6 +27,8 @@ tags:
 
 ## Introduction
 
+<!-- truncate -->
+
 In **Qlib**, portfolio strategies turn **prediction scores** into actionable orders (buy/sell) for building and rebalancing a portfolio. This article will:
 
 1. Explain the architecture of key strategy classes.

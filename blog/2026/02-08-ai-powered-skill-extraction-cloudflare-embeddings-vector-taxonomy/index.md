@@ -10,6 +10,8 @@ image: ./image.png
 
 This bulk processor extracts **structured skill tags** for job postings using an AI pipeline that combines:
 
+<!-- truncate -->
+
 - **Embedding generation** via **Cloudflare Workers AI** (`@cf/baai/bge-small-en-v1.5`, **384-dim**)
 - **Vector retrieval** over a **skills taxonomy** (Turso/libSQL index `skills_taxonomy`) for candidate narrowing
 - **Mastra workflow orchestration** for **LLM-based structured extraction** + validation + persistence

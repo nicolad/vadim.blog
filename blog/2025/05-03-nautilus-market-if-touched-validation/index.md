@@ -9,6 +9,8 @@ authors: [nicolad]
 
 ## Introduction
 
+<!-- truncate -->
+
 `LimitIfTouchedOrder` (LIT) is a conditional order that sits between a simple limit order and a stop-limit order: it rests _inactive_ until a **trigger price** is touched, then converts into a plain limit at the specified **limit price**.
 Because it straddles two distinct price levels and multiple conditional flags, _robust validation_ is critical—any silent mismatch can manifest as unwanted executions in live trading.
 

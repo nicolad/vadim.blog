@@ -29,6 +29,8 @@ tags:
 
 ## Introduction
 
+<!-- truncate -->
+
 High-Frequency Trading (HFT) involves handling large volumes of orders at extremely high speeds—often measured in microseconds or milliseconds. AI (machine learning and reinforcement learning, in particular) has become pivotal in capturing fleeting market opportunities and managing real-time decisions in these ultra-fast trading environments.
 
 In **Qlib**, the **Nested Decision Execution Framework** simplifies building multi-level HFT strategies, allowing a high-level (daily or weekly) strategy to **nest** an intraday (or sub-intraday) executor or sub-workflow. This design enables realistic joint backtesting: daily portfolio selection and intraday HFT execution interact seamlessly, ensuring that real slippage, partial fills, and transaction costs are accurately accounted for.

@@ -10,6 +10,8 @@ tags: [solana, cloudflare, laserstream, helius, real-time, deployment, devops]
 
 ![LaserStream deployed on Cloudflare Containers](./og.png)
 
+<!-- truncate -->
+
 **TL;DR**: Deploy a production-ready real-time Solana slot streaming service using Helius LaserStream SDK on Cloudflare Containers.
 
 - **Ultra-low latency**: Real-time slot updates via gRPC

@@ -8,6 +8,8 @@ tags: [langgraph, tts, architecture, python, deepseek, openai, cloudflare-r2, po
 
 ## Introduction
 
+<!-- truncate -->
+
 Generating long-form audio content—audiobooks spanning hours, educational courses, or extended podcasts—presents unique challenges: API rate limits, network failures, resource constraints, and the sheer duration of processing. This article explores a production-ready architecture for **long-running TTS pipelines** that can gracefully handle long-form generation tasks, resume after failures, and maintain state across distributed systems.
 
 Built with **LangGraph**, the system orchestrates complex workflows involving AI content generation (DeepSeek), text-to-speech conversion (OpenAI TTS), and distributed storage (Cloudflare R2). The key innovation: **PostgreSQL checkpointing** enables resumable execution, making it possible to generate 5-30+ minute audio segments reliably, even when individual API calls or processing steps fail.

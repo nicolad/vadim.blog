@@ -9,6 +9,8 @@ tags: [langgraph, ai-agents, deepseek, langchain, python, job-search, remote-wor
 
 ## Introduction
 
+<!-- truncate -->
+
 Remote job postings are noisy, inconsistent, and often misleading. A role is labeled **“Remote”**, but the actual constraints show up in one sentence buried halfway down the description:
 
 - “Remote (US only)”

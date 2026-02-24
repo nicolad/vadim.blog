@@ -29,6 +29,8 @@ tags: [hyperliquid, trading, defi, perpetuals, strategies]
 > * Node → [https://github.com/hyperliquid-dex/node](https://github.com/hyperliquid-dex/node)
 > * Order Book Server (example) → [https://github.com/hyperliquid-dex/order\_book\_server](https://github.com/hyperliquid-dex/order_book_server)
 
+<!-- truncate -->
+
 ---
 
 ## 1. How “gasless” works

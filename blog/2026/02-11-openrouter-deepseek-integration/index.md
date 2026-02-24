@@ -9,6 +9,8 @@ slug: /openrouter-deepseek-integration
 
 This article documents the complete OpenRouter integration implemented in Nomadically.work, using DeepSeek models exclusively through a unified API.
 
+<!-- truncate -->
+
 ## Architecture Overview
 
 ```mermaid

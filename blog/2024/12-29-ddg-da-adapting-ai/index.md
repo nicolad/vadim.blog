@@ -28,6 +28,8 @@ tags:
 
 ## Introduction
 
+<!-- truncate -->
+
 Financial markets are dynamic: price trends, volatility, and patterns constantly change. These shifts in data distribution, commonly called **concept drift**, pose a serious challenge for AI models trained on historical data. When the market regime changes—such as transitioning from a calm to a volatile environment—a “stale” model can drastically lose predictive power.
 
 **DDG-DA** (Data Distribution Generation for Predictable Concept Drift Adaptation) addresses this by forecasting how the data distribution might evolve in the future, instead of only reacting to the most recent data. The approach is rooted in **meta-learning** (via Qlib’s Meta Controller framework) and helps trading or investment models stay ahead of new trends.

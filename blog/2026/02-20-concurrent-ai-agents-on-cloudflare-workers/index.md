@@ -32,6 +32,8 @@ flowchart TD
     D1[("Cloudflare D1\nSQLite")]
     LLM["OpenAI / Claude\nfunction-calling"]
 
+<!-- truncate -->
+
     CC -->|"paginated CDX records"| JA
     Ashby -->|"job postings JSON"| CR
     UP -->|"batch INSERT companies"| D1

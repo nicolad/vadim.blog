@@ -9,6 +9,8 @@ tags: [rust, tokio, websocket, async, streaming]
 
 ## TL;DR
 
+<!-- truncate -->
+
 - **Tokio** is the runtime and low-level primitives (tasks, I/O, timers, channels, `tokio::select!`).
 - **`tokio-stream`** is an *optional* companion that:
   - **wraps** Tokio primitives into `Stream`s (e.g., `ReceiverStream`, `BroadcastStream`, `IntervalStream`);

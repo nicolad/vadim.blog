@@ -9,6 +9,8 @@ tags: [ai, sdlc, strategy, llm, agents, rag, evals, llmops, grounding, spec-driv
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+<!-- truncate -->
+
 Building AI systems is not one problem—it is a set of problems layered on top of each other. To navigate them, you need two different levels of thinking:
 
 - **Meta approaches** — the umbrella mindset that determines *what you optimize for* (grounding, observability, correctness, human oversight, routing). These exist because AI systems are probabilistic, data-dependent, and can hallucinate, drift, and fail silently.

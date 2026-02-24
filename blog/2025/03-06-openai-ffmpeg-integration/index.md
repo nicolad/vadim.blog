@@ -20,6 +20,8 @@ tags:
 
 ## Introduction
 
+<!-- truncate -->
+
 **OpenAI** offers powerful text-to-speech capabilities, enabling developers to generate spoken audio from raw text. Meanwhile, **FFmpeg** is the de facto standard tool for audio/video processing—used heavily for tasks like merging audio files, converting formats, and applying filters. Combining these two in a **FastAPI** application can produce a scalable, production-ready text-to-speech (TTS) workflow that merges and manipulates audio via FFmpeg under the hood.
 
 This article demonstrates how to:

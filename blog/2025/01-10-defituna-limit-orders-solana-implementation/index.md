@@ -10,6 +10,8 @@ image: ./og.png
 
 ## TL;DR
 
+<!-- truncate -->
+
 This guide demonstrates **real-world implementation** of DeFiTuna limit orders on Solana mainnet, focusing on:
 
 - **Direct RPC Interaction**: Building and submitting transactions without high-level SDKs

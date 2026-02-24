@@ -9,6 +9,8 @@ image: ./jupiter.jpeg
 
 ![Jupiter swap integration architecture on Solana](./jupiter.jpeg)
 
+<!-- truncate -->
+
 **TL;DR**: Production swap execution engine with **guardrails**, **operational controls**, and **analytics-ready telemetry**.
 
 - Jupiter routes across 20+ venues for best execution

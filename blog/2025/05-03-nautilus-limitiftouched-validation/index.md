@@ -9,6 +9,8 @@ authors: [nicolad]
 
 > **TL;DR** – PR [#2577](https://github.com/nautechsystems/nautilus_trader/pull/2577) introduces a _fallible_ constructor, complete domain-level checks, and four focussed tests for `MarketIfTouchedOrder`, thereby closing long-standing Issue [#2529](https://github.com/nautechsystems/nautilus_trader/issues/2529) on order-validation consistency.
 
+<!-- truncate -->
+
 ---
 
 ## 1 Background

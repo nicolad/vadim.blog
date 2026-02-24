@@ -8,6 +8,8 @@ authors: [nicolad]
 
 ![Solana runtime constraints: accounts, locks, and contention](./solana.png)
 
+<!-- truncate -->
+
 ## TL;DR
 
 - **AMM** is the *category*: any on-chain venue that computes prices algorithmically from state (reserves, parameters, or inventory).

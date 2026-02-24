@@ -8,6 +8,8 @@ image: ./image.png
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 
+<!-- truncate -->
+
 ## Agent Skills Specification
 
 Source: [https://agentskills.io/specification](https://agentskills.io/specification)
@@ -271,7 +273,7 @@ The Agent Skills docs are designed to be discovered via a single index file (`ll
 
 1. **Discovery**: load only `name` + `description` metadata
 2. **Activation**: load the full `SKILL.md` body for a matching task
-3. **Execution**: read references / run scripts as needed :contentReference[oaicite:1]{index=1}
+3. **Execution**: read references / run scripts as needed
 
 ---
 

@@ -10,6 +10,8 @@ tags: [trading, market-wizards, risk-management, psychology, bias]
 > **“The markets are never wrong; opinions often are.”**  
 > —Jesse Livermore (quoted by Bruce Kovner in _Market Wizards_)
 
+<!-- truncate -->
+
 2025 is a cognitive trap for equity bulls. The Ukraine front barely moves, President Trump’s blanket 10 % tariff rattles importers, and German GDP just printed –0.6 % QoQ—yet the S&P 500 hovers north of 5 500.  
 If that disconnect feels _comfortable_, your built-in **bullish bias** (the reflex that “prices _should_ rise”) is probably steering the wheel.
 

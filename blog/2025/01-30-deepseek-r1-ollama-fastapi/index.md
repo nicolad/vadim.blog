@@ -21,6 +21,8 @@ tags:
 
 ## Introduction
 
+<!-- truncate -->
+
 **DeepSeek-R1** is a family of large language models (LLMs) known for advanced natural language capabilities. While hosting an LLM in the cloud can be convenient, local deployment provides greater control over latency, privacy, and resource utilization. Tools like **Ollama** simplify this process by handling model downloading and quantization. However, to truly scale or integrate these capabilities into other services, you often need a robust REST API layer—**FastAPI** is perfect for this.
 
 This article covers the entire pipeline:

@@ -8,6 +8,8 @@ slug: /langsmith-prompt-management
 
 In the rapidly evolving landscape of Large Language Model (LLM) applications, prompt engineering has emerged as a critical discipline. As teams scale their AI applications, managing prompts across different versions, environments, and use cases becomes increasingly complex. This is where LangSmith's prompt management capabilities shine.
 
+<!-- truncate -->
+
 LangSmith, developed by LangChain, provides a comprehensive platform for managing, versioning, and collaborating on prompts—effectively bringing software engineering best practices to the world of prompt engineering.
 
 ```mermaid

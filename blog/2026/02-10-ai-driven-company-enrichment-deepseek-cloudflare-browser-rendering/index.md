@@ -8,6 +8,8 @@ image: ./image.png
 
 This page documents an AI-first enrichment pipeline that turns a company website into a **clean, structured company profile** you can safely persist into your database and expose through GraphQL.
 
+<!-- truncate -->
+
 The core idea is simple:
 
 - Use **Cloudflare Browser Rendering `/json`** to load a *real rendered* page (including JavaScript-heavy sites).

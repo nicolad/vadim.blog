@@ -9,6 +9,8 @@ tags: [solana, defi, rust, anchor, smart-contracts, amm]
 
 ## TL;DR
 
+<!-- truncate -->
+
 **DefiTuna AMM** combines concentrated liquidity, on-chain limit orders, and leveraged liquidity provision in a unique AMM design. This article focuses on the **Anchor smart contract** that implements this protocol, specifically examining:
 
 - **Program Architecture**: A hybrid AMM with integrated limit order book, implemented as a multi-instruction Anchor program

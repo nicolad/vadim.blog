@@ -28,6 +28,8 @@ tags:
 
 ## Introduction
 
+<!-- truncate -->
+
 Financial markets present a dynamic environment where active research and experimentation are critical. **Qlib** offers a complete “AI-oriented” solution for quantitative investment—covering data loaders, feature engineering, model training, and evaluation. Meanwhile, **MLflow** provides robust functionality for experiment tracking, handling metrics, artifacts, and hyperparameters across multiple runs. You can further enhance your documentation using specialized syntax for highlighting important information, such as notes or warnings, to help readers navigate complex workflows.
 
 This article shows **how to integrate Qlib and MLflow** to manage your entire workflow—from data ingestion and factor engineering to model storage and versioning—under a single, unified experiment system. It also demonstrates various ways to emphasize notes or warnings to help readers explore the complexities of this setup.
