@@ -252,7 +252,7 @@ When I type `/ux-team`, the lead session does three things in sequence: loads th
 
 ```mermaid
 flowchart TD
-    A[/ux-team invoked] --> B[UX Lead spawns team]
+    A["ux-team invoked"] --> B[UX Lead spawns team]
     B --> C[All 3 teammates: load CLAUDE.md + PRD in parallel]
     C --> D[UX Researcher track]
     C --> E[UI Designer track]
