@@ -1,6 +1,7 @@
 ---
 slug: bias-variance-tradeoff-ml
 title: Understanding the Bias-Variance Tradeoff and No Free Lunch Theorem in Machine Learning
+description: "Understand the bias-variance tradeoff, No Free Lunch theorem, and regularization techniques to build ML models that generalize well to unseen data."
 date: 2024-09-05T10:00
 authors: [nicolad]
 tags: [AI, ML, Bias-Variance, No Free Lunch, Projection Matrix, Hyperparameters]

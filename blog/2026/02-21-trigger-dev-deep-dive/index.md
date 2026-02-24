@@ -6,8 +6,6 @@ authors: [nicolad]
 tags: [trigger.dev, background-jobs, queues, mcp, ai-agents, tts, next.js]
 ---
 
-# Trigger.dev Deep Dive: Background Jobs, Queue Fan-Out, MCP, and Agent Skills
-
 Trigger.dev is a serverless background job platform that lets you run long-running tasks with **no timeouts**, automatic retries, queue-based concurrency control, and full observability. Unlike traditional job queues (BullMQ, Celery, Sidekiq), Trigger.dev manages the infrastructure — you write TypeScript tasks and deploy them like functions.
 
 This article covers the platform end-to-end: architecture, task authoring, the queue fan-out pattern, MCP server integration for AI assistants, agent skills/rules, and a production case study of a TTS audio pipeline.

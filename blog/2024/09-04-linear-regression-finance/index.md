@@ -1,6 +1,7 @@
 ---
 slug: linear-regression-finance
 title: Predicting Stock Returns Using Linear Regression in Finance
+description: "Apply linear regression to predict Amazon stock returns using financial indices — a practical machine learning approach to stock market modeling."
 date: 2024-09-04T10:00
 authors: [nicolad]
 tags: [AI, ML, Finance, Linear Regression, Stock Market]

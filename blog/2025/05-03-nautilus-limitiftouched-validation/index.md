@@ -1,6 +1,8 @@
 ---
 slug: nautilus-marketiftouched-validation
 title: Contributing a Safer MarketIfTouchedOrder to Nautilus Trader — Hardening Conditional Orders in Rust
+description: "PR #2577 adds fallible constructors and domain-level validation for MarketIfTouchedOrder in Nautilus Trader, closing issue #2529 on order safety."
+tags: [rust, nautilus-trader, open-source, algorithmic-trading, validation]
 date: 2025-05-03
 authors: [nicolad]
 ---

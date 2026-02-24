@@ -1,6 +1,7 @@
 ---
 slug: deepseek-r1-ollama-fastapi
 title: How to Set Up and Run DeepSeek-R1 Locally With Ollama and FastAPI
+description: "Run DeepSeek-R1 locally using Ollama and serve it through a FastAPI endpoint — complete setup guide for local LLM deployment and API integration."
 date: 2025-01-30
 authors: [nicolad]
 tags:

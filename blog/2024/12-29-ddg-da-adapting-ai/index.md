@@ -2,6 +2,7 @@
 slug: ddg-da-adapting-ai
 title: Adapting Stock Forecasts with AI
 date: 2024-12-29
+description: "Adapt stock forecasting models to evolving market conditions using DDG-DA domain adaptation — improving AI prediction accuracy with distribution-aware techniques."
 authors: [nicolad]
 tags:
   [

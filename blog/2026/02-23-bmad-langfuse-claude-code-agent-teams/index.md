@@ -7,8 +7,6 @@ image: ./image.jpg
 tags: [bmad, langfuse, claude-code, ai-agents, observability, llm-evals, agent-teams]
 ---
 
-# BMAD Method + Langfuse + Claude Code Agent Teams in Production
-
 Running AI agents in a real codebase means solving three intertwined problems at once: **planning and quality gates** (so agents don't drift), **observability** (so you know what's working), and **orchestration** (so multiple agents divide work without clobbering each other). In [nomadically.work](https://nomadically.work) — a remote EU job board with an AI classification and skill-extraction pipeline — these problems are solved by three complementary systems: BMAD v6, Langfuse, and Claude Code Agent Teams. This article explains how each works and how they compose.
 
 <!--truncate-->

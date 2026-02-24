@@ -1,6 +1,7 @@
 ---
 slug: deploying-laserstream-cloudflare-containers
 title: Deploying Real-Time Solana Data Streams on Cloudflare Containers with LaserStream
+description: "Deploy a production-ready real-time Solana slot streaming service using Helius LaserStream SDK on Cloudflare Containers with gRPC, auto-scaling, and health checks."
 date: 2026-01-09
 authors: [nicolad]
 image: ./og.png

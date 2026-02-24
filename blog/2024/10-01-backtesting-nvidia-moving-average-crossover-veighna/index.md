@@ -1,6 +1,7 @@
 ---
 slug: backtesting-nvidia-moving-average-crossover-veighna
 title: Backtesting NVIDIA Stock Strategies on VeighNa - Moving Average Crossover Strategy
+description: "Backtest a moving average crossover strategy on NVIDIA stock using VeighNa — setup, configuration, and performance analysis."
 date: 2024-10-01
 authors: [nicolad]
 tags:

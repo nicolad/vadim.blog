@@ -6,8 +6,6 @@ authors: [nicolad]
 slug: /job-search-agent-google-adk-search-grounding
 ---
 
-# Building a Job Search Agent with Google ADK and Search Grounding
-
 ## Introduction
 
 This article documents the implementation of an AI-powered job search agent using **Google’s Agent Development Kit (ADK)** with **Google Search grounding**. The agent demonstrates how to build intelligent search applications that combine the reasoning capabilities of large language models with real-time web search data.

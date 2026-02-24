@@ -1,8 +1,10 @@
 ---
 slug: technical-analysis-comparison-nvidia-partners
 title: Technical Analysis of Key NVIDIA Partners - A Comparative Study
+description: "Comparative technical analysis of NVIDIA's key partners — TSMC, Samsung, Micron, SK hynix, ASML, and more — with financial indicators and growth metrics."
 date: 2024-10-31
 authors: [nicolad]
+tags: [NVIDIA, technical-analysis, semiconductors, investing, finance]
 ---
 
 ## Introduction

@@ -6,8 +6,6 @@ authors: [nicolad]
 tags: [langgraph, tts, architecture, python, deepseek, openai, cloudflare-r2, postgres, audio-generation]
 ---
 
-# Building Long-Running TTS Pipelines with LangGraph: Orchestrating Longform
-
 ## Introduction
 
 Generating long-form audio content—audiobooks spanning hours, educational courses, or extended podcasts—presents unique challenges: API rate limits, network failures, resource constraints, and the sheer duration of processing. This article explores a production-ready architecture for **long-running TTS pipelines** that can gracefully handle long-form generation tasks, resume after failures, and maintain state across distributed systems.

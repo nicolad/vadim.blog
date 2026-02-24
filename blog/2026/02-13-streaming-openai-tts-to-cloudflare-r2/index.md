@@ -6,8 +6,6 @@ authors: [nicolad]
 slug: /streaming-openai-tts-to-cloudflare-r2
 ---
 
-# Streaming OpenAI TTS to Cloudflare R2: A Complete Implementation
-
 This article documents a production implementation of OpenAI's Text-to-Speech (TTS) API with automatic chunking for long-form content and seamless upload to Cloudflare R2 storage.
 
 ## Architecture Overview

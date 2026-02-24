@@ -1,6 +1,7 @@
 ---
 slug: understanding-sniper-algorithm-implementation
 title: Understanding the Sniper Algorithm Implementation in Algorithmic Trading
+description: "Deep dive into the Sniper execution algorithm in VeighNa — how it works, order routing logic, and practical implementation for algorithmic trading."
 date: 2024-10-05
 authors: [nicolad]
 tags:

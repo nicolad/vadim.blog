@@ -1,8 +1,10 @@
 nicolad:
   name: Vadim Nicolai
   title: Senior Software Engineer
+  description: "Senior Software Engineer building AI-powered products with TypeScript, Rust, and LLMs. Writes about AI agents, eval-driven development, and edge computing."
   url: https://www.linkedin.com/in/vadimnicolai/
   image_url: https://github.com/nicolad.png
   page: true
   socials:
     github: nicolad
+    linkedin: vadimnicolai

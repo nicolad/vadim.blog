@@ -1,6 +1,7 @@
 ---
 slug: algo-trading-veighna-interactive-brokers
 title: Algorithmic Trading with VeighNa and Interactive Brokers - Installation Guide and Troubleshooting
+description: "Complete installation guide and troubleshooting for algorithmic trading with VeighNa and Interactive Brokers on Python."
 date: 2024-09-22
 authors: [nicolad]
 tags:

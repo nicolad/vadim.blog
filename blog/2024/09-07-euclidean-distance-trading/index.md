@@ -1,6 +1,7 @@
 ---
 slug: euclidean-distance-trading-algorithms
 title: Understanding Euclidean Distance and Its Applications in Trading Algorithms
+description: "How Euclidean distance is applied in algorithmic trading for asset similarity analysis, trading signal detection, and portfolio optimization."
 date: 2024-09-07
 authors: [nicolad]
 tags:

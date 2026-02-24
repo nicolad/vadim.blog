@@ -1,6 +1,7 @@
 ---
 slug: ai-ml-finance
 title: Leveraging AI and Machine Learning in Finance - A Strategic Advantage
+description: "How AI and machine learning transform finance — from credit approval and fraud detection to market prediction and strategic decision-making."
 date: 2024-09-03T10:00
 authors: [nicolad]
 tags: [AI, ML, Finance]

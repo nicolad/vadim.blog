@@ -1,6 +1,7 @@
 ---
 slug: correct-exchange-mapping-ib-veighna
 title: Correct Exchange Mapping in VeighNa to Resolve IB Security Definition Errors
+description: "Fix Interactive Brokers security definition errors in VeighNa by correctly mapping exchange codes — troubleshooting guide with solutions."
 date: 2024-10-12
 authors: [nicolad]
 tags:

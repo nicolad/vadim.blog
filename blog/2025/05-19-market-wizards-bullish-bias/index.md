@@ -1,8 +1,10 @@
 ---
 slug: market-wizard-bullish-bias-playbook
 title: Slaying Bullish Bias - A Market Wizards Playbook
+description: "A 30-question audit from Market Wizards to identify and overcome bullish bias in trading, with 2025 examples and actionable risk management insights."
 date: 2025-05-19
 authors: [nicolad]
+tags: [trading, market-wizards, risk-management, psychology, bias]
 ---
 
 > **“The markets are never wrong; opinions often are.”**  

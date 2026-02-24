@@ -9,8 +9,6 @@ image: ./image.png
 
 ![Building Production Evals for LLM Systems](./image.png)
 
-# Evals From First Principles
-
 ## Building LLM systems you can measure, monitor, and improve
 
 Large language models feel like software, but they don’t behave like software.

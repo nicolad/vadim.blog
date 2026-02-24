@@ -18,8 +18,6 @@ tags:
 
 ---
 
-# AI Observability for LLM Evals with Langfuse
-
 This article documents an evaluation harness for a **Remote EU job classifier**—but the real focus is **AI observability**: how to design traces, spans, metadata, scoring, and run-level grouping so you can *debug, compare, and govern* LLM behavior over time.
 
 The script runs a batch of curated test cases, loads the latest production prompt from Langfuse (with a safe fallback), executes a structured LLM call, scores results, and publishes metrics back into Langfuse. That gives you:

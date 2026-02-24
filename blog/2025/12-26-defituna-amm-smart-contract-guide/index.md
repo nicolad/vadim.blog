@@ -1,8 +1,10 @@
 ---
 slug: defituna-amm-smart-contract-guide
 title: "DefiTuna AMM Smart Contract — Anchor Implementation Guide"
+description: "Technical guide to the DefiTuna AMM Anchor smart contract on Solana — concentrated liquidity, limit orders, leveraged positions, and PDA account design."
 date: 2025-12-26
 authors: [nicolad]
+tags: [solana, defi, rust, anchor, smart-contracts, amm]
 ---
 
 ## TL;DR

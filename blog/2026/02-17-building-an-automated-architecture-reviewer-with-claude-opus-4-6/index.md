@@ -7,8 +7,6 @@ authors: [nicolad]
 tags: [anthropic, claude, agents, architecture, automation, ai-engineering]
 ---
 
-# Building an Automated Architecture Reviewer with Claude Opus 4.6
-
 We built an **Architect agent** — a fully autonomous code reviewer powered by Claude Opus 4.6 — that explores a repository, runs audits, and produces a comprehensive architecture report. One command, zero human intervention, a professional-grade review in under 10 minutes.
 
 This article covers how the agent is structured, how it leverages Anthropic's agentic tool-use loop, and what we learned shipping it.

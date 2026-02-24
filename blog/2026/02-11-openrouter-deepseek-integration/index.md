@@ -7,8 +7,6 @@ image: ./image.jpeg
 slug: /openrouter-deepseek-integration
 ---
 
-# OpenRouter Integration with DeepSeek
-
 This article documents the complete OpenRouter integration implemented in Nomadically.work, using DeepSeek models exclusively through a unified API.
 
 ## Architecture Overview

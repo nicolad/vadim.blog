@@ -1,8 +1,10 @@
 ---
 slug: tokio-vs-tokio-stream-websocket-adapters
 title: Tokio vs tokio-stream in WebSocket adapters - stream-first vs select!
+description: "Compare Tokio primitives with tokio-stream combinators for Rust WebSocket adapters — when to use select! vs Stream-based fan-in, timeouts, and event pipelines."
 date: 2025-09-05
 authors: [nicolad]
+tags: [rust, tokio, websocket, async, streaming]
 ---
 
 ## TL;DR

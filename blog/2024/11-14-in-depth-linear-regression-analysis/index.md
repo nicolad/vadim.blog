@@ -2,6 +2,7 @@
 slug: understanding-gradient-descent-in-linear-regression
 title: Understanding Gradient Descent in Linear Regression
 date: 2024-11-14
+description: "In-depth guide to linear regression in machine learning — model equation, cost function, parameter optimization, and practical applications."
 authors: [nicolad]
 tags: [Machine Learning, Linear Regression, Gradient Descent, AI]
 ---

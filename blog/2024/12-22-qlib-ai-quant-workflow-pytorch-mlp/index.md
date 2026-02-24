@@ -2,6 +2,7 @@
 slug: qlib-ai-quant-workflow-pytorch-mlp
 title: Powering Quant Finance with Qlib’s PyTorch MLP on Alpha360
 date: 2024-12-22
+description: "Run Qlib's PyTorch MLP model on Alpha360 features for stock prediction — end-to-end quant finance workflow with training, backtesting, and analysis."
 authors: [nicolad]
 tags:
   [

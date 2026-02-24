@@ -7,8 +7,6 @@ slug: concurrent-ai-agents-on-cloudflare-workers
 tags: [rust, cloudflare-workers, wasm, rig, ai, concurrency]
 ---
 
-# Concurrent AI Agents on CF Workers — Three-Level Rig Patterns Without Tokio
-
 ```mermaid
 flowchart TD
     CC["Common Crawl CDX API"]

@@ -2,6 +2,7 @@
 slug: qlib-hft-ai
 title: Qlib’s Nested Execution for High-Frequency Trading with AI
 date: 2024-12-27
+description: "Explore Qlib's nested execution framework for high-frequency trading with AI — multi-level decision making from portfolio to order execution."
 authors: [nicolad]
 tags:
   [

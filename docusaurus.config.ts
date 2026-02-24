@@ -6,7 +6,7 @@ import rehypeKatex from "rehype-katex";
 
 const config: Config = {
   title: "Vadim's blog",
-  tagline: "Dinosaurs are cool",
+  tagline: "Software engineering, AI, and web development insights by Vadim Nicolai",
   favicon: "img/favicon.ico",
 
   // Set the production url of your site here
@@ -17,8 +17,8 @@ const config: Config = {
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: "facebook", // Usually your GitHub org/user name.
-  projectName: "docusaurus", // Usually your repo name.
+  organizationName: "nicolad", // Usually your GitHub org/user name.
+  projectName: "vadim.blog", // Usually your repo name.
 
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -33,6 +33,35 @@ const config: Config = {
   markdown: {
     mermaid: true,
   },
+  headTags: [
+    {
+      tagName: "meta",
+      attributes: {
+        name: "description",
+        content:
+          "Vadim Nicolai's blog on software engineering, AI, web development, and technology insights.",
+      },
+    },
+    {
+      tagName: "script",
+      attributes: {
+        type: "application/ld+json",
+      },
+      innerHTML: JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        name: "Vadim's blog",
+        url: "https://vadim.blog",
+        description:
+          "Software engineering, AI, and web development insights by Vadim Nicolai",
+        author: {
+          "@type": "Person",
+          name: "Vadim Nicolai",
+          url: "https://www.linkedin.com/in/vadimnicolai/",
+        },
+      }),
+    },
+  ],
   themes: ["@docusaurus/theme-mermaid"],
   presets: [
     [
@@ -42,6 +71,8 @@ const config: Config = {
         blog: {
           routeBasePath: "/", // Serve the blog at the site's root
           blogSidebarCount: "ALL",
+          blogDescription:
+            "Articles on AI engineering, LLM agents, eval-driven development, edge computing, and TypeScript/Rust by Vadim Nicolai.",
           showReadingTime: true,
           feedOptions: {
             type: ["rss", "atom"],
@@ -73,7 +104,7 @@ const config: Config = {
     navbar: {
       title: "Vadim's blog",
       logo: {
-        alt: "My Site Logo",
+        alt: "Vadim's blog logo",
         src: "img/logo.svg",
       },
     },
@@ -83,7 +114,7 @@ const config: Config = {
         {
           items: [
             {
-              label: "LinkenIn",
+              label: "LinkedIn",
               href: "https://www.linkedin.com/in/vadimnicolai/",
             },
             {

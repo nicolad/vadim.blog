@@ -7,8 +7,6 @@ slug: /langfuse-features-prompts-tracing-scores-usage
 ---
 
 
-# Langfuse Integration Guide
-
 A comprehensive guide to implementing Langfuse features for production-ready AI applications, covering prompt management, tracing, evaluation, and observability.
 
 ## Overview

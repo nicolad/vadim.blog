@@ -6,8 +6,6 @@ authors: [nicolad]
 image: ./image.png
 ---
 
-# AI-Driven Company Enrichment with DeepSeek via Cloudflare Browser Rendering
-
 This page documents an AI-first enrichment pipeline that turns a company website into a **clean, structured company profile** you can safely persist into your database and expose through GraphQL.
 
 The core idea is simple:

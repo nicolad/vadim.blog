@@ -1,8 +1,10 @@
 ---
 slug: hyperliquid-gasless-trading-strategies
 title: Hyperliquid Gasless Trading – Deep Comparison, Fees, and 20 Optimized Strategies
+description: "Deep dive into Hyperliquid's gasless HyperCore trading, fee structure, rate limits, and 20 optimized strategies for the L1 perpetuals exchange."
 date: 2025-09-04
 authors: [nicolad]
+tags: [hyperliquid, trading, defi, perpetuals, strategies]
 ---
 
 > **TL;DR**

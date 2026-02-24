@@ -1,6 +1,7 @@
 ---
 slug: openai-ffmpeg-integration
 title: How to Integrate OpenAI TTS with FFmpeg in a FastAPI Service
+description: "Step-by-step guide to building a FastAPI service that combines OpenAI Text-to-Speech with FFmpeg for audio processing, format conversion, and streaming."
 date: 2025-03-06
 authors: [nicolad]
 tags:

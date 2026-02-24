@@ -7,8 +7,6 @@ authors: [nicolad]
 tags: [langgraph, ai-agents, deepseek, langchain, python, job-search, remote-work, automation, structured-output]
 ---
 
-# LangGraph System: DeepSeek-Powered Job Pre-Screening for Worldwide Remote Roles
-
 ## Introduction
 
 Remote job postings are noisy, inconsistent, and often misleading. A role is labeled **“Remote”**, but the actual constraints show up in one sentence buried halfway down the description:

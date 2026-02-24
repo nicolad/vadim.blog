@@ -8,8 +8,6 @@ image: ./image.png
 
 ---
 
-# AI-Powered Bulk Skill Extraction with Cloudflare Embeddings and a Vector Taxonomy
-
 This bulk processor extracts **structured skill tags** for job postings using an AI pipeline that combines:
 
 - **Embedding generation** via **Cloudflare Workers AI** (`@cf/baai/bge-small-en-v1.5`, **384-dim**)

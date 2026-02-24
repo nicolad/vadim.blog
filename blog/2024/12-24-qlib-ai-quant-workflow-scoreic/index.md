@@ -2,6 +2,7 @@
 slug: qlib-ai-quant-workflow-adarnn
 title: Adaptive Deep Learning in Quant Finance with Qlib’s PyTorch AdaRNN
 date: 2024-12-22
+description: "Understand Score IC (Information Coefficient) in Qlib for evaluating and improving stock prediction model quality and profitability."
 authors: [nicolad]
 tags:
   [
