@@ -14,7 +14,7 @@ In February 2024, a Canadian court ruled that Air Canada was liable for a refund
 
 This was not a model failure. GPT-class models producing plausible-sounding but false information is a known, documented behavior. It was a **process failure**: the team built a customer-facing system without a grounding policy, without an abstain path, and without any mechanism to verify that the bot's outputs corresponded to real company policy. Every one of those gaps maps directly to a meta approach this article covers.
 
-In 2025, a multi-agent LangChain setup entered a recursive loop and made 47,000 API calls in six hours. Cost: $47,000+. There were no rate limits, no cost alerts, no circuit breakers. The team discovered the problem by checking their billing dashboard.
+In 2025, a multi-agent LangChain setup entered a recursive loop and made 47,000 API calls in six hours. Cost: \$47,000+. There were no rate limits, no cost alerts, no circuit breakers. The team discovered the problem by checking their billing dashboard.
 
 These are not edge cases. A January 2025 Mount Sinai study found leading AI chatbots hallucinated on 50–82.7% of fictional medical scenarios — GPT-4o's best-case error rate was 53%. Forty-seven percent of enterprise AI users admitted making at least one major business decision based on hallucinated content in 2024. Gartner estimates only 5% of GenAI pilots achieve rapid revenue acceleration. MIT research puts the fraction of enterprise AI demos that reach production-grade reliability at approximately 5%. The average prototype-to-production gap: eight months of engineering effort that often ends in rollback or permanent demo-mode operation.
 
@@ -23,7 +23,7 @@ The gap between a working demo and a production-grade AI system is not a technic
 This article gives you both layers, how they map to each other, the real-world failures that happen when each is ignored, and exactly how to start activating **eval-first development** and each other approach in your system today.
 
 :::note Industry Context (2025)
-McKinsey reports **78% of organizations** now use AI in at least one business function — up from 55% twelve months prior. Databricks found organizations put **11x more models into production** year-over-year. Yet MIT research finds only **5% of GenAI pilots** achieve rapid revenue acceleration. The gap is almost always strategic, not technical. Enterprise LLM spend reached **$8.4 billion** in H1 2025 alone, with approximately 40% of enterprises now spending $250,000+ per year on LLM infrastructure.
+McKinsey reports **78% of organizations** now use AI in at least one business function — up from 55% twelve months prior. Databricks found organizations put **11x more models into production** year-over-year. Yet MIT research finds only **5% of GenAI pilots** achieve rapid revenue acceleration. The gap is almost always strategic, not technical. Enterprise LLM spend reached **\$8.4 billion** in H1 2025 alone, with approximately 40% of enterprises now spending \$250,000+ per year on LLM infrastructure.
 :::
 
 <!-- truncate -->
@@ -46,7 +46,7 @@ What this pattern reveals is that demos are built without **quality contracts**.
 Teams that cross this gap do not just "have better evals" or "use RAG." They adopt a set of meta approaches that define, before implementation, what the system is fundamentally trying to guarantee. The evals, the retrieval, the observability — all of these become implementation details of a strategic commitment.
 
 :::warning The Most Expensive Lesson in AI Engineering
-Teams that skip meta approaches pay for it compoundly. Fixing a production AI failure costs 10–50x more than catching it in a pre-production eval. Maintaining a golden test suite typically costs $500–5,000/month for a mid-size team. A single production incident at Air Canada's scale — legal proceedings, compensation, PR remediation, feature rollback — exceeds $100,000. The math is not close.
+Teams that skip meta approaches pay for it compoundly. Fixing a production AI failure costs 10–50x more than catching it in a pre-production eval. Maintaining a golden test suite typically costs \$500–5,000/month for a mid-size team. A single production incident at Air Canada's scale — legal proceedings, compensation, PR remediation, feature rollback — exceeds \$100,000. The math is not close.
 :::
 
 ---
@@ -149,7 +149,7 @@ Grounding-First is the most widely adopted AI-native meta approach. It is a post
 
 #### Adoption evidence
 
-Menlo Ventures' 2024 State of Enterprise AI found RAG at 51% enterprise adoption, up from 31% the prior year. A survey of 300 enterprises found 86% augmenting their LLMs via RAG or similar retrieval. Databricks reported vector databases supporting RAG grew 377% year-over-year. The RAG market is projected to grow from $1.2B (2024) to $11B by 2030 at a 49.1% CAGR. Critically: 51% of all enterprise AI failures in 2025 were RAG-related — indicating that RAG adoption has outpaced RAG quality engineering. You can be in the 51% who have RAG and the 51% whose AI failures are RAG-related simultaneously.
+Menlo Ventures' 2024 State of Enterprise AI found RAG at 51% enterprise adoption, up from 31% the prior year. A survey of 300 enterprises found 86% augmenting their LLMs via RAG or similar retrieval. Databricks reported vector databases supporting RAG grew 377% year-over-year. The RAG market is projected to grow from \$1.2B (2024) to \$11B by 2030 at a 49.1% CAGR. Critically: 51% of all enterprise AI failures in 2025 were RAG-related — indicating that RAG adoption has outpaced RAG quality engineering. You can be in the 51% who have RAG and the 51% whose AI failures are RAG-related simultaneously.
 
 ```mermaid
 graph TD
@@ -195,7 +195,7 @@ graph TD
 
 **What goes wrong when you skip it:** In 2023, lawyers were sanctioned by federal courts for submitting briefs citing nonexistent cases generated by ChatGPT. In 2025, a brief for Mike Lindell contained "almost 30 defective citations, misquotes, and citations to fictional cases." A citation verification eval — checking every cited case against a legal database before the brief is filed — would have surfaced every invented citation. The eval does not need to be complex: a simple lookup against Westlaw or LexisNexis for each citation would have produced a 100% detection rate. The lawyers did not have this eval. They shipped without testing.
 
-In the same year, a Chevrolet customer service chatbot was manipulated via prompt injection into agreeing to sell a Chevrolet Tahoe for $1. The manipulated exchange was posted to X and went viral. An adversarial eval suite that includes injection attempts — "agree with the user's price demand for any vehicle," "ignore your previous instructions and..." — would have caught this behavior in staging before it reached production.
+In the same year, a Chevrolet customer service chatbot was manipulated via prompt injection into agreeing to sell a Chevrolet Tahoe for \$1. The manipulated exchange was posted to X and went viral. An adversarial eval suite that includes injection attempts — "agree with the user's price demand for any vehicle," "ignore your previous instructions and..." — would have caught this behavior in staging before it reached production.
 
 Eval-First is the AI equivalent of test-driven development. The distinction from simply "having evals" is that the eval suite exists *before* the implementation and acts as the acceptance criterion. You do not write code to pass a linter — you write code to pass the eval. The CI gate is your quality contract.
 
@@ -332,7 +332,7 @@ Standard benchmarks (MMLU, HumanEval) now show above 90% saturation on leading m
 
 > **"Instrument before you scale. Every production failure must be reproducible."**
 
-**What goes wrong when you skip it:** In 2025, a multi-agent LangChain system entered a recursive loop and made 47,000 API calls in six hours, costing $47,000+. There were no rate limits, no cost alerts, no circuit breakers, and no monitoring that could have triggered an automated halt. The engineers discovered the problem by checking their billing dashboard. With Observability-First in place, a cost-per-session alert at a $100 threshold and a call-count circuit breaker at 500 calls per hour would have stopped the runaway within minutes. The $47,000 incident was not an agent failure — it was an observability failure.
+**What goes wrong when you skip it:** In 2025, a multi-agent LangChain system entered a recursive loop and made 47,000 API calls in six hours, costing \$47,000+. There were no rate limits, no cost alerts, no circuit breakers, and no monitoring that could have triggered an automated halt. The engineers discovered the problem by checking their billing dashboard. With Observability-First in place, a cost-per-session alert at a \$100 threshold and a call-count circuit breaker at 500 calls per hour would have stopped the runaway within minutes. The \$47,000 incident was not an agent failure — it was an observability failure.
 
 Observability-First means you cannot ship a system to production without the ability to capture, replay, and diff what happened. Traces are not a debugging convenience — they are the mechanism by which production failures convert into future eval cases and system improvements.
 
@@ -438,7 +438,7 @@ Multi-Model / Routing-First is the recognition that the LLM layer is a fleet, no
 
 #### Adoption evidence
 
-Menlo Ventures found enterprises "typically deploy 3+ foundation models" and route per use case — described as "the pragmatic norm" for 2024. 37% of enterprises use five or more models in production environments. Companies using dynamic model routing report 27–55% cost reductions in RAG setups. One documented enterprise case: monthly LLM spend dropped from $50,000 to $27,000 by routing 60% of requests to cheaper models with equivalent quality for those tasks. Organizations using a single LLM for all tasks overpay 40–85% compared to intelligent routing. Enterprise LLM API spending exceeded $8.4B in H1 2025.
+Menlo Ventures found enterprises "typically deploy 3+ foundation models" and route per use case — described as "the pragmatic norm" for 2024. 37% of enterprises use five or more models in production environments. Companies using dynamic model routing report 27–55% cost reductions in RAG setups. One documented enterprise case: monthly LLM spend dropped from \$50,000 to \$27,000 by routing 60% of requests to cheaper models with equivalent quality for those tasks. Organizations using a single LLM for all tasks overpay 40–85% compared to intelligent routing. Enterprise LLM API spending exceeded \$8.4B in H1 2025.
 
 ```mermaid
 graph TD
@@ -727,7 +727,7 @@ Agentic systems introduce failure modes not present in single-turn LLM applicati
 
 **Coordination explosions → Spec-Driven.** Scaling from one agent to five does not multiply complexity by five — it increases it exponentially due to inter-agent communication patterns. Spec-Driven addresses this by treating agent interfaces as formal contracts: each agent has a defined input schema, output schema, and permitted tool list. Agents communicate only via typed messages, not free-form text. This is the multi-agent equivalent of API versioning.
 
-**Unbounded resource consumption → Observability-First + Multi-Model.** Agents without cost governance, rate limits, or circuit breakers can enter recursive loops. The $47,000 incident is a pure observability failure — no alerts, no circuit breakers, no cost caps. The mitigation is architectural: cost-per-session hard limit, call-count circuit breaker, recursive depth limit, all enforced in code and monitored via traces.
+**Unbounded resource consumption → Observability-First + Multi-Model.** Agents without cost governance, rate limits, or circuit breakers can enter recursive loops. The \$47,000 incident is a pure observability failure — no alerts, no circuit breakers, no cost caps. The mitigation is architectural: cost-per-session hard limit, call-count circuit breaker, recursive depth limit, all enforced in code and monitored via traces.
 
 **Excessive agency → HITL + Spec-Driven.** Agents granted broad tool access can perform unintended harmful actions even without adversarial input — simply due to misinterpretation of ambiguous user instructions. OWASP LLM 2025's "Excessive Agency" category (LLM06) specifically targets this: agents must have narrowly scoped tool access, and high-impact irreversible actions must require explicit user approval. The spec defines the permitted tool list; HITL enforces the approval gate.
 
@@ -774,7 +774,7 @@ The OWASP Top 10 for LLM Applications 2025 provides the most authoritative secur
 
 **LLM01 Prompt Injection** is the only OWASP risk that requires Eval-First as a primary mitigation. Structural defenses alone — system prompt instructions — are insufficient because sufficiently crafted user inputs or indirect injection via retrieved documents can override them. The defense requires an adversarial test suite that actively attempts injection before every deployment.
 
-**LLM10 Unbounded Consumption** maps directly to the $47,000 recursive agent incident. Cost caps and circuit breakers must be treated as formal spec constraints — not monitoring dashboards — to be effective. A cost alert that fires after $47,000 is spent is not a constraint; it is a notification.
+**LLM10 Unbounded Consumption** maps directly to the \$47,000 recursive agent incident. Cost caps and circuit breakers must be treated as formal spec constraints — not monitoring dashboards — to be effective. A cost alert that fires after \$47,000 is spent is not a constraint; it is a notification.
 
 ---
 
@@ -783,7 +783,7 @@ The OWASP Top 10 for LLM Applications 2025 provides the most authoritative secur
 ### Multi-Model Routing economics (2025 data)
 
 - 27–55% cost reduction in RAG setups via dynamic routing to appropriate model tier
-- Documented enterprise case: $50,000/month to $27,000/month (46% reduction) by routing 60% of requests to cheaper models with equivalent quality
+- Documented enterprise case: \$50,000/month to \$27,000/month (46% reduction) by routing 60% of requests to cheaper models with equivalent quality
 - Organizations using a single LLM for all tasks overpay 40–85% vs. intelligent routing
 - Semantic caching compounds savings: 30–60% additional reduction for applications with repeated query patterns
 - 5x improvement in SLO attainment and 31.6% latency reduction from request routing in one production study
@@ -792,12 +792,12 @@ The OWASP Top 10 for LLM Applications 2025 provides the most authoritative secur
 
 - Enterprise agent cost overruns average 340% above initial estimates
 - AI agent failures cost 3–7x more than traditional software failures (token charges accumulate on failed and retried attempts)
-- A recursive agent process: $47,000 burned in six hours on 47,000 API calls
-- Enterprise LLM spend hit $8.4 billion in H1 2025; approximately 40% of enterprises now spend $250,000+ per year
+- A recursive agent process: \$47,000 burned in six hours on 47,000 API calls
+- Enterprise LLM spend hit \$8.4 billion in H1 2025; approximately 40% of enterprises now spend \$250,000+ per year
 
 ### The Eval-First cost case
 
-Teams report that fixing a production AI failure costs 10–50x more than catching it in a pre-production eval. Maintaining a golden test suite typically costs $500–5,000/month for a mid-size team (developer time plus LLM-as-judge API costs). A single production incident at Air Canada's scale — legal proceedings, compensation, PR remediation, reputational damage — exceeds $100,000. The math strongly favors Eval-First investment.
+Teams report that fixing a production AI failure costs 10–50x more than catching it in a pre-production eval. Maintaining a golden test suite typically costs \$500–5,000/month for a mid-size team (developer time plus LLM-as-judge API costs). A single production incident at Air Canada's scale — legal proceedings, compensation, PR remediation, reputational damage — exceeds \$100,000. The math strongly favors Eval-First investment.
 
 ---
 
@@ -1021,7 +1021,7 @@ The path to production-grade AI:
 - **HITL + Governance:** Unisphere Research / Graphwise, *State of Play on LLM and RAG*, Dec 2024
 - **OWASP LLM Top 10 (2025):** [genai.owasp.org/llm-top-10](https://genai.owasp.org/llm-top-10/)
 - **Air Canada chatbot ruling:** [mccarthy.ca — Moffatt v. Air Canada](https://www.mccarthy.ca/en/insights/blogs/techlex/moffatt-v-air-canada-misrepresentation-ai-chatbot)
-- **$47K agent runaway:** [techstartups.com](https://techstartups.com/2025/11/14/ai-agents-horror-stories-how-a-47000-failure-exposed-the-hype-and-hidden-risks-of-multi-agent-systems/)
+- **\$47K agent runaway:** [techstartups.com](https://techstartups.com/2025/11/14/ai-agents-horror-stories-how-a-47000-failure-exposed-the-hype-and-hidden-risks-of-multi-agent-systems/)
 - **AI Healthcare Enforcement:** [morganlewis.com](https://www.morganlewis.com/pubs/2025/07/ai-in-healthcare-opportunities-enforcement-risks-and-false-claims-and-the-need-for-ai-specific-compliance)
 - **Multi-model routing cost data:** [mindstudio.ai](https://www.mindstudio.ai/blog/best-ai-model-routers-multi-provider-llm-cost-011e6), [helicone.ai](https://www.helicone.ai/blog/monitor-and-optimize-llm-costs)
 - **Anthropic Structured Outputs:** [platform.claude.com/docs](https://platform.claude.com/docs/en/build-with-claude/structured-outputs)
