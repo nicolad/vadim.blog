@@ -16,10 +16,10 @@ tags:
 ---
 
 :::tip TL;DR
-Two multi-agent paradigms, one codebase. A Rust/Tokio system fans out 20 parallel DeepSeek agents with zero coordination overhead — tasks are compile-time constants, agents never talk to each other. Claude Code agent teams invert every assumption: dynamic task claiming, file-locked concurrency, full bidirectional messaging between teammates. The decision rule is one question: **do your agents need to talk to each other?** If no, `tokio::spawn` + `Arc<T>`. If yes, `TeamCreate`.
+Two multi-agent paradigms, [one codebase](https://github.com/nicolad/nomadically.work). A Rust/Tokio system fans out 20 parallel DeepSeek agents with zero coordination overhead — tasks are compile-time constants, agents never talk to each other. Claude Code agent teams invert every assumption: dynamic task claiming, file-locked concurrency, full bidirectional messaging between teammates. The decision rule is one question: **do your agents need to talk to each other?** If no, `tokio::spawn` + `Arc<T>`. If yes, `TeamCreate`.
 :::
 
-Multi-agent AI engineering has become a core discipline in production software development. The interesting question is no longer whether to build multi-agent systems. It is how — and specifically, which architectural pattern to reach for given the nature of the work. Two fundamentally different paradigms exist, and the clearest demonstration is that both live inside the same codebase.
+Multi-agent AI engineering has become a core discipline in production software development. The interesting question is no longer whether to build multi-agent systems. It is how — and specifically, which architectural pattern to reach for given the nature of the work. Two fundamentally different paradigms exist, and the clearest demonstration is that both live inside the [same codebase](https://github.com/nicolad/nomadically.work).
 
 ## Why Multi-Agent AI Systems Are Having a Moment in 2026
 
@@ -29,9 +29,9 @@ What the research papers do not tell you is which architectural pattern to use. 
 
 ## Paradigm 1: Infrastructure-Owned Parallelism — The Rust/DeepSeek Approach
 
-The `research` crate in this project is a real Rust binary that fans out up to 20 parallel DeepSeek agents against Semantic Scholar, collects their outputs, and writes results to Cloudflare D1. Its architecture is aggressive in its simplicity.
+The [`research` crate](https://github.com/nicolad/nomadically.work/tree/main/research) is a real Rust binary that fans out up to 20 parallel DeepSeek agents against Semantic Scholar, collects their outputs, and writes results to Cloudflare D1. Its architecture is aggressive in its simplicity.
 
-The entry point (`research/src/bin/research_agent.rs`) exposes five subcommands: `research` (single agent), `study` (20 parallel agents over agentic-coding topics), `prep` (10 parallel agents over application-prep topics), `enhance` (10 agents per application section), and `backend` (20 agents for backend interview prep). Every subcommand follows the same pattern: define a static list of tasks, spawn one Tokio task per item, collect handles, await results.
+The entry point ([`research/src/bin/research_agent.rs`](https://github.com/nicolad/nomadically.work/blob/main/research/src/bin/research_agent.rs)) exposes five subcommands: `research` (single agent), `study` (20 parallel agents over agentic-coding topics), `prep` (10 parallel agents over application-prep topics), `enhance` (10 agents per application section), and `backend` (20 agents for backend interview prep). Every subcommand follows the same pattern: define a static list of tasks, spawn one Tokio task per item, collect handles, await results.
 
 The task list is a compile-time constant:
 
@@ -48,7 +48,7 @@ Agent #3 always gets topic #3. Task assignment happens before the binary starts.
 
 ## How the DeepSeek Tool-Use Loop Works in Rust
 
-Each spawned agent runs the same inner loop, implemented in `research/src/agent.rs`. The loop is a direct implementation of the OpenAI-compatible function-calling protocol — without a Python SDK wrapper, without a framework abstraction layer:
+Each spawned agent runs the same inner loop, implemented in [`research/src/agent.rs`](https://github.com/nicolad/nomadically.work/blob/main/research/src/agent.rs). The loop is a direct implementation of the OpenAI-compatible function-calling protocol — without a Python SDK wrapper, without a framework abstraction layer:
 
 ```rust
 // research/src/agent.rs — the agentic tool-use loop
@@ -151,7 +151,7 @@ The tradeoff is rigid: if Agent #7 discovers something that should change what A
 
 Claude Code's experimental agent teams feature inverts every architectural assumption of the Rust crate. Where the Rust system owns its concurrency at the OS level, Claude teams delegate coordination to the platform. Where Rust pre-assigns tasks at compile time, Claude teams use a shared task list with file-locked claiming at runtime. Where Rust agents are completely isolated, Claude teammates send messages to each other directly.
 
-The feature is enabled in this project via `.claude/settings.json`:
+The feature is enabled in the [nomadically.work repo](https://github.com/nicolad/nomadically.work) via `.claude/settings.json`:
 
 ```json
 {
@@ -167,7 +167,7 @@ That one line unlocks five coordination primitives: `TeamCreate`, `TaskCreate`, 
 
 The team lead creates a shared task list stored in `~/.claude/tasks/{team-name}/`. Teammates discover available tasks by calling `TaskList`, claim work by calling `TaskUpdate` (setting themselves as owner), and the platform uses file locking to prevent two teammates from claiming the same task simultaneously. When a teammate finds something unexpected, they send a direct message to the relevant peer via `SendMessage` — the lead does not need to relay it.
 
-This project uses Claude agent teams in its SDD (Spec-Driven Development) orchestrator. The `/sdd:ff` command spawns a team where spec-writing and design run in parallel — two teammates working simultaneously, each producing artifacts the other may need to reference. The key point is that these phases are not fully independent: a spec decision can change a design constraint. If that happens, the teammates can tell each other directly.
+The [nomadically.work repo](https://github.com/nicolad/nomadically.work) uses Claude agent teams in its SDD (Spec-Driven Development) orchestrator. The `/sdd:ff` command spawns a team where spec-writing and design run in parallel — two teammates working simultaneously, each producing artifacts the other may need to reference. The key point is that these phases are not fully independent: a spec decision can change a design constraint. If that happens, the teammates can tell each other directly.
 
 Teammate display cycles through sessions via Shift+Down in-process, or splits into panes in tmux or iTerm2. The team lead's conversation history does not carry to teammates — each starts fresh from the shared CLAUDE.md project context and the task description. Context contamination is a real overhead: a teammate may re-investigate something the lead already resolved, spending tokens to rediscover context the lead has but could not transfer.
 
@@ -224,9 +224,9 @@ Use Claude Code agent teams when:
 - You want human steering capability mid-run without aborting the whole run
 - Orchestration code itself is a maintenance burden you want to avoid writing
 
-The Rust crate is an example of the first case. The SDD orchestrator is an example of the second. Both exist in the same codebase because the tasks they handle are structurally different — not because one pattern supersedes the other.
+The Rust crate is an example of the first case. The SDD orchestrator is an example of the second. Both exist in the [same codebase](https://github.com/nicolad/nomadically.work) because the tasks they handle are structurally different — not because one pattern supersedes the other.
 
-One nuance worth stating plainly: the static fan-out pattern is not Rust-specific. Python's `asyncio.gather()` and TypeScript's `Promise.all()` implement the same model. The Rust implementation is a hook into a concrete codebase, not an argument for Rust as the only language for this problem. The DeepSeek API is OpenAI-compatible; the tool-use loop in `agent.rs` could be ported to Python in an afternoon. The Rust choice here reflects a specific set of constraints — WASM compilation targets, type-safe JSON handling, and zero-cost abstractions for a system intended for Cloudflare Worker environments. Those are valid reasons; they are also not universal.
+One nuance worth stating plainly: the static fan-out pattern is not Rust-specific. Python's `asyncio.gather()` and TypeScript's `Promise.all()` implement the same model. The Rust implementation is a hook into the [nomadically.work codebase](https://github.com/nicolad/nomadically.work), not an argument for Rust as the only language for this problem. The DeepSeek API is OpenAI-compatible; the tool-use loop in `agent.rs` could be ported to Python in an afternoon. The Rust choice here reflects a specific set of constraints — WASM compilation targets, type-safe JSON handling, and zero-cost abstractions for a system intended for Cloudflare Worker environments. Those are valid reasons; they are also not universal.
 
 ## What This Means for the Future of AI-Powered Software Development
 
@@ -254,14 +254,14 @@ Each teammate is a full Claude session consuming its own token budget. The offic
 Yes. The `tokio::spawn` + `Arc<T>` pattern shown in this article is the idiomatic approach. Wrap shared clients (HTTP, database, API keys) in `Arc`, clone into each spawned task, collect `JoinHandle`s, await results. The overhead is approximately 64 bytes per task and sub-microsecond spawn latency.
 
 **What is DeepSeek's tool use API?**
-DeepSeek's tool use (function calling) is an OpenAI-compatible API feature where the model returns structured `tool_calls` JSON when it needs external data. The caller executes the requested function, appends the result as a `tool` message, and calls the API again. This repeats until `finish_reason == "stop"`. The `agent.rs` loop in this codebase implements this directly in Rust without a framework dependency.
+DeepSeek's tool use (function calling) is an OpenAI-compatible API feature where the model returns structured `tool_calls` JSON when it needs external data. The caller executes the requested function, appends the result as a `tool` message, and calls the API again. This repeats until `finish_reason == "stop"`. The [`agent.rs`](https://github.com/nicolad/nomadically.work/blob/main/research/src/agent.rs) loop implements this directly in Rust without a framework dependency.
 
 **When should I use a multi-agent system instead of a single agent?**
 When the task exceeds what a single context window can reliably hold, when subtasks can be parallelized for speed, or when different subtasks benefit from different system prompts or tool sets. Multi-agent overhead is only justified when the task structure genuinely benefits from it — for single-context tasks, a well-prompted single agent is faster and cheaper.
 
 **What Rust crates support async LLM agents?**
-The `rig` crate from 0xPlaygrounds is the most actively maintained Rust LLM agent framework (supports OpenAI, Anthropic, Cohere, and others). `async_openai` provides lower-level async bindings. The research crate in this project implements its own thin client (`agent.rs`) against the DeepSeek API directly — a valid approach when framework overhead outweighs the convenience.
+The `rig` crate from 0xPlaygrounds is the most actively maintained Rust LLM agent framework (supports OpenAI, Anthropic, Cohere, and others). `async_openai` provides lower-level async bindings. The [research crate](https://github.com/nicolad/nomadically.work/tree/main/research) implements its own thin client ([`agent.rs`](https://github.com/nicolad/nomadically.work/blob/main/research/src/agent.rs)) against the DeepSeek API directly — a valid approach when framework overhead outweighs the convenience.
 
 ---
 
-*Code samples are taken from `research/src/agent.rs` and `research/src/study.rs` and lightly condensed for readability; no logic has been altered.*
+*Code samples are taken from [`research/src/agent.rs`](https://github.com/nicolad/nomadically.work/blob/main/research/src/agent.rs) and [`research/src/study.rs`](https://github.com/nicolad/nomadically.work/blob/main/research/src/study.rs) and lightly condensed for readability; no logic has been altered.*
