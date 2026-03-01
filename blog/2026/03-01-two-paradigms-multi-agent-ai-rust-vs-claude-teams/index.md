@@ -19,19 +19,13 @@ tags:
 Two multi-agent paradigms, one codebase. A Rust/Tokio system fans out 20 parallel DeepSeek agents with zero coordination overhead — tasks are compile-time constants, agents never talk to each other. Claude Code agent teams invert every assumption: dynamic task claiming, file-locked concurrency, full bidirectional messaging between teammates. The decision rule is one question: **do your agents need to talk to each other?** If no, `tokio::spawn` + `Arc<T>`. If yes, `TeamCreate`.
 :::
 
-Agentic AI engineering roles have caught up with traditional machine learning positions in the job market. Across 9,392 jobs in the nomadically.work database, explicit AI/agentic title jobs number 112 — against 108 traditional ML titles. That near-parity is not a rounding error. It signals a structural shift: the engineering discipline that emerges from multi-agent systems is becoming as common a hiring category as the one that came before it.
-
-The interesting question is no longer whether to build multi-agent systems. It is how — and specifically, which architectural pattern to reach for given the nature of the work. Two fundamentally different paradigms exist, and the clearest demonstration is that both live inside the same codebase.
-
-<!-- chart: grouped bar comparing "Agentic/LLM titles" (112) vs "Traditional ML titles" (108) in the nomadically.work job database -->
+Multi-agent AI engineering has become a core discipline in production software development. The interesting question is no longer whether to build multi-agent systems. It is how — and specifically, which architectural pattern to reach for given the nature of the work. Two fundamentally different paradigms exist, and the clearest demonstration is that both live inside the same codebase.
 
 ## Why Multi-Agent AI Systems Are Having a Moment in 2026
 
-The job market data reflects a broader trend. The word "agentic" appears in 195 job descriptions in this corpus — a term that barely registered in postings two years ago. "Multi-agent" appears in 62 descriptions. LangGraph, the most-adopted orchestration framework in the dataset, shows up in 16 job postings; AutoGen and CrewAI trail at seven and six respectively. These are small absolute numbers, but they name specific orchestration frameworks in hiring requirements — a signal of operational adoption, not aspirational interest.
+Agent papers grew from roughly 820 in 2024 to over 2,500 in 2025. Enterprise AI projects using multi-agent architectures reportedly reached 72% in 2025. LangGraph, the most-adopted orchestration framework in the ecosystem, leads adoption; AutoGen and CrewAI follow. The concept has moved from research to production infrastructure faster than most practitioners anticipated.
 
-The academic side tells the same story. Agent papers grew from roughly 820 in 2024 to over 2,500 in 2025. Enterprise AI projects using multi-agent architectures reportedly reached 72% in 2025. The concept has moved from research to production infrastructure faster than most practitioners anticipated.
-
-What the job market and the research papers do not tell you is which architectural pattern to use. That is the gap this article closes.
+What the research papers do not tell you is which architectural pattern to use. That is the gap this article closes.
 
 ## Paradigm 1: Infrastructure-Owned Parallelism — The Rust/DeepSeek Approach
 
@@ -210,9 +204,7 @@ Claude agent teams cost more per the official documentation, though no specific 
 
 Latency follows the opposite pattern. The Rust system's wall-clock time is bounded by the slowest agent plus network latency to the DeepSeek API — typically 30–90 seconds for 20 agents running fully parallel. A Claude team doing the same breadth of work sequentially within a single session would take proportionally longer. The tradeoff is that a Claude team can do work that requires coordination — work that is genuinely impossible to parallelize without communication between workers.
 
-For the jobs in the nomadically.work database that explicitly list multi-agent frameworks, LangGraph leads at 16 mentions, followed by LangChain (14), AutoGen (7), and CrewAI (6). Agent roles at AI-native companies like Sierra command $180K–$390K USD for software engineers and up to $410K for engineering managers — compensation data from actual Ashby ATS records, not salary surveys. These are US-headquartered roles; EU-specific salary data is not available in the current dataset. The engineering category is well-compensated precisely because operating these systems at production scale requires understanding these tradeoffs, not just knowing the API.
-
-<!-- chart: horizontal bar chart of orchestration framework mentions — LangGraph (16), LangChain (14), AutoGen (7), CrewAI (6), LlamaIndex (6) -->
+The engineering category is well-compensated precisely because operating these systems at production scale requires understanding these tradeoffs, not just knowing the API.
 
 ## When to Build Your Own vs Use Claude Code Agent Teams
 
@@ -246,7 +238,7 @@ At the other end: dynamic coordination, platform-managed concurrency, full messa
 
 The emerging challenge — and it is genuinely unsolved — is automated task structure detection: given a goal, should the system fan-out statically or stand up a full team? The agentic frameworks (Claude Agent SDK, OpenAI Agents SDK, LangGraph) are converging on common primitives for describing tasks and dependencies. But the decision of which concurrency model to use still requires human judgment about the nature of the work.
 
-That judgment is increasingly a senior engineering skill. The 112 agentic title jobs in the nomadically.work database — already matching traditional ML positions — are asking for it.
+That judgment is increasingly a senior engineering skill — and it is what separates engineers who can operate these systems at production scale from those who merely know the API.
 
 ---
 
@@ -272,4 +264,4 @@ The `rig` crate from 0xPlaygrounds is the most actively maintained Rust LLM agen
 
 ---
 
-*Data sourced from the [nomadically.work](https://nomadically.work) job database (9,392 jobs, queried 2026-03-01). Job counts reflect raw database rows; deduplication has not been applied. Classification pipeline has not processed all jobs — 73% of agentic-signal jobs remain unclassified for EU remote status. Salary data is from Ashby ATS structured compensation fields for US-headquartered companies; EU-specific salary data is not available in the current dataset. Code samples are taken from `research/src/agent.rs` and `research/src/study.rs` and lightly condensed for readability; no logic has been altered.*
+*Code samples are taken from `research/src/agent.rs` and `research/src/study.rs` and lightly condensed for readability; no logic has been altered.*
