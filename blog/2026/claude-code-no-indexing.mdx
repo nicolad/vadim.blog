@@ -8,7 +8,7 @@ That admission came from Boris Cherny, one of the engineers who built Claude Cod
 
 ## The Confession: Claude Code's Creator Said It Plainly on Hacker News
 
-No. Claude Code does not pre-index your codebase or use vector embeddings. Instead, it uses a set of filesystem tools — Glob for file pattern matching, Grep for content search, and Read for loading specific files — to explore code on demand as it works through each task. Anthropic calls this "agentic search."
+No. Claude Code does not pre-index your codebase or use vector embeddings. Instead, it uses a set of filesystem tools — Glob for file pattern matching, Grep for content search, and Read for loading specific files — to explore code on demand as it works through each task. Anthropic calls this ["agentic search"](https://code.claude.com/docs/en/how-claude-code-works).
 
 Boris Cherny confirmed that early versions of Claude Code did experiment with RAG and a local vector database. The team abandoned it. Agentic search — letting the model decide what to look at, when, using exact-match tools — consistently outperformed the embedding-based approach, and that result drove the architecture that ships today.
 
@@ -28,6 +28,8 @@ The tool hierarchy matters because the tools have very different costs:
 | **Grep** | Regex content search across file contents | Lightweight — returns matching lines |
 | **Read** | Loads full file contents into context | Heavy — consumes context window |
 | **Task / Explore agents** | Spawns a read-only sub-agent with its own context window | Preserves main conversation context |
+
+Full tool reference: [Claude Code documentation](https://code.claude.com/docs/en/how-claude-code-works)
 
 ### Glob: The Cheap First Pass
 
@@ -98,3 +100,10 @@ The real costs are token consumption on noisy searches and semantic misses on re
 For most developers working on reasonably sized, well-named codebases, the agentic search approach works well. For teams on multi-million-line monorepos or repos with significant naming inconsistency, the community-built semantic layers — Claude Context MCP, ast-grep — are worth evaluating as supplements.
 
 The underlying principle is defensible: when you are working with code, precision beats fuzzy similarity. Grep finds what you name. That is a feature, not a limitation — until it is not.
+
+---
+
+**References**
+- [How Claude Code works — Anthropic docs](https://code.claude.com/docs/en/how-claude-code-works)
+- [Claude Code FAQ — Anthropic support](https://support.claude.com/en/articles/12386420-claude-code-faq)
+- Boris Cherny on Hacker News (primary source — search "Claude Code RAG HN")
