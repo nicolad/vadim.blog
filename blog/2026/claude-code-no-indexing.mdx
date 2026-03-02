@@ -1,24 +1,16 @@
 # Claude Code Doesn't Index Your Codebase. Here's What It Does Instead.
 
-A Claude engineer said it plainly on Hacker News: Claude Code doesn't use RAG. No vector database, no embeddings, no pre-built index. When you ask it to find where a function is defined, it greps your repository line by line — the same way you would in a terminal, except it chains dozens of those searches together, corrects course, and keeps going until it has what it needs.
+Claude Code doesn't use RAG. No vector database, no embeddings, no pre-built index. When you ask it to find where a function is defined, it greps your repository line by line — the same way you would in a terminal, except it chains dozens of those searches together, corrects course, and keeps going until it has what it needs.
 
-That admission came from Boris Cherny, one of the engineers who built Claude Code, in a public Hacker News thread. It is the clearest primary source on why Anthropic made this architectural choice, and it sits behind most of the articles written on the topic — usually cited loosely and rarely linked directly. The reasoning is worth taking seriously on its own terms.
+Boris Cherny, the engineer who built Claude Code, [confirmed on X](https://x.com/bcherny/status/2017824286489383315) that early versions did experiment with RAG and a local vector database. The team abandoned it. Agentic search — letting the model decide what to look at, when, using exact-match tools — consistently outperformed the embedding-based approach. It was also simpler and avoided issues around security, privacy, staleness, and reliability. That result drove the architecture that ships today.
 
----
-
-## The Confession: Claude Code's Creator Said It Plainly on Hacker News
-
-No. Claude Code does not pre-index your codebase or use vector embeddings. Instead, it uses a set of filesystem tools — Glob for file pattern matching, Grep for content search, and Read for loading specific files — to explore code on demand as it works through each task. Anthropic calls this ["agentic search"](https://code.claude.com/docs/en/how-claude-code-works).
-
-Boris Cherny confirmed that early versions of Claude Code did experiment with RAG and a local vector database. The team abandoned it. Agentic search — letting the model decide what to look at, when, using exact-match tools — consistently outperformed the embedding-based approach, and that result drove the architecture that ships today.
-
-The Hacker News thread is worth reading in full. Cherny's directness about the tradeoffs is unusual for an engineer at a major AI company discussing an active product decision. It signals that the choice was deliberate, not an oversight waiting to be fixed in a future release.
+The Hacker News discussion that followed is worth reading — developers debated whether [grep qualifies as RAG](https://news.ycombinator.com/item?id=45447682), whether agentic search burns too many tokens, and whether hybrid approaches might be the right answer.
 
 ---
 
 ## What Agentic Search Actually Means (and the Tools Behind It)
 
-"Agentic" means the model drives the search process itself rather than receiving pre-retrieved context. Claude Code decides what to look for, chooses the right tool, acts on the results, and decides what to look for next — looping until it has enough context to complete the task.
+"Agentic" means the model drives the search process itself rather than receiving pre-retrieved context. Claude Code decides what to look for, chooses the right tool, acts on the results, and decides what to look for next — looping until it has enough context to complete the task. Anthropic calls this ["agentic search"](https://code.claude.com/docs/en/how-claude-code-works).
 
 The tool hierarchy matters because the tools have very different costs:
 
@@ -49,11 +41,9 @@ For deeper investigation, Claude Code spawns an Explore sub-agent: a read-only s
 
 ---
 
-## Why Anthropic Chose Grep Over Embeddings
+## Why Grep Beats Embeddings for Code
 
-Claude Code's creator, Boris Cherny, explained on Hacker News that early versions used RAG with a local vector database, but the team found agentic search consistently outperformed it. The main reasons: precision (grep finds exact matches, embeddings introduce fuzzy positives), simplicity, and no staleness problem (a pre-built index drifts from the actual code).
-
-The precision argument is the most important one. If you search for `createD1HttpClient`, you want exactly that function — not "something semantically related to database client initialization." Fuzzy retrieval with vector embeddings surfaces conceptually adjacent code that shares no tokens with your actual target. That introduces noise the model must reason through, often incorrectly.
+The precision argument is the most important one. If you search for `createD1HttpClient`, you want exactly that function — not "something semantically related to database client initialization." Vector embeddings surface conceptually adjacent code that shares no tokens with your actual target. That introduces noise the model must reason through, often incorrectly.
 
 With grep, there are no false positives on exact symbol names. `createD1HttpClient` either appears in a file or it does not. The model gets a clean, deterministic result and can act on it immediately.
 
@@ -63,7 +53,7 @@ There is also a staleness problem with pre-built indexes. A vector index built a
 
 ## The Real Tradeoffs: When Grep Wins and When It Doesn't
 
-The case against grep-only retrieval is real, and the Milvus blog made it explicitly. Milvus sells a vector database, so their interest in the outcome is transparent — but the technical criticism holds up independently.
+The case against grep-only retrieval is real, and the [Milvus blog](https://milvus.io/blog/why-im-against-claude-codes-grep-only-retrieval-it-just-burns-too-many-tokens.md) made it explicitly. Milvus sells a vector database, so their interest in the outcome is transparent — but the technical criticism holds up independently.
 
 ### The Token Cost Problem
 
@@ -75,35 +65,25 @@ This is a real cost. Context windows are not infinite, and every token spent on 
 
 Grep finds what you name. If you search for `createD1HttpClient` and the function was renamed `buildGatewayClient` six months ago, grep finds nothing. Vector embeddings would likely surface the renamed function because the semantic relationship between the two concepts is preserved in the embedding space.
 
-For codebases with inconsistent naming conventions or significant refactoring history, the semantic miss rate for grep-based search can be meaningful. The Anthropic team found that agentic search outperformed RAG in their evaluations — but those evaluations were not published, and the specific benchmark conditions matter. A codebase with stable, descriptive naming is not the same workload as one with cryptic abbreviations and heavy historical churn.
-
----
-
-## What the Community Built to Fill the Gap
-
-Developers took the tradeoff seriously and built workarounds:
-
-- **[Claude Context](https://github.com/nicholasgasior/claude-context)** — an MCP plugin that adds vector-powered semantic search to Claude Code's tool set, giving it the fuzzy retrieval capability it deliberately lacks
-- **[GrepAI](https://grepai.dev)** — a semantic search CLI that wraps grep-style queries with embedding-based ranking, letting you get exact-match results ranked by conceptual relevance
-- **[ast-grep](https://ast-grep.github.io)** — structural search that understands code ASTs rather than raw text; finds patterns like "all arrow functions that return a Promise" without needing to know the exact function names
-
-These tools treat agentic search as a floor, not a ceiling. They add semantic and structural layers on top of Claude Code's exact-match foundation rather than replacing it. That is the right frame: grep is not wrong, it is incomplete for some workloads.
+For codebases with inconsistent naming conventions or significant refactoring history, the semantic miss rate for grep-based search can be meaningful. Anthropic found that agentic search outperformed RAG in their evaluations — but those evaluations were not published, and the specific benchmark conditions matter. A codebase with stable, descriptive naming is not the same workload as one with cryptic abbreviations and heavy historical churn.
 
 ---
 
 ## The Bottom Line: Precision by Design
 
-Claude Code's decision to skip indexing is not a gap in the roadmap. It is the conclusion the Anthropic team reached after running the experiment: agentic search with exact-match tools outperformed RAG in their evaluations, and the simplicity and freshness benefits reinforced that result.
+Claude Code's decision to skip indexing is the conclusion the Anthropic team reached after running the experiment: agentic search with exact-match tools outperformed RAG, and the simplicity and freshness benefits reinforced that result.
 
-The real costs are token consumption on noisy searches and semantic misses on renamed symbols. Those are genuine limitations, not marketing spin from a competing vendor. Whether they matter depends on your codebase size, naming discipline, and tolerance for context burn.
+The real costs are token consumption on noisy searches and semantic misses on renamed symbols. Whether they matter depends on your codebase size, naming discipline, and tolerance for context burn.
 
-For most developers working on reasonably sized, well-named codebases, the agentic search approach works well. For teams on multi-million-line monorepos or repos with significant naming inconsistency, the community-built semantic layers — Claude Context MCP, ast-grep — are worth evaluating as supplements.
+For most developers working on reasonably sized, well-named codebases, the agentic search approach works well.
 
 The underlying principle is defensible: when you are working with code, precision beats fuzzy similarity. Grep finds what you name. That is a feature, not a limitation — until it is not.
 
 ---
 
-**References**
+**Sources**
 - [How Claude Code works — Anthropic docs](https://code.claude.com/docs/en/how-claude-code-works)
 - [Claude Code FAQ — Anthropic support](https://support.claude.com/en/articles/12386420-claude-code-faq)
-- Boris Cherny on Hacker News (primary source — search "Claude Code RAG HN")
+- [Boris Cherny on X — confirming RAG was tried and abandoned](https://x.com/bcherny/status/2017824286489383315)
+- [HN: "Isn't grep RAG?"](https://news.ycombinator.com/item?id=45447682)
+- [Milvus: Why I'm Against Claude Code's Grep-Only Retrieval](https://milvus.io/blog/why-im-against-claude-codes-grep-only-retrieval-it-just-burns-too-many-tokens.md)
